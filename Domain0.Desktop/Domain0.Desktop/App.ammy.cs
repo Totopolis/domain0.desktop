@@ -32,19 +32,25 @@ namespace Domain0.Desktop
                 new UiShowStartWindowOptions
                 {
                     Title = "Domain0.Desktop",
-                    ToolPaneWidth = 410
+                    ToolPaneWidth = 100
                 }
             );
 
-            shell.Container.Resolve<ILoginService>()
-                .ShowLogin(
-                    onSuccess: () =>
-                    {
-                        shell.ShowView<ManageUsersView>(new ViewRequest("manage-users"), new UiShowOptions { Title = "Users" });
-                        shell.ShowView<ManageMessagesView>(new ViewRequest("manage-messages"), new UiShowOptions { Title = "Messages" });
-                        shell.ShowView<ManageApplicationsView>(new ViewRequest("manage-applications"), new UiShowOptions { Title = "Applications" });
-                    }
-                );
+            void ShowInitializedScreen()
+            {
+                shell.ShowTool<ManageToolsView>(new ViewRequest("manage-tools"), new UiShowOptions {Title = "Tools"});
+
+                shell.ShowView<ManageUsersView>(new ViewRequest("manage-users"), new UiShowOptions {Title = "Users"});
+                shell.ShowView<ManageMessagesView>(new ViewRequest("manage-messages"), new UiShowOptions {Title = "Messages"});
+                shell.ShowView<ManageApplicationsView>(new ViewRequest("manage-applications"), new UiShowOptions {Title = "Applications"});
+            }
+
+            var loginService = shell.Container.Resolve<ILoginService>();
+
+            if (!loginService.LoadPreviousToken())
+                loginService.ShowLogin(ShowInitializedScreen);
+            else
+                ShowInitializedScreen();
         }
     }
 }

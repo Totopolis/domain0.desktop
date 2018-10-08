@@ -57,6 +57,9 @@
     <Reference Include="MahApps.Metro, Version=1.6.5.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MahApps.Metro.1.6.5\lib\net46\MahApps.Metro.dll</HintPath>
     </Reference>
+    <Reference Include="MahApps.Metro.IconPacks.Modern, Version=2.3.0.4, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MahApps.Metro.IconPacks.Modern.2.3.0\lib\net46\MahApps.Metro.IconPacks.Modern.dll</HintPath>
+    </Reference>
     <Reference Include="ReactiveUI, Version=8.7.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ReactiveUI.8.7.2\lib\net461\ReactiveUI.dll</HintPath>
     </Reference>
@@ -140,6 +143,10 @@
     </Compile>
     <Compile Include="Bootstrap.cs" />
     <Compile Include="Extensions\ReactiveListExtenstions.cs" />
+    <Compile Include="ViewModels\ApplicationViewModel.cs" />
+    <Compile Include="ViewModels\BaseManageItemsViewModel.cs" />
+    <Compile Include="ViewModels\IItemViewModel.cs" />
+    <Compile Include="ViewModels\ManageToolsViewModel.cs" />
     <Compile Include="ViewModels\MessageTemplateViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -161,11 +168,15 @@
     <Compile Include="ViewModels\ManageApplicationsViewModel.cs" />
     <Compile Include="ViewModels\ManageMessagesViewModel.cs" />
     <Compile Include="ViewModels\ManageUsersViewModel.cs" />
+    <Compile Include="ViewModels\UserProfileViewModel.cs" />
     <Compile Include="Views\ManageApplicationsView.ammy.cs">
       <DependentUpon>ManageApplicationsView.ammy</DependentUpon>
     </Compile>
     <Compile Include="Views\ManageMessagesView.ammy.cs">
       <DependentUpon>ManageMessagesView.ammy</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ManageToolsView.ammy.cs">
+      <DependentUpon>ManageToolsView.ammy</DependentUpon>
     </Compile>
     <Compile Include="Views\ManageUsersView.ammy.cs">
       <DependentUpon>ManageUsersView.ammy</DependentUpon>
@@ -184,6 +195,7 @@
     </None>
     <None Include="Views\ManageApplicationsView.ammy" />
     <None Include="Views\ManageMessagesView.ammy" />
+    <None Include="Views\ManageToolsView.ammy" />
     <None Include="Views\ManageUsersView.ammy" />
   </ItemGroup>
   <ItemGroup>
@@ -204,6 +216,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <DependentUpon>ManageMessagesView.ammy</DependentUpon>
+    </Page>
+    <Page Include="Views\ManageToolsView.g.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <DependentUpon>ManageToolsView.ammy</DependentUpon>
     </Page>
     <Page Include="Views\ManageUsersView.g.xaml">
       <SubType>Designer</SubType>

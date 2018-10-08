@@ -1,0 +1,26 @@
+﻿using Domain0.Desktop.Views;
+using MahApps.Metro.IconPacks;
+
+ViewUserControl "Domain0.Desktop.Views.ManageToolsView"
+{
+  Grid
+  {
+    #TwoRows("*", "Auto")
+    Button
+    {
+      Grid.Row: 1
+      Margin: 10
+      Width: 64
+      Height: 64
+      ToolTip: "Logout"
+      Style: resource dyn "MahApps.Metro.Styles.MetroCircleButtonStyle"
+      Command: bind LogoutCommand
+      PackIconModern
+      {
+        Kind: "DoorLeave"
+        Height: 32
+        Width: 32
+      }
+    }
+  }
+}

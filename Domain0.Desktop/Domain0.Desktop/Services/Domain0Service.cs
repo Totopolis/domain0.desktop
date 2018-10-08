@@ -1,7 +1,9 @@
-﻿using Domain0.Api.Client;
+﻿using System;
+using Domain0.Api.Client;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using Domain0.Desktop.Properties;
 
 namespace Domain0.Desktop.Services
 {
@@ -16,21 +18,68 @@ namespace Domain0.Desktop.Services
             _client = new Domain0Client(null, _httpClient);
         }
 
-        public async Task<bool> Login(string host, string phone, string password)
+        public string HostUrl
         {
-            _client.BaseUrl = host;
+            get => _client.BaseUrl;
+            set => _client.BaseUrl = value;
+        }
 
-            AccessTokenResponse token = await _client.LoginAsync(new SmsLoginRequest(password, phone));
+        public bool LoadToken()
+        {
+            var savedToken = Settings.Default.AccessToken;
 
-            if (token == null)
+            if (string.IsNullOrEmpty(savedToken))
                 return false;
 
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", token.AccessToken);
+            try
+            {
+                var token = AccessTokenResponse.FromJson(savedToken);
+                AccessToken = token;
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+        }
 
-            return true;
+        public void ResetAccessToken()
+        {
+            Settings.Default.AccessToken = string.Empty;
+            Settings.Default.Save();
+
+            AccessToken = null;
+        }
+
+        public void UpdateAccessToken(AccessTokenResponse token, bool shouldRemember)
+        {
+            if (shouldRemember)
+            {
+                Settings.Default.AccessToken = token.ToJson();
+                Settings.Default.Save();
+            }
+            else
+            {
+                Settings.Default.AccessToken = string.Empty;
+                Settings.Default.Save();
+            }
+
+            AccessToken = token;
+        }
+
+        public async Task<AccessTokenResponse> Login(string phone, string password)
+        {
+            return await _client.LoginAsync(new SmsLoginRequest(password, phone));
         }
 
         public IDomain0Client Client => _client;
+
+
+        private AccessTokenResponse AccessToken
+        {
+            set => _httpClient.DefaultRequestHeaders.Authorization =
+                value != null ? new AuthenticationHeaderValue("Bearer", value.AccessToken) : null;
+        }
     }
 }

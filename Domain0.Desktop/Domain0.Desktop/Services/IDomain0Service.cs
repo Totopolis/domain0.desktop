@@ -5,7 +5,13 @@ namespace Domain0.Desktop.Services
 {
     public interface IDomain0Service
     {
-        Task<bool> Login(string host, string phone, string password);
+        string HostUrl { get; set; }
+
+        bool LoadToken();
+        void ResetAccessToken();
+        void UpdateAccessToken(AccessTokenResponse token, bool shouldRemember);
+
+        Task<AccessTokenResponse> Login(string phone, string password);
 
         IDomain0Client Client { get; }
     }

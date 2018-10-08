@@ -1,5 +1,46 @@
-﻿Domain0.Desktop.Views.ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
+﻿using Domain0.Desktop.Views;
 
+ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
 
+DataGrid 
+  {
+    ItemsSource: bind Items
+    AutoGenerateColumns: false
+    // CanUserAddRows: true
+    // CanUserDeleteRows: true
+    Columns: [
+      DataGridTextColumn
+      {
+        IsReadOnly: true
+        Header: "Id"
+        Binding: bind Id
+        Width: Auto
+      }
+      DataGridTextColumn
+      {
+        Header: "Name"
+        Binding: bind Name
+        Width: Auto
+      }
+      DataGridTextColumn
+      {
+        Header: "Phone"
+        Binding: bind Phone
+        Width: Auto
+      }
+      DataGridTextColumn
+      {
+        Header: "Email"
+        Binding: bind Email
+        Width: Auto
+      }
+      DataGridTextColumn
+      {
+        Header: "Description"
+        Binding: bind Description
+        Width: Auto
+      }
+    ]
+  }
 
 }

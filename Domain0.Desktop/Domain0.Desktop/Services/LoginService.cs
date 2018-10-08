@@ -2,7 +2,10 @@
 using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Windows;
+using Domain0.Api.Client;
+using Domain0.Desktop.Properties;
 using Ui.Wpf.Common;
+using Application = System.Windows.Application;
 
 namespace Domain0.Desktop.Services
 {
@@ -15,9 +18,17 @@ namespace Domain0.Desktop.Services
         {
             _shell = shell;
             _domain0 = domain0;
+
+            // ToDo: show in ui
+            _domain0.HostUrl = Settings.Default.HostUrl;
         }
 
-        public void ShowLogin(Action onSuccess)
+        public bool LoadPreviousToken()
+        {
+            return _domain0.LoadToken();
+        }
+
+        public void ShowLogin(Action onSuccess = null)
         {
             AuthProcess.Start(
                 getAuthenticationData: () =>
@@ -44,7 +55,14 @@ namespace Domain0.Desktop.Services
 
                     try
                     {
-                        return await _domain0.Login("http://localhost:8880", x.Username, x.Password);
+                        var token = await _domain0.Login(x.Username, x.Password);
+                        if (token != null)
+                        {
+                            _domain0.UpdateAccessToken(token, x.ShouldRemember);
+                            return true;
+                        }
+                        else
+                            return false;
                     }
                     catch (Exception e)
                     {

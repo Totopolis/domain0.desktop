@@ -1,8 +1,10 @@
-﻿Domain0.Desktop.Views.ViewUserControl "Domain0.Desktop.Views.ManageMessagesView" {
+﻿using Domain0.Desktop.Views;
+
+ViewUserControl "Domain0.Desktop.Views.ManageMessagesView" {
 
   DataGrid 
   {
-    ItemsSource: bind Messages
+    ItemsSource: bind Items
     AutoGenerateColumns: false
     CanUserAddRows: true
     CanUserDeleteRows: true

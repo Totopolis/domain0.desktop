@@ -20,6 +20,9 @@ namespace Domain0.Desktop
             builder.RegisterType<Domain0Service>().As<IDomain0Service>().SingleInstance();
             builder.RegisterType<LoginService>().As<ILoginService>();
 
+            builder.RegisterType<ManageToolsView>();
+            builder.RegisterType<ManageToolsViewModel>();
+
             builder.RegisterType<ManageUsersView>();
             builder.RegisterType<ManageUsersViewModel>();
 
@@ -40,13 +43,21 @@ namespace Domain0.Desktop
         }
 
 
-        private IMapper CreateMapper()
+        private static IMapper CreateMapper()
         {
             var config = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<MessageTemplate, MessageTemplateViewModel>();
                 cfg.CreateMap<MessageTemplateViewModel, MessageTemplate>().ConstructUsing(x =>
                     new MessageTemplate(x.Description, x.Id, x.Locale, x.Name, x.Template, x.Type));
+
+                cfg.CreateMap<Application, ApplicationViewModel>();
+                cfg.CreateMap<ApplicationViewModel, Application>().ConstructUsing(x =>
+                    new Application(x.Description, x.Id, x.Name));
+
+                cfg.CreateMap<UserProfile, UserProfileViewModel>();
+                cfg.CreateMap<UserProfileViewModel, UserProfile>().ConstructUsing(x =>
+                    new UserProfile(x.Description, x.Email, x.Id.Value, x.Name, x.Phone));
             });
             return config.CreateMapper();
         }
