@@ -1,25 +1,22 @@
-﻿using MahApps.Metro.Controls;
+﻿using Domain0.Desktop.Properties;
+using Domain0.Desktop.Views.Dialogs;
+using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using System;
+using System.Threading.Tasks;
 using System.Windows;
-using Domain0.Api.Client;
-using Domain0.Desktop.Properties;
 using Ui.Wpf.Common;
-using Application = System.Windows.Application;
 
 namespace Domain0.Desktop.Services
 {
     public class LoginService : ILoginService
     {
         private readonly IDomain0Service _domain0;
-        private readonly IShell _shell;
-
-        public LoginService(IShell shell, IDomain0Service domain0)
+        
+        public LoginService(IDomain0Service domain0)
         {
-            _shell = shell;
             _domain0 = domain0;
 
-            // ToDo: show in ui
             _domain0.HostUrl = Settings.Default.HostUrl;
         }
 
@@ -28,12 +25,14 @@ namespace Domain0.Desktop.Services
             return _domain0.LoadToken();
         }
 
-        public void ShowLogin(Action onSuccess = null)
+        public void ShowLogin(bool canChangeUrl, Action onSuccess = null)
         {
             AuthProcess.Start(
-                getAuthenticationData: () =>
+                getAuthenticationData: async () =>
                 {
-                    LoginDialogSettings settings = new LoginDialogSettings
+                    var view = (Application.Current.MainWindow as MetroWindow);
+
+                    LoginWithUrlDialogSettings settings = new LoginWithUrlDialogSettings
                     {
                         AnimateShow = true,
                         AnimateHide = true,
@@ -41,12 +40,25 @@ namespace Domain0.Desktop.Services
                         AffirmativeButtonText = "Login",
                         NegativeButtonText = "Exit",
                         NegativeButtonVisibility = Visibility.Visible,
+                        UrlWatermark = "Url",
+                        ShouldHideUrl = !canChangeUrl,
+                        InitialUrl = _domain0.HostUrl,
                         UsernameWatermark = "Login",
                         PasswordWatermark = "Password",
                         EnablePasswordPreview = true,
                         RememberCheckBoxVisibility = Visibility.Visible
                     };
-                    return (Application.Current.MainWindow as MetroWindow).ShowLoginAsync("Login", "Enter login and password", settings);
+
+                    var loginDialog = new LoginWithUrlDialog(view, settings)
+                    {
+                        Title = "Login",
+                        Message = "Enter login and password"
+                    };
+
+                    await view.ShowMetroDialogAsync(loginDialog);
+                    var result = await loginDialog.WaitForButtonPressAsync();
+                    await view.HideMetroDialogAsync(loginDialog);
+                    return result;
                 },
                 authentication: async (x) =>
                 {
@@ -55,6 +67,10 @@ namespace Domain0.Desktop.Services
 
                     try
                     {
+                        Settings.Default.HostUrl = x.Url;
+                        Settings.Default.Save();
+                        _domain0.HostUrl = x.Url;
+
                         var token = await _domain0.Login(x.Username, x.Password);
                         if (token != null)
                         {
@@ -73,6 +89,39 @@ namespace Domain0.Desktop.Services
                 authenticationSuccess: () => onSuccess?.Invoke(),
                 authenticationFail: () => Application.Current.MainWindow?.Close()
             );
+        }
+    }
+
+
+    internal class AuthProcess
+    {
+        private const int LoginTryCount = 3;
+
+        public static async void Start<T>(
+            Func<Task<T>> getAuthenticationData,
+            Func<T, Task<bool>> authentication,
+            Action authenticationSuccess,
+            Action authenticationFail)
+        {
+            var trysLeft = LoginTryCount;
+            while (trysLeft-- > 0)
+            {
+                var loginData = await getAuthenticationData().ConfigureAwait(true);
+                if (loginData == null)
+                {
+                    authenticationFail();
+                    return;
+                }
+
+                var authentcationResult = await authentication(loginData).ConfigureAwait(true);
+                if (authentcationResult)
+                {
+                    authenticationSuccess();
+                    return;
+                }
+            }
+
+            authenticationFail();
         }
     }
 }

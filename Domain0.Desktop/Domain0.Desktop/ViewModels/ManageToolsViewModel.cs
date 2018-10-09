@@ -23,7 +23,7 @@ namespace Domain0.Desktop.ViewModels
         private void Logout()
         {
             _domain0.ResetAccessToken();
-            _loginService.ShowLogin();
+            _loginService.ShowLogin(false);
         }
     }
 

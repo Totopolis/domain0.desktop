@@ -169,6 +169,9 @@
     <Compile Include="ViewModels\ManageMessagesViewModel.cs" />
     <Compile Include="ViewModels\ManageUsersViewModel.cs" />
     <Compile Include="ViewModels\UserProfileViewModel.cs" />
+    <Compile Include="Views\Dialogs\LoginWithUrlDialog.ammy.cs">
+      <DependentUpon>LoginWithUrlDialog.ammy</DependentUpon>
+    </Compile>
     <Compile Include="Views\ManageApplicationsView.ammy.cs">
       <DependentUpon>ManageApplicationsView.ammy</DependentUpon>
     </Compile>
@@ -193,6 +196,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Views\Dialogs\LoginWithUrlDialog.ammy" />
     <None Include="Views\ManageApplicationsView.ammy" />
     <None Include="Views\ManageMessagesView.ammy" />
     <None Include="Views\ManageToolsView.ammy" />
@@ -206,6 +210,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <DependentUpon>App.ammy</DependentUpon>
+    </Page>
+    <Page Include="Views\Dialogs\LoginWithUrlDialog.g.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <DependentUpon>LoginWithUrlDialog.ammy</DependentUpon>
     </Page>
     <Page Include="Views\ManageApplicationsView.g.xaml">
       <SubType>Designer</SubType>

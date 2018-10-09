@@ -1,0 +1,88 @@
+﻿using MahApps.Metro.Behaviours;
+using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
+
+using Domain0.Desktop.Views.Dialogs;
+
+CustomDialog "Domain0.Desktop.Views.Dialogs.LoginWithUrlDialog" {
+  Grid {
+    Margin: "0 10 0 0"
+    RowDefinitions: [
+      RowDefinition { Height: "Auto",  MinHeight: "20" }
+      RowDefinition { Height: "Auto" }
+      RowDefinition { Height: "Auto" }
+      RowDefinition { Height: "Auto" }
+      RowDefinition { Height: "Auto" }
+      RowDefinition { Height: "Auto" }
+    ]
+    TextBox "PART_TextBox3" {
+      Grid.Row: 0
+      Margin: "0 5 0 5"
+      TextBoxHelper.SelectAllOnFocus: true
+      TextBoxHelper.Watermark: bind UrlWatermark from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+      VisibilityHelper.IsCollapsed: bind ShouldHideUrl from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+      FontSize: resource dyn "DialogMessageFontSize"
+      Foreground: bind Foreground from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+      Text: bind Url from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+      TextWrapping: Wrap
+    }
+    TextBlock {
+      Grid.Row: 1
+      Margin: "0 5 0 0"
+      FontSize: bind DialogMessageFontSize from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+      Foreground: bind Foreground from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+      Text: bind Message from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+      TextWrapping: Wrap
+    }
+    TextBox "PART_TextBox" {
+      Grid.Row: 2
+      Margin: "0 5 0 0"
+      TextBoxHelper.SelectAllOnFocus: true
+      TextBoxHelper.Watermark: bind UsernameWatermark from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+      VisibilityHelper.IsCollapsed: bind ShouldHideUsername from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+      CharacterCasing: bind UsernameCharacterCasing from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+      FontSize: resource dyn "DialogMessageFontSize"
+      Foreground: bind Foreground from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+      Text: bind Username from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+      TextWrapping: Wrap
+    }
+    PasswordBox "PART_TextBox2" {
+      Grid.Row: 3
+      Margin: "0 5 0 0"
+      PasswordBoxBindingBehavior.Password: bind Password from $ancestor<LoginWithUrlDialog> set [ Mode:TwoWay, UpdateSourceTrigger: PropertyChanged ]
+      TextBoxHelper.SelectAllOnFocus: true
+      TextBoxHelper.Watermark: bind PasswordWatermark from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+      FontSize: resource dyn "DialogMessageFontSize"
+      Foreground: bind Foreground from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+    }
+    CheckBox "PART_RememberCheckBox" {
+      Grid.Row: 4
+      Margin: "0 5 0 0"
+      Content: bind RememberCheckBoxText from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+      FontSize: resource dyn "DialogMessageFontSize"
+      IsChecked: bind RememberCheckBoxChecked from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+      Visibility: bind RememberCheckBoxVisibility from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+    }
+    StackPanel {
+      Grid.Row: 5
+      Height: 85
+      HorizontalAlignment: Right
+      Orientation: Horizontal
+      Button "PART_AffirmativeButton" {
+        Height: 35
+        MinWidth: 80
+        Margin: "0 0 5 0"
+        Content: bind AffirmativeButtonText from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+        Style: resource dyn "AccentedDialogSquareButton"
+      }
+      Button "PART_NegativeButton" {
+        Height: 35
+        MinWidth: 80
+        Margin: "5 0 5 0"
+        Content: bind NegativeButtonText from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+        Visibility: bind NegativeButtonButtonVisibility from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+      }
+    }
+  }
+}
+

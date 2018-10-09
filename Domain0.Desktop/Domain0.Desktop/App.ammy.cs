@@ -48,7 +48,7 @@ namespace Domain0.Desktop
             var loginService = shell.Container.Resolve<ILoginService>();
 
             if (!loginService.LoadPreviousToken())
-                loginService.ShowLogin(ShowInitializedScreen);
+                loginService.ShowLogin(true, ShowInitializedScreen);
             else
                 ShowInitializedScreen();
         }
