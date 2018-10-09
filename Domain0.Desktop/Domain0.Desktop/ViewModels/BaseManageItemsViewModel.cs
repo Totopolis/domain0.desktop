@@ -17,7 +17,7 @@ namespace Domain0.Desktop.ViewModels
         protected readonly IDomain0Service _domain0;
         protected readonly IMapper _mapper;
 
-        public BaseManageItemsViewModel(IDomain0Service domain0, IMapper mapper)
+        protected BaseManageItemsViewModel(IDomain0Service domain0, IMapper mapper)
         {
             _domain0 = domain0;
             _mapper = mapper;

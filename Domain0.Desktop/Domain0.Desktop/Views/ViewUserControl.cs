@@ -6,7 +6,12 @@ using Ui.Wpf.Common.ViewModels;
 namespace Domain0.Desktop.Views
 {
     public class ViewUserControl : UserControl, IView
-    { 
+    {
+        public ViewUserControl()
+        {
+
+        }
+
         public ViewUserControl(IViewModel vm)
         {
             ViewModel = vm;
