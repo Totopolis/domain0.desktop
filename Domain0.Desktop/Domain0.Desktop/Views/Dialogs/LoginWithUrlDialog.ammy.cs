@@ -9,11 +9,19 @@ using System.Windows.Input;
 
 namespace Domain0.Desktop.Views.Dialogs
 {
+    public enum LoginMode
+    {
+        Phone,
+        Email
+    }
+
     public class LoginWithUrlDialogData
     {
         public string Url { get; internal set; }
 
-        public string Username { get; internal set; }
+        public string Email { get; internal set; }
+        public string Phone { get; internal set; }
+        public LoginMode LoginMode { get; internal set; }
 
         public string Password
         {
@@ -37,19 +45,42 @@ namespace Domain0.Desktop.Views.Dialogs
         public bool ShouldRemember { get; internal set; }
     }
 
-    public class LoginWithUrlDialogSettings : LoginDialogSettings
+    public class LoginWithUrlDialogSettings : MetroDialogSettings
     {
         private const string DefaultUrlWatermark = "Url...";
+        private const string DefaultEmailWatermark = "Email...";
+        private const string DefaultPhoneWatermark = "Phone...";
+        private const string DefaultPasswordWatermark = "Password...";
+        private const string DefaultRememberCheckBoxText = "Remember";
 
         public LoginWithUrlDialogSettings()
         {
             UrlWatermark = DefaultUrlWatermark;
             ShouldHideUrl = true;
+
+            EmailWatermark = DefaultEmailWatermark;
+            PhoneWatermark = DefaultPhoneWatermark;
+            PasswordWatermark = DefaultPasswordWatermark;
+
+            RememberCheckBoxText = DefaultRememberCheckBoxText;
         }
 
         public string InitialUrl { get; set; }
         public string UrlWatermark { get; set; }
         public bool ShouldHideUrl { get; set; }
+
+        public LoginMode LoginMode { get; set; }
+
+        public bool EnablePasswordPreview { get; set; }
+
+        public string EmailWatermark { get; set; }
+        public string PhoneWatermark { get; set; }
+        public string PasswordWatermark { get; set; }
+
+        public string RememberCheckBoxText { get; set; }
+
+        public Visibility NegativeButtonVisibility { get; set; }
+        public Visibility RememberCheckBoxVisibility { get; set; }
     }
 
     public partial class LoginWithUrlDialog : CustomDialog
@@ -69,19 +100,18 @@ namespace Domain0.Desktop.Views.Dialogs
         {
             InitializeComponent();
 
-            this.Username = settings.InitialUsername;
-            this.Password = settings.InitialPassword;
-            this.UsernameCharacterCasing = settings.UsernameCharacterCasing;
-            this.UsernameWatermark = settings.UsernameWatermark;
+            this.EmailWatermark = settings.EmailWatermark;
+            this.PhoneWatermark = settings.PhoneWatermark;
             this.PasswordWatermark = settings.PasswordWatermark;
             this.NegativeButtonButtonVisibility = settings.NegativeButtonVisibility;
-            this.ShouldHideUsername = settings.ShouldHideUsername;
             this.RememberCheckBoxVisibility = settings.RememberCheckBoxVisibility;
             this.RememberCheckBoxText = settings.RememberCheckBoxText;
 
             this.Url = settings.InitialUrl;
             this.UrlWatermark = settings.UrlWatermark;
             this.ShouldHideUrl = settings.ShouldHideUrl;
+
+            this.LoginMode = (int)settings.LoginMode;
         }
         
 
@@ -90,14 +120,10 @@ namespace Domain0.Desktop.Views.Dialogs
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 this.Focus();
-                if (string.IsNullOrEmpty(this.PART_TextBox.Text) && !this.ShouldHideUsername)
-                {
-                    this.PART_TextBox.Focus();
-                }
+                if (ShouldHideUrl)
+                    this.PART_TextBox_Phone.Focus();
                 else
-                {
-                    this.PART_TextBox2.Focus();
-                }
+                    this.PART_TextBox_Url.Focus();
             }));
 
             TaskCompletionSource<LoginWithUrlDialogData> tcs = new TaskCompletionSource<LoginWithUrlDialogData>();
@@ -120,8 +146,9 @@ namespace Domain0.Desktop.Views.Dialogs
 
             cleanUpHandlers = () =>
             {
-                this.PART_TextBox.KeyDown -= affirmativeKeyHandler;
-                this.PART_TextBox2.KeyDown -= affirmativeKeyHandler;
+                this.PART_TextBox_Email.KeyDown -= affirmativeKeyHandler;
+                this.PART_TextBox_Phone.KeyDown -= affirmativeKeyHandler;
+                this.PART_TextBox_Password.KeyDown -= affirmativeKeyHandler;
 
                 this.KeyDown -= escapeKeyHandler;
 
@@ -161,8 +188,10 @@ namespace Domain0.Desktop.Views.Dialogs
                     cleanUpHandlers();
                     tcs.TrySetResult(new LoginWithUrlDialogData
                     {
-                        Username = this.Username,
-                        SecurePassword = this.PART_TextBox2.SecurePassword,
+                        Email = this.Email,
+                        Phone = this.Phone,
+                        LoginMode = (LoginMode)this.LoginMode,
+                        SecurePassword = this.PART_TextBox_Password.SecurePassword,
                         ShouldRemember = this.RememberCheckBoxChecked,
                         Url = this.Url
                     });
@@ -184,8 +213,10 @@ namespace Domain0.Desktop.Views.Dialogs
 
                 tcs.TrySetResult(new LoginWithUrlDialogData
                 {
-                    Username = this.Username,
-                    SecurePassword = this.PART_TextBox2.SecurePassword,
+                    Email = this.Email,
+                    Phone = this.Phone,
+                    LoginMode = (LoginMode)this.LoginMode,
+                    SecurePassword = this.PART_TextBox_Password.SecurePassword,
                     ShouldRemember = this.RememberCheckBoxChecked,
                     Url = this.Url
                 });
@@ -196,8 +227,9 @@ namespace Domain0.Desktop.Views.Dialogs
             this.PART_NegativeButton.KeyDown += negativeKeyHandler;
             this.PART_AffirmativeButton.KeyDown += affirmativeKeyHandler;
 
-            this.PART_TextBox.KeyDown += affirmativeKeyHandler;
-            this.PART_TextBox2.KeyDown += affirmativeKeyHandler;
+            this.PART_TextBox_Email.KeyDown += affirmativeKeyHandler;
+            this.PART_TextBox_Phone.KeyDown += affirmativeKeyHandler;
+            this.PART_TextBox_Password.KeyDown += affirmativeKeyHandler;
 
             this.KeyDown += escapeKeyHandler;
 
@@ -213,9 +245,9 @@ namespace Domain0.Desktop.Views.Dialogs
             {
                 if (this.FindResource("Win8MetroPasswordBox") is Style win8MetroPasswordStyle)
                 {
-                    this.PART_TextBox2.Style = win8MetroPasswordStyle;
+                    this.PART_TextBox_Password.Style = win8MetroPasswordStyle;
                     // apply template again to fire the loaded event which is necessary for revealed password
-                    this.PART_TextBox2.ApplyTemplate();
+                    this.PART_TextBox_Password.ApplyTemplate();
                 }
             }
 
@@ -226,34 +258,30 @@ namespace Domain0.Desktop.Views.Dialogs
             {
                 case MetroDialogColorScheme.Accented:
                     this.PART_NegativeButton.SetResourceReference(StyleProperty, "AccentedDialogHighlightedSquareButton");
-                    this.PART_TextBox.SetResourceReference(ForegroundProperty, "BlackColorBrush");
-                    this.PART_TextBox2.SetResourceReference(ForegroundProperty, "BlackColorBrush");
+                    this.PART_TextBox_Email.SetResourceReference(ForegroundProperty, "BlackColorBrush");
+                    this.PART_TextBox_Phone.SetResourceReference(ForegroundProperty, "BlackColorBrush");
+                    this.PART_TextBox_Password.SetResourceReference(ForegroundProperty, "BlackColorBrush");
                     break;
             }
         }
 
-        public static readonly DependencyProperty MessageProperty = DependencyProperty.Register("Message", typeof(string), typeof(LoginWithUrlDialog), new PropertyMetadata(default(string)));
         public static readonly DependencyProperty UrlProperty = DependencyProperty.Register("Url", typeof(string), typeof(LoginWithUrlDialog), new PropertyMetadata(default(string)));
         public static readonly DependencyProperty UrlWatermarkProperty = DependencyProperty.Register("UrlWatermark", typeof(string), typeof(LoginWithUrlDialog), new PropertyMetadata(default(string)));
         public static readonly DependencyProperty ShouldHideUrlProperty = DependencyProperty.Register("ShouldHideUrl", typeof(bool), typeof(LoginWithUrlDialog), new PropertyMetadata(true));
-        public static readonly DependencyProperty UsernameProperty = DependencyProperty.Register("Username", typeof(string), typeof(LoginWithUrlDialog), new PropertyMetadata(default(string)));
-        public static readonly DependencyProperty UsernameWatermarkProperty = DependencyProperty.Register("UsernameWatermark", typeof(string), typeof(LoginWithUrlDialog), new PropertyMetadata(default(string)));
+        public static readonly DependencyProperty EmailProperty = DependencyProperty.Register("Email", typeof(string), typeof(LoginWithUrlDialog), new PropertyMetadata(default(string)));
+        public static readonly DependencyProperty EmailWatermarkProperty = DependencyProperty.Register("EmailWatermark", typeof(string), typeof(LoginWithUrlDialog), new PropertyMetadata(default(string)));
+        public static readonly DependencyProperty PhoneProperty = DependencyProperty.Register("Phone", typeof(string), typeof(LoginWithUrlDialog), new PropertyMetadata(default(string)));
+        public static readonly DependencyProperty PhoneWatermarkProperty = DependencyProperty.Register("PhoneWatermark", typeof(string), typeof(LoginWithUrlDialog), new PropertyMetadata(default(string)));
         public static readonly DependencyProperty UsernameCharacterCasingProperty = DependencyProperty.Register("UsernameCharacterCasing", typeof(CharacterCasing), typeof(LoginWithUrlDialog), new PropertyMetadata(default(CharacterCasing)));
         public static readonly DependencyProperty PasswordProperty = DependencyProperty.Register("Password", typeof(string), typeof(LoginWithUrlDialog), new PropertyMetadata(default(string)));
         public static readonly DependencyProperty PasswordWatermarkProperty = DependencyProperty.Register("PasswordWatermark", typeof(string), typeof(LoginWithUrlDialog), new PropertyMetadata(default(string)));
         public static readonly DependencyProperty AffirmativeButtonTextProperty = DependencyProperty.Register("AffirmativeButtonText", typeof(string), typeof(LoginWithUrlDialog), new PropertyMetadata("OK"));
         public static readonly DependencyProperty NegativeButtonTextProperty = DependencyProperty.Register("NegativeButtonText", typeof(string), typeof(LoginWithUrlDialog), new PropertyMetadata("Cancel"));
         public static readonly DependencyProperty NegativeButtonButtonVisibilityProperty = DependencyProperty.Register("NegativeButtonButtonVisibility", typeof(Visibility), typeof(LoginWithUrlDialog), new PropertyMetadata(Visibility.Collapsed));
-        public static readonly DependencyProperty ShouldHideUsernameProperty = DependencyProperty.Register("ShouldHideUsername", typeof(bool), typeof(LoginWithUrlDialog), new PropertyMetadata(false));
         public static readonly DependencyProperty RememberCheckBoxVisibilityProperty = DependencyProperty.Register("RememberCheckBoxVisibility", typeof(Visibility), typeof(LoginWithUrlDialog), new PropertyMetadata(Visibility.Collapsed));
         public static readonly DependencyProperty RememberCheckBoxTextProperty = DependencyProperty.Register("RememberCheckBoxText", typeof(string), typeof(LoginWithUrlDialog), new PropertyMetadata("Remember"));
         public static readonly DependencyProperty RememberCheckBoxCheckedProperty = DependencyProperty.Register("RememberCheckBoxChecked", typeof(bool), typeof(LoginWithUrlDialog), new PropertyMetadata(false));
-
-        public string Message
-        {
-            get { return (string)this.GetValue(MessageProperty); }
-            set { this.SetValue(MessageProperty, value); }
-        }
+        public static readonly DependencyProperty LoginModeProperty = DependencyProperty.Register("LoginMode", typeof(int), typeof(LoginWithUrlDialog), new PropertyMetadata(default(int)));
 
         public string Url
         {
@@ -273,10 +301,16 @@ namespace Domain0.Desktop.Views.Dialogs
             set { this.SetValue(ShouldHideUrlProperty, value); }
         }
 
-        public string Username
+        public string Email
         {
-            get { return (string)this.GetValue(UsernameProperty); }
-            set { this.SetValue(UsernameProperty, value); }
+            get { return (string)this.GetValue(EmailProperty); }
+            set { this.SetValue(EmailProperty, value); }
+        }
+
+        public string Phone
+        {
+            get { return (string)this.GetValue(PhoneProperty); }
+            set { this.SetValue(PhoneProperty, value); }
         }
 
         public string Password
@@ -285,10 +319,16 @@ namespace Domain0.Desktop.Views.Dialogs
             set { this.SetValue(PasswordProperty, value); }
         }
 
-        public string UsernameWatermark
+        public string EmailWatermark
         {
-            get { return (string)this.GetValue(UsernameWatermarkProperty); }
-            set { this.SetValue(UsernameWatermarkProperty, value); }
+            get { return (string)this.GetValue(EmailWatermarkProperty); }
+            set { this.SetValue(EmailWatermarkProperty, value); }
+        }
+
+        public string PhoneWatermark
+        {
+            get { return (string)this.GetValue(PhoneWatermarkProperty); }
+            set { this.SetValue(PhoneWatermarkProperty, value); }
         }
 
         public CharacterCasing UsernameCharacterCasing
@@ -321,12 +361,6 @@ namespace Domain0.Desktop.Views.Dialogs
             set { this.SetValue(NegativeButtonButtonVisibilityProperty, value); }
         }
 
-        public bool ShouldHideUsername
-        {
-            get { return (bool)this.GetValue(ShouldHideUsernameProperty); }
-            set { this.SetValue(ShouldHideUsernameProperty, value); }
-        }
-
         public Visibility RememberCheckBoxVisibility
         {
             get { return (Visibility)this.GetValue(RememberCheckBoxVisibilityProperty); }
@@ -343,6 +377,12 @@ namespace Domain0.Desktop.Views.Dialogs
         {
             get { return (bool)this.GetValue(RememberCheckBoxCheckedProperty); }
             set { this.SetValue(RememberCheckBoxCheckedProperty, value); }
+        }
+
+        public int LoginMode
+        {
+            get { return (int)this.GetValue(LoginModeProperty); }
+            set { this.SetValue(LoginModeProperty, LoginMode); }
         }
     }
 }

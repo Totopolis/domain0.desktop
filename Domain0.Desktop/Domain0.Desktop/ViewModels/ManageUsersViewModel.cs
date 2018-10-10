@@ -40,7 +40,8 @@ namespace Domain0.Desktop.ViewModels
                     BlockSmsSend, CustomSmsTemplate,
                     Name, phone,
                     new List<string>());
-                await _domain0.Client.ForceCreateUserAsync(request);
+                var userProfile = await _domain0.Client.ForceCreateUserAsync(request);
+                OnUserProfileCreated(userProfile);
             }
             catch (Exception e)
             {
@@ -64,7 +65,8 @@ namespace Domain0.Desktop.ViewModels
                     CustomEmailTemplate,
                     Email, Name,
                     new List<string>());
-                await _domain0.Client.ForceCreateUser2Async(request);
+                var userProfile = await _domain0.Client.ForceCreateUser2Async(request);
+                OnUserProfileCreated(userProfile);
             }
             catch (Exception e)
             {
@@ -77,6 +79,13 @@ namespace Domain0.Desktop.ViewModels
             }
         }
 
+        private void OnUserProfileCreated(UserProfile userProfile)
+        {
+            var vm = _mapper.Map<UserProfileViewModel>(userProfile);
+            using(Items.SuppressChangeNotifications())
+                Items.Add(vm);
+        }
+
         // BaseManageItemsViewModel
 
         protected override async Task<List<UserProfile>> ApiLoadItemsAsync()
@@ -87,7 +96,7 @@ namespace Domain0.Desktop.ViewModels
 
         protected override async Task ApiUpdateItemAsync(UserProfile m)
         {
-            await _domain0.Client.UpdateUserAsync(m);
+            await _domain0.Client.UpdateUserAsync(m.Id, m);
         }
 
         protected override Task<int> ApiCreateItemAsync(UserProfile m)

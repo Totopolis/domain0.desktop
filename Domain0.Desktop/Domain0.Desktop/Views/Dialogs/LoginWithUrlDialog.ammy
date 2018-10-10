@@ -15,7 +15,7 @@ CustomDialog "Domain0.Desktop.Views.Dialogs.LoginWithUrlDialog" {
       RowDefinition { Height: "Auto" }
       RowDefinition { Height: "Auto" }
     ]
-    TextBox "PART_TextBox3" {
+    TextBox "PART_TextBox_Url" {
       Grid.Row: 0
       Margin: "0 5 0 5"
       TextBoxHelper.SelectAllOnFocus: true
@@ -25,29 +25,47 @@ CustomDialog "Domain0.Desktop.Views.Dialogs.LoginWithUrlDialog" {
       Foreground: bind Foreground from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
       Text: bind Url from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
       TextWrapping: Wrap
+      TabIndex: 0
     }
-    TextBlock {
+    MetroAnimatedTabControl
+    {
       Grid.Row: 1
       Margin: "0 5 0 0"
-      FontSize: bind DialogMessageFontSize from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
-      Foreground: bind Foreground from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
-      Text: bind Message from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
-      TextWrapping: Wrap
+      TabControlHelper.Underlined: TabItems
+      TabStripPlacement: Top
+      SelectedIndex: bind LoginMode from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+      TabIndex: 1
+      TabItem 
+      {
+        ControlsHelper.HeaderFontSize: 18
+        Header: "Phone"
+        TextBox "PART_TextBox_Phone" {
+          Margin: "0 5 0 0"
+          TextBoxHelper.SelectAllOnFocus: true
+          TextBoxHelper.Watermark: bind PhoneWatermark from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+          FontSize: resource dyn "DialogMessageFontSize"
+          Foreground: bind Foreground from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+          Text: bind Phone from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+          TextWrapping: Wrap
+        }
+      }
+      TabItem 
+      {
+        ControlsHelper.HeaderFontSize: 18
+        Header: "Email"
+        TextBox "PART_TextBox_Email" {
+          Margin: "0 5 0 0"
+          TextBoxHelper.SelectAllOnFocus: true
+          TextBoxHelper.Watermark: bind EmailWatermark from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+          FontSize: resource dyn "DialogMessageFontSize"
+          Foreground: bind Foreground from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+          Text: bind Email from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
+          TextWrapping: Wrap
+        }
+      }
     }
-    TextBox "PART_TextBox" {
+    PasswordBox "PART_TextBox_Password" {
       Grid.Row: 2
-      Margin: "0 5 0 0"
-      TextBoxHelper.SelectAllOnFocus: true
-      TextBoxHelper.Watermark: bind UsernameWatermark from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
-      VisibilityHelper.IsCollapsed: bind ShouldHideUsername from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
-      CharacterCasing: bind UsernameCharacterCasing from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
-      FontSize: resource dyn "DialogMessageFontSize"
-      Foreground: bind Foreground from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
-      Text: bind Username from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
-      TextWrapping: Wrap
-    }
-    PasswordBox "PART_TextBox2" {
-      Grid.Row: 3
       Margin: "0 5 0 0"
       PasswordBoxBindingBehavior.Password: bind Password from $ancestor<LoginWithUrlDialog> set [ Mode:TwoWay, UpdateSourceTrigger: PropertyChanged ]
       TextBoxHelper.SelectAllOnFocus: true
@@ -56,7 +74,7 @@ CustomDialog "Domain0.Desktop.Views.Dialogs.LoginWithUrlDialog" {
       Foreground: bind Foreground from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
     }
     CheckBox "PART_RememberCheckBox" {
-      Grid.Row: 4
+      Grid.Row: 3
       Margin: "0 5 0 0"
       Content: bind RememberCheckBoxText from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
       FontSize: resource dyn "DialogMessageFontSize"
@@ -64,7 +82,7 @@ CustomDialog "Domain0.Desktop.Views.Dialogs.LoginWithUrlDialog" {
       Visibility: bind RememberCheckBoxVisibility from $ancestor<LoginWithUrlDialog> set [ UpdateSourceTrigger: PropertyChanged ]
     }
     StackPanel {
-      Grid.Row: 5
+      Grid.Row: 4
       Height: 85
       HorizontalAlignment: Right
       Orientation: Horizontal

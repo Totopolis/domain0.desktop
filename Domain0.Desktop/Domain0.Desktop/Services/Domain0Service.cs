@@ -1,9 +1,8 @@
-﻿using System;
-using Domain0.Api.Client;
+﻿using Domain0.Api.Client;
+using Domain0.Desktop.Properties;
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using Domain0.Desktop.Properties;
 
 namespace Domain0.Desktop.Services
 {
@@ -68,10 +67,6 @@ namespace Domain0.Desktop.Services
             AccessToken = token;
         }
 
-        public async Task<AccessTokenResponse> Login(string phone, string password)
-        {
-            return await _client.LoginAsync(new SmsLoginRequest(password, phone));
-        }
 
         public IDomain0Client Client => _client;
 

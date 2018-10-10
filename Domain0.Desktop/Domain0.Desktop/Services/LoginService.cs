@@ -5,7 +5,9 @@ using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
+using Domain0.Api.Client;
 using Ui.Wpf.Common;
+using Application = System.Windows.Application;
 
 namespace Domain0.Desktop.Services
 {
@@ -36,25 +38,20 @@ namespace Domain0.Desktop.Services
                     {
                         AnimateShow = true,
                         AnimateHide = true,
-                        InitialUsername = "",
                         AffirmativeButtonText = "Login",
                         NegativeButtonText = "Exit",
                         NegativeButtonVisibility = Visibility.Visible,
                         UrlWatermark = "Url",
                         ShouldHideUrl = !canChangeUrl,
                         InitialUrl = _domain0.HostUrl,
-                        UsernameWatermark = "Login",
+                        EmailWatermark = "email@gmail.com",
+                        PhoneWatermark = "79998887766",
                         PasswordWatermark = "Password",
                         EnablePasswordPreview = true,
                         RememberCheckBoxVisibility = Visibility.Visible
                     };
 
-                    var loginDialog = new LoginWithUrlDialog(view, settings)
-                    {
-                        Title = "Login",
-                        Message = "Enter login and password"
-                    };
-
+                    var loginDialog = new LoginWithUrlDialog(view, settings) { Title = "Login" };
                     await view.ShowMetroDialogAsync(loginDialog);
                     var result = await loginDialog.WaitForButtonPressAsync();
                     await view.HideMetroDialogAsync(loginDialog);
@@ -71,7 +68,19 @@ namespace Domain0.Desktop.Services
                         Settings.Default.Save();
                         _domain0.HostUrl = x.Url;
 
-                        var token = await _domain0.Login(x.Username, x.Password);
+                        AccessTokenResponse token;
+                        switch (x.LoginMode)
+                        {
+                            case LoginMode.Phone:
+                                token = await _domain0.Client.LoginAsync(new SmsLoginRequest(x.Password, x.Phone));
+                                break;
+                            case LoginMode.Email:
+                                token = await _domain0.Client.LoginByEmailAsync(new EmailLoginRequest(x.Email, x.Password));
+                                break;
+                            default:
+                                throw new ArgumentException("Unknown login mode");
+                        }
+
                         if (token != null)
                         {
                             _domain0.UpdateAccessToken(token, x.ShouldRemember);
