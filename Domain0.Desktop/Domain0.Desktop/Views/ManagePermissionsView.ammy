@@ -1,0 +1,50 @@
+﻿using Domain0.Desktop.Views;
+
+ViewUserControl "Domain0.Desktop.Views.ManagePermissionsView" {
+
+
+  DataGrid 
+  {
+    ItemsSource: bind Items
+    AutoGenerateColumns: false
+    CanUserAddRows: true
+    CanUserDeleteRows: true
+    Columns: [
+      DataGridTextColumn
+      {
+        IsReadOnly: true
+        Header: "Id"
+        Binding: bind Id
+        Width: Auto
+      }
+      DataGridTextColumn
+      {
+        Header: "Name"
+        Binding: bind Name
+        Width: Auto
+      }
+      DataGridTextColumn
+      {
+        Header: "ApplicationId"
+        Binding: bind ApplicationId
+        Width: Auto
+      }
+      /*
+      DataGridComboBoxColumn
+      {
+        Header: "Application"
+        ItemsSource: bind from Domain0.Desktop.ViewModels.ManageMessagesViewModel.SupportedMessageTypes
+        SelectedItemBinding: bind Type
+        Width: Auto
+      }
+      */
+      DataGridTextColumn
+      {
+        Header: "Description"
+        Binding: bind Description
+        Width: Auto
+      }
+    ]
+  }
+
+}

@@ -43,6 +43,8 @@ namespace Domain0.Desktop
                 shell.ShowView<ManageUsersView>(new ViewRequest("manage-users"), new UiShowOptions {Title = "Users"});
                 shell.ShowView<ManageMessagesView>(new ViewRequest("manage-messages"), new UiShowOptions {Title = "Messages"});
                 shell.ShowView<ManageApplicationsView>(new ViewRequest("manage-applications"), new UiShowOptions {Title = "Applications"});
+                shell.ShowView<ManageRolesView>(new ViewRequest("manage-roles"), new UiShowOptions {Title = "Roles"});
+                shell.ShowView<ManagePermissionsView>(new ViewRequest("manage-permissions"), new UiShowOptions {Title = "Permissions"});
             }
 
             var loginService = shell.Container.Resolve<ILoginService>();

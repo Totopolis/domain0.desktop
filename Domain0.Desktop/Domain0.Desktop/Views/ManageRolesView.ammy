@@ -1,0 +1,51 @@
+﻿using Domain0.Desktop.Views;
+
+ViewUserControl "Domain0.Desktop.Views.ManageRolesView" {
+
+  DataGrid 
+  {
+    ItemsSource: bind Items
+    AutoGenerateColumns: false
+    CanUserAddRows: true
+    CanUserDeleteRows: true
+    Columns: [
+      DataGridTextColumn
+      {
+        IsReadOnly: true
+        Header: "Id"
+        Binding: bind Id
+        Width: Auto
+      }
+      DataGridTextColumn
+      {
+        Header: "Name"
+        Binding: bind Name
+        Width: Auto
+      }
+      DataGridTemplateColumn
+      {
+        Header: "Is Default"
+        SortMemberPath: "IsDefault"
+        CellTemplate: DataTemplate
+        {
+          CheckBox {
+          HorizontalAlignment: Center
+          VerticalAlignment: Center
+            IsChecked: bind IsDefault
+                 set [
+                   Mode: TwoWay
+                   UpdateSourceTrigger: PropertyChanged
+                 ]
+          }
+        }
+      }
+      DataGridTextColumn
+      {
+        Header: "Description"
+        Binding: bind Description
+        Width: Auto
+      }
+    ]
+  }
+
+}

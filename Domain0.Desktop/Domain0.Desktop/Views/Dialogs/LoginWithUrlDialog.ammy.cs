@@ -120,10 +120,7 @@ namespace Domain0.Desktop.Views.Dialogs
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 this.Focus();
-                if (ShouldHideUrl)
-                    this.PART_TextBox_Phone.Focus();
-                else
-                    this.PART_TextBox_Url.Focus();
+                this.PART_TextBox_Phone.Focus();
             }));
 
             TaskCompletionSource<LoginWithUrlDialogData> tcs = new TaskCompletionSource<LoginWithUrlDialogData>();

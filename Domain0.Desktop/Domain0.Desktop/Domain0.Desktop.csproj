@@ -146,6 +146,8 @@
     <Compile Include="ViewModels\ApplicationViewModel.cs" />
     <Compile Include="ViewModels\BaseManageItemsViewModel.cs" />
     <Compile Include="ViewModels\IItemViewModel.cs" />
+    <Compile Include="ViewModels\ManagePermissionsViewModel.cs" />
+    <Compile Include="ViewModels\ManageRolesViewModel.cs" />
     <Compile Include="ViewModels\ManageToolsViewModel.cs" />
     <Compile Include="ViewModels\MessageTemplateViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -168,6 +170,8 @@
     <Compile Include="ViewModels\ManageApplicationsViewModel.cs" />
     <Compile Include="ViewModels\ManageMessagesViewModel.cs" />
     <Compile Include="ViewModels\ManageUsersViewModel.cs" />
+    <Compile Include="ViewModels\PermissionViewModel.cs" />
+    <Compile Include="ViewModels\RoleViewModel.cs" />
     <Compile Include="ViewModels\UserProfileViewModel.cs" />
     <Compile Include="Views\Dialogs\LoginWithUrlDialog.ammy.cs">
       <DependentUpon>LoginWithUrlDialog.ammy</DependentUpon>
@@ -177,6 +181,12 @@
     </Compile>
     <Compile Include="Views\ManageMessagesView.ammy.cs">
       <DependentUpon>ManageMessagesView.ammy</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ManagePermissionsView.ammy.cs">
+      <DependentUpon>ManagePermissionsView.ammy</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ManageRolesView.ammy.cs">
+      <DependentUpon>ManageRolesView.ammy</DependentUpon>
     </Compile>
     <Compile Include="Views\ManageToolsView.ammy.cs">
       <DependentUpon>ManageToolsView.ammy</DependentUpon>
@@ -199,6 +209,8 @@
     <None Include="Views\Dialogs\LoginWithUrlDialog.ammy" />
     <None Include="Views\ManageApplicationsView.ammy" />
     <None Include="Views\ManageMessagesView.ammy" />
+    <None Include="Views\ManagePermissionsView.ammy" />
+    <None Include="Views\ManageRolesView.ammy" />
     <None Include="Views\ManageToolsView.ammy" />
     <None Include="Views\ManageUsersView.ammy" />
   </ItemGroup>
@@ -225,6 +237,16 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <DependentUpon>ManageMessagesView.ammy</DependentUpon>
+    </Page>
+    <Page Include="Views\ManagePermissionsView.g.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <DependentUpon>ManagePermissionsView.ammy</DependentUpon>
+    </Page>
+    <Page Include="Views\ManageRolesView.g.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <DependentUpon>ManageRolesView.ammy</DependentUpon>
     </Page>
     <Page Include="Views\ManageToolsView.g.xaml">
       <SubType>Designer</SubType>

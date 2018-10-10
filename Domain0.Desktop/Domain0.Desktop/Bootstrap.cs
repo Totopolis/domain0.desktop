@@ -32,6 +32,12 @@ namespace Domain0.Desktop
             builder.RegisterType<ManageMessagesView>();
             builder.RegisterType<ManageMessagesViewModel>();
 
+            builder.RegisterType<ManageRolesView>();
+            builder.RegisterType<ManageRolesViewModel>();
+
+            builder.RegisterType<ManagePermissionsView>();
+            builder.RegisterType<ManagePermissionsViewModel>();
+
             builder.RegisterInstance(CreateMapper()).As<IMapper>();
 
             var container = builder.Build();
@@ -58,6 +64,14 @@ namespace Domain0.Desktop
                 cfg.CreateMap<UserProfile, UserProfileViewModel>();
                 cfg.CreateMap<UserProfileViewModel, UserProfile>().ConstructUsing(x =>
                     new UserProfile(x.Description, x.Email, x.Id.Value, x.Name, x.Phone));
+
+                cfg.CreateMap<Role, RoleViewModel>();
+                cfg.CreateMap<RoleViewModel, Role>().ConstructUsing(x =>
+                    new Role(x.Description, x.Id.Value, x.IsDefault, x.Name));
+
+                cfg.CreateMap<Permission, PermissionViewModel>();
+                cfg.CreateMap<PermissionViewModel, Permission>().ConstructUsing(x =>
+                    new Permission(x.ApplicationId, x.Description, x.Id, x.Name));
             });
             return config.CreateMapper();
         }

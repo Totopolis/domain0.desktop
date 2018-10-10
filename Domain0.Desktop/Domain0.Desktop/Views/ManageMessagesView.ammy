@@ -16,16 +16,18 @@ ViewUserControl "Domain0.Desktop.Views.ManageMessagesView" {
         Binding: bind Id
         Width: Auto
       }
-      DataGridTextColumn
+      DataGridComboBoxColumn
       {
         Header: "Type"
-        Binding: bind Type
+        ItemsSource: bind from Domain0.Desktop.ViewModels.ManageMessagesViewModel.SupportedMessageTypes
+        SelectedItemBinding: bind Type
         Width: Auto
       }
-      DataGridTextColumn
+      DataGridComboBoxColumn 
       {
         Header: "Locale"
-        Binding: bind Locale
+        ItemsSource: bind from Domain0.Desktop.ViewModels.ManageMessagesViewModel.SupportedMessageLocales
+        SelectedItemBinding: bind Locale
         Width: Auto
       }
       DataGridTextColumn
