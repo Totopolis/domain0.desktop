@@ -1,4 +1,5 @@
-﻿using Domain0.Desktop.Properties;
+﻿using System.Threading.Tasks;
+using Domain0.Desktop.Properties;
 using Domain0.Desktop.Services;
 using ReactiveUI;
 using Ui.Wpf.Common.ViewModels;
@@ -16,14 +17,21 @@ namespace Domain0.Desktop.ViewModels
             _loginService = loginService;
 
             LogoutCommand = ReactiveCommand.Create(Logout);
+            ReloadCommand = ReactiveCommand.CreateFromTask(Reload);
         }
 
         public ReactiveCommand LogoutCommand { get; set; }
+        public ReactiveCommand ReloadCommand { get; set; }
 
         private void Logout()
         {
             _domain0.ResetAccessToken();
             _loginService.ShowLogin(false);
+        }
+
+        private async Task Reload()
+        {
+            await _domain0.LoadModel();
         }
     }
 

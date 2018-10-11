@@ -5,10 +5,26 @@ ViewUserControl "Domain0.Desktop.Views.ManageToolsView"
 {
   Grid
   {
-    #TwoRows("*", "Auto")
+    #ThreeRows("*", "Auto", "Auto")
     Button
     {
       Grid.Row: 1
+      Margin: 10
+      Width: 64
+      Height: 64
+      ToolTip: "Reload"
+      Style: resource dyn "MahApps.Metro.Styles.MetroCircleButtonStyle"
+      Command: bind ReloadCommand
+      PackIconModern
+      {
+        Kind: "Refresh"
+        Height: 32
+        Width: 32
+      }
+    }
+    Button
+    {
+      Grid.Row: 2
       Margin: 10
       Width: 64
       Height: 64

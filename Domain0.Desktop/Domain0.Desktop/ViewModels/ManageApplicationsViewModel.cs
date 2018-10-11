@@ -13,10 +13,9 @@ namespace Domain0.Desktop.ViewModels
         {
         }
 
-        protected override async Task<List<Application>> ApiLoadItemsAsync()
+        protected override IEnumerable<Application> GetItemsFromModel()
         {
-            var filter = new ApplicationFilter(new List<int>());
-            return await _domain0.Client.LoadApplicationsByFilterAsync(filter);
+            return _domain0.Model.Applications.Values;
         }
 
         protected override async Task ApiUpdateItemAsync(Application m)

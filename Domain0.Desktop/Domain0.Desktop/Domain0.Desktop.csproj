@@ -143,6 +143,7 @@
     </Compile>
     <Compile Include="Bootstrap.cs" />
     <Compile Include="Extensions\ReactiveListExtenstions.cs" />
+    <Compile Include="Models\Domain0Model.cs" />
     <Compile Include="ViewModels\ApplicationViewModel.cs" />
     <Compile Include="ViewModels\BaseManageItemsViewModel.cs" />
     <Compile Include="ViewModels\IItemViewModel.cs" />
@@ -259,9 +260,7 @@
       <DependentUpon>ManageUsersView.ammy</DependentUpon>
     </Page>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Ammy.1.2.94\build\Ammy.targets" Condition="Exists('..\packages\Ammy.1.2.94\build\Ammy.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

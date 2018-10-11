@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using Domain0.Api.Client;
 using Domain0.Desktop.Services;
+using ReactiveUI;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using ReactiveUI;
 
 namespace Domain0.Desktop.ViewModels
 {
@@ -23,10 +23,9 @@ namespace Domain0.Desktop.ViewModels
 
         // BaseManageItemsViewModel
 
-        protected override async Task<List<MessageTemplate>> ApiLoadItemsAsync()
+        protected override IEnumerable<MessageTemplate> GetItemsFromModel()
         {
-            var filter = new MessageTemplateFilter(new List<int>());
-            return await _domain0.Client.LoadMessageTemplatesByFilterAsync(filter);
+            return _domain0.Model.MessageTemplates.Values;
         }
 
         protected override async Task ApiUpdateItemAsync(MessageTemplate m)

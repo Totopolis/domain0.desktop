@@ -5,6 +5,8 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Ui.Wpf.Common.ViewModels;
@@ -23,19 +25,20 @@ namespace Domain0.Desktop.ViewModels
             _mapper = mapper;
 
             Items.Changed.Subscribe(async x =>
-            {
-                switch (x.Action)
                 {
-                    case NotifyCollectionChangedAction.Add:
-                        foreach (var item in x.NewItems)
-                            await CreateItem((TViewModel)item);
-                        break;
-                    case NotifyCollectionChangedAction.Remove:
-                        foreach (var item in x.OldItems)
-                            await RemoveItem((TViewModel)item);
-                        break;
-                }
-            });
+                    switch (x.Action)
+                    {
+                        case NotifyCollectionChangedAction.Add:
+                            foreach (var item in x.NewItems)
+                                await CreateItem((TViewModel) item);
+                            break;
+                        case NotifyCollectionChangedAction.Remove:
+                            foreach (var item in x.OldItems)
+                                await RemoveItem((TViewModel) item);
+                            break;
+                    }
+                })
+                .DisposeWith(Disposables);
 
             Items.ItemChanged
                 .GroupByUntil(
@@ -43,21 +46,26 @@ namespace Domain0.Desktop.ViewModels
                     item => item.Sender,
                     group => group.Throttle(TimeSpan.FromSeconds(1)))
                 .SelectMany(group => group.TakeLast(1))
-                .Subscribe(async x => await UpdateItem(x));
+                .Subscribe(async x => await UpdateItem(x))
+                .DisposeWith(Disposables);
 
-            Refresh();
+            _domain0.WhenAnyValue(x => x.Model)
+                .Subscribe(_ => Refresh())
+                .DisposeWith(Disposables);
         }
 
         public ReactiveList<TViewModel> Items { get; set; } = new ReactiveList<TViewModel> { ChangeTrackingEnabled = true };
 
 
-        public virtual async Task Refresh()
+        public virtual void Refresh()
         {
             IsBusy = true;
             try
             {
-                List<TModel> result = await ApiLoadItemsAsync();
-                Items.Initialize(_mapper.Map<IEnumerable<TViewModel>>(result));
+                IEnumerable<TModel> result = GetItemsFromModel();
+                var values = _mapper.Map<IEnumerable<TViewModel>>(result)
+                    .OrderBy(x => x.Id);
+                Items.Initialize(values);
             }
             catch (Exception e)
             {
@@ -103,7 +111,7 @@ namespace Domain0.Desktop.ViewModels
             }
         }
 
-        protected abstract Task<List<TModel>> ApiLoadItemsAsync();
+        protected abstract IEnumerable<TModel> GetItemsFromModel();
         protected abstract Task ApiUpdateItemAsync(TModel m);
         protected abstract Task<int> ApiCreateItemAsync(TModel m);
         protected abstract Task ApiRemoveItemAsync(int id);

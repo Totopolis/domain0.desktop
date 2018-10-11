@@ -14,10 +14,9 @@ namespace Domain0.Desktop.ViewModels
 
         // BaseManageItemsViewModel
 
-        protected override async Task<List<Permission>> ApiLoadItemsAsync()
+        protected override IEnumerable<Permission> GetItemsFromModel()
         {
-            var filter = new PermissionFilter(new List<int>());
-            return await _domain0.Client.LoadPermissionsByFilterAsync(filter);
+            return _domain0.Model.Permissions.Values;
         }
 
         protected override async Task ApiUpdateItemAsync(Permission m)

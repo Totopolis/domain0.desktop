@@ -4,6 +4,8 @@ using Domain0.Desktop.Services;
 using Domain0.Desktop.Views;
 using System;
 using System.Windows;
+using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 using Ui.Wpf.Common;
 using Ui.Wpf.Common.ShowOptions;
 using Application = System.Windows.Application;
@@ -36,23 +38,31 @@ namespace Domain0.Desktop
                 }
             );
 
+            async void ShowLoadingDialog()
+            {
+                var domain0 = shell.Container.Resolve<IDomain0Service>();
+                await domain0.LoadModel().ConfigureAwait(true);
+
+                ShowInitializedScreen();
+            }
+
             void ShowInitializedScreen()
             {
                 shell.ShowTool<ManageToolsView>(new ViewRequest("manage-tools"), new UiShowOptions {Title = "Tools"});
 
                 shell.ShowView<ManageUsersView>(new ViewRequest("manage-users"), new UiShowOptions {Title = "Users"});
+                shell.ShowView<ManageRolesView>(new ViewRequest("manage-roles"), new UiShowOptions { Title = "Roles" });
+                shell.ShowView<ManagePermissionsView>(new ViewRequest("manage-permissions"), new UiShowOptions { Title = "Permissions" });
+                shell.ShowView<ManageApplicationsView>(new ViewRequest("manage-applications"), new UiShowOptions { Title = "Applications" });
                 shell.ShowView<ManageMessagesView>(new ViewRequest("manage-messages"), new UiShowOptions {Title = "Messages"});
-                shell.ShowView<ManageApplicationsView>(new ViewRequest("manage-applications"), new UiShowOptions {Title = "Applications"});
-                shell.ShowView<ManageRolesView>(new ViewRequest("manage-roles"), new UiShowOptions {Title = "Roles"});
-                shell.ShowView<ManagePermissionsView>(new ViewRequest("manage-permissions"), new UiShowOptions {Title = "Permissions"});
             }
 
             var loginService = shell.Container.Resolve<ILoginService>();
 
             if (!loginService.LoadPreviousToken())
-                loginService.ShowLogin(true, ShowInitializedScreen);
+                loginService.ShowLogin(true, ShowLoadingDialog);
             else
-                ShowInitializedScreen();
+                ShowLoadingDialog();
         }
     }
 }

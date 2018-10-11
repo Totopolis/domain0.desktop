@@ -88,10 +88,9 @@ namespace Domain0.Desktop.ViewModels
 
         // BaseManageItemsViewModel
 
-        protected override async Task<List<UserProfile>> ApiLoadItemsAsync()
+        protected override IEnumerable<UserProfile> GetItemsFromModel()
         {
-            var filter = new UserProfileFilter(new List<int>());
-            return await _domain0.Client.GetUserByFilterAsync(filter);
+            return _domain0.Model.UserProfiles.Values;
         }
 
         protected override async Task ApiUpdateItemAsync(UserProfile m)

@@ -14,10 +14,9 @@ namespace Domain0.Desktop.ViewModels
 
         // BaseManageItemsViewModel
 
-        protected override async Task<List<Role>> ApiLoadItemsAsync()
+        protected override IEnumerable<Role> GetItemsFromModel()
         {
-            var filter = new RoleFilter(new List<int>());
-            return await _domain0.Client.LoadRolesByFilterAsync(filter);
+            return _domain0.Model.Roles.Values;
         }
 
         protected override async Task ApiUpdateItemAsync(Role m)
