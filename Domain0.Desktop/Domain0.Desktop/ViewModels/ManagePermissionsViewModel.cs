@@ -3,6 +3,7 @@ using Domain0.Api.Client;
 using Domain0.Desktop.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DynamicData;
 
 namespace Domain0.Desktop.ViewModels
 {
@@ -12,8 +13,10 @@ namespace Domain0.Desktop.ViewModels
         {
         }
 
-        // BaseManageItemsViewModel
+        protected override ISourceCache<Permission, int> Models => _domain0.Model.Permissions;
 
+        // BaseManageItemsViewModel
+        /*
         protected override IEnumerable<Permission> GetItemsFromModel()
         {
             return _domain0.Model.Permissions.Values;
@@ -33,5 +36,6 @@ namespace Domain0.Desktop.ViewModels
         {
             await _domain0.Client.RemovePermissionAsync(id);
         }
+        */
     }
 }

@@ -1,20 +1,17 @@
 ﻿using Domain0.Api.Client;
+using Domain0.Desktop.Models;
 using Domain0.Desktop.Properties;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Domain0.Desktop.Models;
-using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
 
 namespace Domain0.Desktop.Services
 {
-    public class Domain0Service : ReactiveObject, IDomain0Service
+    public class Domain0Service : IDomain0Service
     {
         private readonly HttpClient _httpClient;
         private readonly Domain0Client _client;
@@ -23,6 +20,8 @@ namespace Domain0.Desktop.Services
         {
             _httpClient = new HttpClient();
             _client = new Domain0Client(null, _httpClient);
+
+            Model = new Domain0Model();
         }
 
         public string HostUrl
@@ -83,37 +82,54 @@ namespace Domain0.Desktop.Services
 
 
         public IDomain0Client Client => _client;
-        [Reactive] public Domain0Model Model { get; private set; }
+        public Domain0Model Model { get; }
 
         public async Task LoadModel()
         {
             var controller = await (System.Windows.Application.Current.MainWindow as MetroWindow)
                 .ShowProgressAsync("Loading data...", "Load everything");
 
-            var model = new Domain0Model();
 
             controller.SetMessage("Load User Profiles...");
             var userProfiles = await _client.GetUserByFilterAsync(new UserProfileFilter(new List<int>()));
-            model.UserProfiles = userProfiles.ToDictionary(x => x.Id);
+            Model.UserProfiles.Edit(innerCache =>
+            {
+                innerCache.Clear();
+                innerCache.AddOrUpdate(userProfiles);
+            });
 
             controller.SetMessage("Load Permissions...");
             var permissions = await _client.LoadPermissionsByFilterAsync(new PermissionFilter(new List<int>()));
-            model.Permissions = permissions.ToDictionary(x => x.Id.Value);
+            Model.Permissions.Edit(innerCache =>
+            {
+                innerCache.Clear();
+                innerCache.AddOrUpdate(permissions);
+            });
 
             controller.SetMessage("Load Roles...");
             var roles = await _client.LoadRolesByFilterAsync(new RoleFilter(new List<int>()));
-            model.Roles = roles.ToDictionary(x => x.Id.Value);
+            Model.Roles.Edit(innerCache =>
+            {
+                innerCache.Clear();
+                innerCache.AddOrUpdate(roles);
+            });
 
             controller.SetMessage("Load Appliations...");
             var applications = await _client.LoadApplicationsByFilterAsync(new ApplicationFilter(new List<int>()));
-            model.Applications = applications.ToDictionary(x => x.Id.Value);
-            
+            Model.Applications.Edit(innerCache =>
+            {
+                innerCache.Clear();
+                innerCache.AddOrUpdate(applications);
+            });
+
 
             controller.SetMessage("Load MessageTemplates...");
             var messageTemplates = await _client.LoadMessageTemplatesByFilterAsync(new MessageTemplateFilter(new List<int>()));
-            model.MessageTemplates = messageTemplates.ToDictionary(x => x.Id.Value);
-
-            Model = model;
+            Model.MessageTemplates.Edit(innerCache =>
+            {
+                innerCache.Clear();
+                innerCache.AddOrUpdate(messageTemplates);
+            });
 
             await controller.CloseAsync();
         }

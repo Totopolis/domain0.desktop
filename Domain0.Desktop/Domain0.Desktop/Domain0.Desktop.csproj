@@ -51,6 +51,9 @@
     <Reference Include="Domain0.Api.Client">
       <HintPath>..\..\..\domain0\prj\Domain0.Api.Client\bin\Debug\Domain0.Api.Client.dll</HintPath>
     </Reference>
+    <Reference Include="DynamicData, Version=6.5.1.2479, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DynamicData.6.5.1.2479\lib\net46\DynamicData.dll</HintPath>
+    </Reference>
     <Reference Include="FluentValidation, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7de548da2fbae0f0, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentValidation.8.0.100\lib\net45\FluentValidation.dll</HintPath>
     </Reference>
@@ -174,6 +177,8 @@
     <Compile Include="ViewModels\PermissionViewModel.cs" />
     <Compile Include="ViewModels\RoleViewModel.cs" />
     <Compile Include="ViewModels\UserProfileViewModel.cs" />
+    <Compile Include="Views\BindingProxy.cs" />
+    <Compile Include="Views\Converters\DataGridFilterByPropertyConverter.cs" />
     <Compile Include="Views\Dialogs\LoginWithUrlDialog.ammy.cs">
       <DependentUpon>LoginWithUrlDialog.ammy</DependentUpon>
     </Compile>
@@ -207,6 +212,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Views\CommonManageView.ammy" />
     <None Include="Views\Dialogs\LoginWithUrlDialog.ammy" />
     <None Include="Views\ManageApplicationsView.ammy" />
     <None Include="Views\ManageMessagesView.ammy" />
@@ -223,6 +229,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <DependentUpon>App.ammy</DependentUpon>
+    </Page>
+    <Page Include="Views\CommonManageView.g.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <DependentUpon>CommonManageView.ammy</DependentUpon>
     </Page>
     <Page Include="Views\Dialogs\LoginWithUrlDialog.g.xaml">
       <SubType>Designer</SubType>

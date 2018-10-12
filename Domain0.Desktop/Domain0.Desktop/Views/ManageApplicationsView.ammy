@@ -2,33 +2,31 @@
 
 ViewUserControl "Domain0.Desktop.Views.ManageApplicationsView" {
 
-  DataGrid 
+  Grid 
   {
-    ItemsSource: bind Items
-    AutoGenerateColumns: false
-    CanUserAddRows: true
-    CanUserDeleteRows: true
-    Columns: [
-      DataGridTextColumn
-      {
-        IsReadOnly: true
-        Header: "Id"
-        Binding: bind Id
-        Width: Auto
-      }
-      DataGridTextColumn
-      {
-        Header: "Name"
-        Binding: bind Name
-        Width: Auto
-      }
-      DataGridTextColumn
-      {
-        Header: "Description"
-        Binding: bind Description
-        Width: Auto
-      }
-    ]
+    #TwoRows("Auto")
+    @ManageButtons()
+    {
+      Grid.Row: 0
+    }
+    @ManageDataGrid 
+    {
+      Grid.Row: 1
+      combine Columns: [
+        DataGridTextColumn
+        {
+          Header: "Name"
+          Binding: bind Name
+          Width: Auto
+        }
+        DataGridTextColumn
+        {
+          Header: "Description"
+          Binding: bind Description
+          Width: Auto
+        }
+      ]
+    }
   }
 
 }

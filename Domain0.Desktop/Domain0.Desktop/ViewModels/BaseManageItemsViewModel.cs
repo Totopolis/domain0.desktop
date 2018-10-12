@@ -1,14 +1,14 @@
 ﻿using AutoMapper;
-using Domain0.Desktop.Extensions;
 using Domain0.Desktop.Services;
+using Domain0.Desktop.Views.Converters;
+using DynamicData;
 using ReactiveUI;
 using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
+using System.Reflection;
 using Ui.Wpf.Common.ViewModels;
 
 namespace Domain0.Desktop.ViewModels
@@ -24,6 +24,7 @@ namespace Domain0.Desktop.ViewModels
             _domain0 = domain0;
             _mapper = mapper;
 
+            /*
             Items.Changed.Subscribe(async x =>
                 {
                     switch (x.Action)
@@ -39,7 +40,9 @@ namespace Domain0.Desktop.ViewModels
                     }
                 })
                 .DisposeWith(Disposables);
+                */
 
+            /*
             Items.ItemChanged
                 .GroupByUntil(
                     item => item.Sender.Id,
@@ -48,33 +51,64 @@ namespace Domain0.Desktop.ViewModels
                 .SelectMany(group => group.TakeLast(1))
                 .Subscribe(async x => await UpdateItem(x))
                 .DisposeWith(Disposables);
+                */
 
-            _domain0.WhenAnyValue(x => x.Model)
-                .Subscribe(_ => Refresh())
+            UpdateFilters = ReactiveCommand.Create<PropertyFilter>(UpdateFilter);
+            ModelFilters = new SourceCache<ModelFilter, PropertyInfo>(x => x.Property);
+            var dynamicFilter = ModelFilters.Connect()
+                .StartWithEmpty()
+                .Bind(out _modelFilters)
+                .Select(_ => CreateFilter());
+
+            Models.Connect()
+                .Filter(dynamicFilter)
+                .ObserveOnDispatcher()
+                .Bind(out _items)
+                .DisposeMany()
+                .Subscribe()
                 .DisposeWith(Disposables);
         }
 
-        public ReactiveList<TViewModel> Items { get; set; } = new ReactiveList<TViewModel> { ChangeTrackingEnabled = true };
-
-
-        public virtual void Refresh()
+        private Func<TModel, bool> CreateFilter()
         {
-            IsBusy = true;
-            try
+            return model =>
             {
-                IEnumerable<TModel> result = GetItemsFromModel();
-                var values = _mapper.Map<IEnumerable<TViewModel>>(result)
-                    .OrderBy(x => x.Id);
-                Items.Initialize(values);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            IsBusy = false;
+                foreach (var filter in _modelFilters)
+                {
+                    if (string.IsNullOrEmpty(filter.Filter))
+                        continue;
+
+                    var value = filter.Property.GetValue(model).ToString();
+                    if (!value.Contains(filter.Filter))
+                        return false;
+                }
+
+                return true;
+            };
         }
 
+        public ReactiveCommand UpdateFilters { get; set; }
+        private SourceCache<ModelFilter, PropertyInfo> ModelFilters { get; }
+        private readonly ReadOnlyObservableCollection<ModelFilter> _modelFilters;
 
+        protected abstract ISourceCache<TModel, int> Models { get; }
+
+        protected ReadOnlyObservableCollection<TModel> _items;
+        public ReadOnlyObservableCollection<TModel> Items => _items;
+
+        private void UpdateFilter(PropertyFilter filter)
+        {
+            if (filter == null)
+                return;
+
+            ModelFilters.AddOrUpdate(new ModelFilter
+            {
+                Filter = filter.Filter,
+                Property = typeof(TModel).GetProperty(filter.Name)
+            });
+        }
+
+        /*
         private async Task UpdateItem(TViewModel vm)
         {
             try
@@ -111,9 +145,16 @@ namespace Domain0.Desktop.ViewModels
             }
         }
 
-        protected abstract IEnumerable<TModel> GetItemsFromModel();
+        
         protected abstract Task ApiUpdateItemAsync(TModel m);
         protected abstract Task<int> ApiCreateItemAsync(TModel m);
         protected abstract Task ApiRemoveItemAsync(int id);
+        */
+    }
+
+    internal class ModelFilter
+    {
+        public PropertyInfo Property { get; set; }
+        public string Filter { get; set; }
     }
 }

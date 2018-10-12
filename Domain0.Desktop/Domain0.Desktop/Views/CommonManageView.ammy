@@ -1,0 +1,225 @@
+﻿using MahApps.Metro.IconPacks;
+using MahApps.Metro.Controls;
+using Domain0.Desktop.Views.Converters;
+using Domain0.Desktop.Views;
+
+
+alias ManageDataGrid()
+{
+  DataGrid
+  {
+    Resources: [
+      BindingProxy Key="Proxy" { Data: bind }
+      Style {
+        //"xmlns:Controls": "clr-namespace:MahApps.Metro.Controls"
+        TargetType: DataGridColumnHeader
+        Setter { Property: "Background",  Value: "{DynamicResource WhiteBrush}" }
+        Setter { Property: "BorderBrush",  Value: "{DynamicResource GrayBrush5}" }
+        Setter { Property: "BorderThickness",  Value: "0 0 0 3" }
+        //Setter { Property: "Controls:ControlsHelper.ContentCharacterCasing",  Value: "Upper" }
+        Setter { Property: "Cursor",  Value: "Hand" }
+        Setter { Property: "FontWeight",  Value: "SemiBold" }
+        Setter { Property: "Foreground",  Value: "{DynamicResource BlackBrush}" }
+        Setter { Property: "HorizontalContentAlignment",  Value: "Left" }
+        Setter { Property: "Margin",  Value: "0" }
+        Setter { Property: "MinHeight",  Value: "25" }
+        Setter { Property: "MinWidth",  Value: "0" }
+        Setter { Property: "Padding",  Value: "10 4 4 7" }
+        Setter { Property: "SnapsToDevicePixels",  Value: "True" }
+        Setter {
+          Property: "Template"
+          Value: ControlTemplate {
+            TargetType: DataGridColumnHeader
+            Grid {
+              #TwoRows("*", "Auto")
+              #TwoColumns("*", "Auto")
+              Border "BackgroundBorder" {
+                #Cell(0, 0, 2, 2)
+                Background: "{TemplateBinding Background}"
+                BorderBrush: "{TemplateBinding BorderBrush}"
+                BorderThickness: "{TemplateBinding BorderThickness}"
+              }
+              ContentControlEx "HeaderContent" {
+                #Cell(0, 0)
+                Padding: "{TemplateBinding Padding}"
+                HorizontalContentAlignment: "{TemplateBinding HorizontalContentAlignment}"
+                VerticalContentAlignment: "{TemplateBinding VerticalContentAlignment}"
+                Content: "{TemplateBinding Content}"
+                //ContentCharacterCasing: "{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(Controls:ControlsHelper.ContentCharacterCasing)}"
+                ContentStringFormat: "{TemplateBinding ContentStringFormat}"
+                ContentTemplate: "{TemplateBinding ContentTemplate}"
+                ContentTemplateSelector: "{TemplateBinding ContentTemplateSelector}"
+                RecognizesAccessKey: "True"
+                SnapsToDevicePixels: "{TemplateBinding SnapsToDevicePixels}"
+              }
+              Path "SortArrow" {
+                #Cell(0, 1)
+                Width: "8"
+                Height: "10"
+                Margin: "0 0 8 2"
+                VerticalAlignment: "Center"
+                Fill: "{DynamicResource GrayBrush2}"
+                RenderTransformOrigin: "0.5,0.5"
+                Stretch: "Fill"
+                Visibility: "Collapsed"
+              }
+              Border 
+              {
+                #Cell(1, 0, 1, 2)
+                BorderBrush: "{TemplateBinding BorderBrush}"
+                BorderThickness: "0 1 0 0"
+                TextBox "HeaderSearchBox"
+                {
+                    TextBox.InputBindings: [
+                      KeyBinding
+                      {
+                        Key:"Return"
+                        Command: bind Data.UpdateFilters from $resource Proxy
+                        CommandParameter: MultiBinding {
+                          Converter: DataGridFilterByPropertyConverter {}
+                          Binding {
+                            RelativeSource: "{RelativeSource FindAncestor, AncestorType=DataGrid}"
+                          }
+                          Binding {
+                            RelativeSource: "{RelativeSource TemplatedParent}"
+                            Path: "TabIndex"
+                          }
+                          Binding {
+                            RelativeSource: "{RelativeSource FindAncestor, AncestorType=TextBox}"
+                            Path: "Text"
+                          }
+                        }
+                      }
+                    ]
+                }
+              }
+              Thumb "PART_LeftHeaderGripper" {
+                #Cell(0, 0, 2, 1)
+                HorizontalAlignment: "Left"
+                Background: "Transparent"
+                Style: "{StaticResource MetroColumnHeaderGripperStyle}"
+              }
+              Thumb "PART_RightHeaderGripper" {
+                #Cell(0, 1, 2, 1)
+                HorizontalAlignment: "Right"
+                Style: "{StaticResource MetroColumnHeaderGripperStyle}"
+              }
+            }
+            Triggers: [
+              Trigger {
+                Property: "SortDirection"
+                Value: "Ascending"
+                Setter {
+                  TargetName: "SortArrow"
+                  Property: "Data"
+                  Value: "F1 M 34,57L 42,57L 42,32.25L 52,42.25L 52,31.75L 38,17.75L 24,31.75L 24,42.25L 34,32.25L 34,57 Z "
+                }
+                Setter {
+                  TargetName: "SortArrow"
+                  Property: "Visibility"
+                  Value: "Visible"
+                }
+              }
+              Trigger {
+                Property: "SortDirection"
+                Value: "Descending"
+                Setter {
+                  TargetName: "SortArrow"
+                  Property: "Data"
+                  Value: "F1 M 42,19.0002L 34,19.0002L 34,43.7502L 24,33.7502L 24,44.2502L 38,58.2502L 52,44.2502L 52,33.7502L 42,43.7502L 42,19.0002 Z "
+                }
+                Setter {
+                  TargetName: "SortArrow"
+                  Property: "Margin"
+                  Value: "0 0 8 0"
+                }
+                Setter {
+                  TargetName: "SortArrow"
+                  Property: "Visibility"
+                  Value: "Visible"
+                }
+              }
+              Trigger {
+                Property: "DisplayIndex"
+                Value: "0"
+                Setter {
+                  TargetName: "PART_LeftHeaderGripper"
+                  Property: "Visibility"
+                  Value: "Collapsed"
+                }
+              }
+            ]
+          }
+        }
+        Setter { Property: "VerticalContentAlignment",  Value: "Center" }
+        Triggers: [
+          MultiTrigger {
+            Conditions: [
+              Condition { Property: "IsMouseOver",  Value: "True" }
+              Condition { Property: "SortDirection",  Value: "{x:Null}" }
+            ]
+            Setter { Property: "Background",  Value: "{DynamicResource GrayBrush8}" }
+          }
+          Trigger {
+            Property: "IsEnabled"
+            Value: "False"
+            Setter { Property: "Foreground",  Value: "{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" }
+          }
+        ]
+      }
+    ]
+
+    VirtualizingPanel.IsVirtualizing: true
+    VirtualizingPanel.VirtualizationMode: "Recycling"
+    IsReadOnly: true
+    ItemsSource: bind Items
+    AutoGenerateColumns: false
+    combine Columns: [
+      DataGridTextColumn
+      {
+        Header: "Id"
+        Binding: bind Id
+        Width: Auto
+      }
+    ]
+  }
+}
+
+alias ManageRoundButton(kind, tt)
+{
+  Button
+  {
+    Margin: 5
+    Width: 32
+    Height: 32
+    ToolTip: $tt
+    Style: resource dyn "MahApps.Metro.Styles.MetroCircleButtonStyle"
+    //Click: "ToggleCreate"
+    PackIconModern
+    {
+      Kind: $kind
+      Height: 16
+      Width: 16
+    }
+  }
+}
+
+alias ManageButtons()
+{
+  Grid
+  {
+    #ThreeColumns("Auto", "Auto", "Auto")
+    @ManageRoundButton("Add", "Add new")
+    {
+      Grid.Column: 0
+    }
+    @ManageRoundButton("Edit", "Edit selected")
+    {
+      Grid.Column: 1
+    }
+    @ManageRoundButton("Delete", "Remove selected")
+    {
+      Grid.Column: 2
+    }
+  }
+}

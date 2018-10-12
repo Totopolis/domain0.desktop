@@ -1,14 +1,23 @@
 ﻿using Domain0.Api.Client;
-using System.Collections.Generic;
+using DynamicData;
 
 namespace Domain0.Desktop.Models
 {
     public class Domain0Model
     {
-        public Dictionary<int, UserProfile> UserProfiles { get; set; }
-        public Dictionary<int, Role> Roles { get; set; }
-        public Dictionary<int, Permission> Permissions { get; set; }
-        public Dictionary<int, MessageTemplate> MessageTemplates { get; set; }
-        public Dictionary<int, Application> Applications { get; set; }
+        public SourceCache<UserProfile, int> UserProfiles { get; }
+        public SourceCache<Role, int> Roles { get; }
+        public SourceCache<Permission, int> Permissions { get; }
+        public SourceCache<Application, int> Applications { get; }
+        public SourceCache<MessageTemplate, int> MessageTemplates { get; }
+
+        public Domain0Model()
+        {
+            UserProfiles = new SourceCache<UserProfile, int>(x => x.Id);
+            Roles = new SourceCache<Role, int>(x => x.Id.Value);
+            Permissions = new SourceCache<Permission, int>(x => x.Id.Value);
+            Applications = new SourceCache<Application, int>(x => x.Id.Value);
+            MessageTemplates = new SourceCache<MessageTemplate, int>(x => x.Id.Value);
+        }
     }
 }

@@ -6,6 +6,7 @@ using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DynamicData;
 
 namespace Domain0.Desktop.ViewModels
 {
@@ -17,6 +18,8 @@ namespace Domain0.Desktop.ViewModels
             ForceCreateUserCommand = ReactiveCommand.Create(ForceCreateUser);
             ForceCreateUserEmailCommand = ReactiveCommand.Create(ForceCreateUserEmail);
         }
+
+        protected override ISourceCache<UserProfile, int> Models => _domain0.Model.UserProfiles;
 
         public ReactiveCommand ForceCreateUserCommand { get; set; }
         public ReactiveCommand ForceCreateUserEmailCommand { get; set; }
@@ -82,12 +85,11 @@ namespace Domain0.Desktop.ViewModels
         private void OnUserProfileCreated(UserProfile userProfile)
         {
             var vm = _mapper.Map<UserProfileViewModel>(userProfile);
-            using(Items.SuppressChangeNotifications())
-                Items.Add(vm);
+            Models.AddOrUpdate(userProfile);
         }
 
         // BaseManageItemsViewModel
-
+        /*
         protected override IEnumerable<UserProfile> GetItemsFromModel()
         {
             return _domain0.Model.UserProfiles.Values;
@@ -107,6 +109,6 @@ namespace Domain0.Desktop.ViewModels
         {
             throw new System.NotImplementedException();
         }
-
+        */
     }
 }

@@ -4,73 +4,49 @@ using MahApps.Metro.IconPacks;
 
 ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
 
-  Grid 
+  Grid
   {
-    DataGrid
+    Grid 
     {
-      ItemsSource: bind Items
-      AutoGenerateColumns: false
-      CanUserAddRows: false
-      CanUserDeleteRows: false
-      Columns: [
-        DataGridTextColumn
-        {
-          IsReadOnly: true
-          Header: "Id"
-          Binding: bind Id
-          Width: Auto
-        }
-        DataGridTextColumn
-        {
-          Header: "Name"
-          Binding: bind Name
-          Width: Auto
-        }
-        DataGridTextColumn
-        {
-          Header: "Phone"
-          Binding: bind Phone
-          Width: Auto
-        }
-        DataGridTextColumn
-        {
-          Header: "Email"
-          Binding: bind Email
-          Width: Auto
-        }
-        DataGridTextColumn
-        {
-          Header: "Description"
-          Binding: bind Description
-          Width: Auto
-        }
-      ]
-    }
-
-    Button
-    {
-      HorizontalAlignment: Right
-      VerticalAlignment: Bottom
-      Margin: 20
-      Width: 64
-      Height: 64
-      ToolTip: "Add User"
-      Style: resource dyn "MahApps.Metro.Styles.MetroCircleButtonStyle"
-      Click: "ToggleCreateUser"
-      Background: Green
-      Foreground: White
-      BorderBrush: null
-      PackIconModern
+      #TwoRows("Auto")
+      @ManageButtons()
       {
-        Kind: "UserAdd"
-        Height: 32
-        Width: 32
+        Grid.Row: 0
+      }
+      @ManageDataGrid 
+      {
+        Grid.Row: 1
+        combine Columns: [
+          DataGridTextColumn
+          {
+            Header: "Name"
+            Binding: bind Name
+            Width: Auto
+          }
+          DataGridTextColumn
+          {
+            Header: "Phone"
+            Binding: bind Phone
+            Width: Auto
+          }
+          DataGridTextColumn
+          {
+            Header: "Email"
+            Binding: bind Email
+            Width: Auto
+          }
+          DataGridTextColumn
+          {
+            Header: "Description"
+            Binding: bind Description
+            Width: Auto
+          }
+        ]
       }
     }
-
     Flyout "flyoutCreateUser"
     {
-      Position: Right
+      Position: Left
       Width: 300
       Theme: "Inverse"
       Header: "New User"
@@ -113,6 +89,7 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
                   Margin: "5 5 5 0"
                   TextBoxHelper.Watermark: "Custom Sms Template"
                   Text: bind CustomSmsTemplate
+                  TextWrapping: Wrap
                 }
               }
               Button
@@ -157,12 +134,14 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
                   Margin: "5 5 5 0"
                   TextBoxHelper.Watermark: "Custom Email Subject Template"
                   Text: bind CustomEmailSubjectTemplate
+                  TextWrapping: Wrap
                 }
                 TextBox 
                 {
                   Margin: "5 5 5 0"
                   TextBoxHelper.Watermark: "Custom Email Template"
                   Text: bind CustomEmailTemplate
+                  TextWrapping: Wrap
                 }
               }
               Button

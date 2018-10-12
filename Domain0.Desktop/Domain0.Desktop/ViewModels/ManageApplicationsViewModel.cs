@@ -3,6 +3,7 @@ using Domain0.Api.Client;
 using Domain0.Desktop.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DynamicData;
 
 namespace Domain0.Desktop.ViewModels
 {
@@ -13,6 +14,9 @@ namespace Domain0.Desktop.ViewModels
         {
         }
 
+        protected override ISourceCache<Application, int> Models => _domain0.Model.Applications;
+
+        /*
         protected override IEnumerable<Application> GetItemsFromModel()
         {
             return _domain0.Model.Applications.Values;
@@ -32,5 +36,6 @@ namespace Domain0.Desktop.ViewModels
         {
             await _domain0.Client.RemoveApplicationAsync(id);
         }
+        */
     }
 }

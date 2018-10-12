@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using DynamicData;
 
 namespace Domain0.Desktop.ViewModels
 {
@@ -21,8 +22,10 @@ namespace Domain0.Desktop.ViewModels
         {
         }
 
-        // BaseManageItemsViewModel
+        protected override ISourceCache<MessageTemplate, int> Models => _domain0.Model.MessageTemplates;
 
+        // BaseManageItemsViewModel
+        /*
         protected override IEnumerable<MessageTemplate> GetItemsFromModel()
         {
             return _domain0.Model.MessageTemplates.Values;
@@ -42,5 +45,6 @@ namespace Domain0.Desktop.ViewModels
         {
             await _domain0.Client.RemoveMessageTemplateAsync(id);
         }
+        */
     }
 }

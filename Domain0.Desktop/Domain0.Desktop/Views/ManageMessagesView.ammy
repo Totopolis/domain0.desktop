@@ -2,54 +2,50 @@
 
 ViewUserControl "Domain0.Desktop.Views.ManageMessagesView" {
 
-  DataGrid 
+  Grid 
   {
-    ItemsSource: bind Items
-    AutoGenerateColumns: false
-    CanUserAddRows: true
-    CanUserDeleteRows: true
-    Columns: [
-      DataGridTextColumn
-      {
-        IsReadOnly: true
-        Header: "Id"
-        Binding: bind Id
-        Width: Auto
-      }
-      DataGridComboBoxColumn
-      {
-        Header: "Type"
-        ItemsSource: bind from Domain0.Desktop.ViewModels.ManageMessagesViewModel.SupportedMessageTypes
-        SelectedItemBinding: bind Type
-        Width: Auto
-      }
-      DataGridComboBoxColumn 
-      {
-        Header: "Locale"
-        ItemsSource: bind from Domain0.Desktop.ViewModels.ManageMessagesViewModel.SupportedMessageLocales
-        SelectedItemBinding: bind Locale
-        Width: Auto
-      }
-      DataGridTextColumn
-      {
-        Header: "Name"
-        Binding: bind Name
-        Width: Auto
-      }
-      DataGridTextColumn
-      {
-        Header: "Template"
-        Binding: bind Template
-        Width: 300
-      }
-      DataGridTextColumn
-      {
-        Header: "Description"
-        Binding: bind Description
-        Width: Auto
-      }
-    ]
-  }
+    #TwoRows("Auto")
+    @ManageButtons()
+    {
+      Grid.Row: 0
+    }
+    @ManageDataGrid()
+    {
+      Grid.Row: 1
+      combine Columns: [
+        DataGridTextColumn
+        {
+          Header: "Type"
+          Binding: bind Type
+          Width: Auto
+        }
+        DataGridTextColumn 
+        {
+          Header: "Locale"
+          Binding: bind Locale
+          Width: Auto
+        }
+        DataGridTextColumn
+        {
+          Header: "Name"
+          Binding: bind Name
+          Width: Auto
+        }
+        DataGridTextColumn
+        {
+          Header: "Template"
+          Binding: bind Template
+          Width: 300
+        }
+        DataGridTextColumn
+        {
+          Header: "Description"
+          Binding: bind Description
+          Width: Auto
+        }
+      ]
+    }
 
+  }
 
 }
