@@ -3,18 +3,20 @@ using Domain0.Desktop.Services;
 using Domain0.Desktop.Views.Converters;
 using DynamicData;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
+using DynamicData.Binding;
 using Ui.Wpf.Common.ViewModels;
 
 namespace Domain0.Desktop.ViewModels
 {
-    public abstract class BaseManageItemsViewModel<TViewModel, TModel> : ViewModelBase
-        where TViewModel : IItemViewModel
+    public abstract class BaseManageItemsViewModel<TViewModel, TModel> : ViewModelBase where TViewModel : IItemViewModel, new()
     {
         protected readonly IDomain0Service _domain0;
         protected readonly IMapper _mapper;
@@ -24,34 +26,29 @@ namespace Domain0.Desktop.ViewModels
             _domain0 = domain0;
             _mapper = mapper;
 
-            /*
-            Items.Changed.Subscribe(async x =>
-                {
-                    switch (x.Action)
-                    {
-                        case NotifyCollectionChangedAction.Add:
-                            foreach (var item in x.NewItems)
-                                await CreateItem((TViewModel) item);
-                            break;
-                        case NotifyCollectionChangedAction.Remove:
-                            foreach (var item in x.OldItems)
-                                await RemoveItem((TViewModel) item);
-                            break;
-                    }
-                })
-                .DisposeWith(Disposables);
-                */
+            var canOpenCreateFlyout = this.WhenAny(
+                x => x.IsCreateFlyoutOpen,
+                x => !x.Value);
+            OpenCreateFlyoutCommand = ReactiveCommand.Create(() =>
+            {
+                IsCreateFlyoutOpen = true;
+                IsEditFlyoutOpen = false;
+            }, canOpenCreateFlyout);
+            var canOpenEditFlyout = this.WhenAny(
+                x => x.IsEditFlyoutOpen,
+                x => x.SelectedItem,
+                (e, i) => !e.Value && i.Value != null);
+            OpenEditFlyoutCommand = ReactiveCommand.Create(() =>
+            {
+                IsCreateFlyoutOpen = false;
+                IsEditFlyoutOpen = true;
+            }, canOpenEditFlyout);
 
-            /*
-            Items.ItemChanged
-                .GroupByUntil(
-                    item => item.Sender.Id,
-                    item => item.Sender,
-                    group => group.Throttle(TimeSpan.FromSeconds(1)))
-                .SelectMany(group => group.TakeLast(1))
-                .Subscribe(async x => await UpdateItem(x))
-                .DisposeWith(Disposables);
-                */
+            EditSelectedCommand = ReactiveCommand.CreateFromTask(EditSelected,
+                this.WhenAny(x => x.SelectedItem, x => x.Value != null));
+            DeleteSelectedCommand = ReactiveCommand.CreateFromTask(DeleteSelected,
+                this.WhenAny(x => x.SelectedItem, x => x.Value != null));
+            CreateCommand = ReactiveCommand.Create(Create);
 
             UpdateFilters = ReactiveCommand.Create<PropertyFilter>(UpdateFilter);
             ModelFilters = new SourceCache<ModelFilter, PropertyInfo>(x => x.Property);
@@ -62,10 +59,15 @@ namespace Domain0.Desktop.ViewModels
 
             Models.Connect()
                 .Filter(dynamicFilter)
+                .Sort(SortExpressionComparer<TModel>.Ascending(ModelComparer), SortOptimisations.ComparesImmutableValuesOnly, 25)
                 .ObserveOnDispatcher()
                 .Bind(out _items)
                 .DisposeMany()
                 .Subscribe()
+                .DisposeWith(Disposables);
+
+            this.WhenAnyValue(x => x.SelectedItem)
+                .Subscribe(SelectionChanged)
                 .DisposeWith(Disposables);
         }
 
@@ -78,23 +80,14 @@ namespace Domain0.Desktop.ViewModels
                     if (string.IsNullOrEmpty(filter.Filter))
                         continue;
 
-                    var value = filter.Property.GetValue(model).ToString();
-                    if (!value.Contains(filter.Filter))
+                    var value = filter.Property.GetValue(model)?.ToString();
+                    if (string.IsNullOrEmpty(value) || !value.Contains(filter.Filter))
                         return false;
                 }
 
                 return true;
             };
         }
-
-        public ReactiveCommand UpdateFilters { get; set; }
-        private SourceCache<ModelFilter, PropertyInfo> ModelFilters { get; }
-        private readonly ReadOnlyObservableCollection<ModelFilter> _modelFilters;
-
-        protected abstract ISourceCache<TModel, int> Models { get; }
-
-        protected ReadOnlyObservableCollection<TModel> _items;
-        public ReadOnlyObservableCollection<TModel> Items => _items;
 
         private void UpdateFilter(PropertyFilter filter)
         {
@@ -108,48 +101,69 @@ namespace Domain0.Desktop.ViewModels
             });
         }
 
-        /*
-        private async Task UpdateItem(TViewModel vm)
+        private void SelectionChanged(TModel item)
         {
-            try
-            {
-                await ApiUpdateItemAsync(_mapper.Map<TModel>(vm));
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            if (item != null)
+                _mapper.Map(item, EditViewModel);
+            IsEditFlyoutOpen = false;
         }
 
-        private async Task CreateItem(TViewModel vm)
+
+        public ReactiveCommand UpdateFilters { get; set; }
+        private SourceCache<ModelFilter, PropertyInfo> ModelFilters { get; }
+        private readonly ReadOnlyObservableCollection<ModelFilter> _modelFilters;
+
+        private readonly ReadOnlyObservableCollection<TModel> _items;
+        public ReadOnlyObservableCollection<TModel> Items => _items;
+
+        [Reactive] public TModel SelectedItem { get; set; }
+        public TViewModel CreateViewModel { get; set; } = new TViewModel();
+        public TViewModel EditViewModel { get; set; } = new TViewModel();
+        public TModel CreateModel => _mapper.Map<TModel>(CreateViewModel);
+        public TModel EditModel => _mapper.Map<TModel>(EditViewModel);
+
+        [Reactive] public bool IsCreateFlyoutOpen { get; set; }
+        [Reactive] public bool IsEditFlyoutOpen { get; set; }
+
+        public ReactiveCommand OpenCreateFlyoutCommand { get; set; }
+        public ReactiveCommand OpenEditFlyoutCommand { get; set; }
+
+        public ReactiveCommand EditSelectedCommand { get; set; }
+        public ReactiveCommand DeleteSelectedCommand { get; set; }
+        public ReactiveCommand CreateCommand { get; set; }
+
+
+        private async Task EditSelected()
         {
-            try
-            {
-                vm.Id = await ApiCreateItemAsync(_mapper.Map<TModel>(vm));
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            var request = EditModel;
+            await UpdateApi(request);
+            Models.AddOrUpdate(request);
+
+            IsEditFlyoutOpen = false;
         }
 
-        private async Task RemoveItem(TViewModel vm)
+        private async Task DeleteSelected()
         {
-            try
-            {
-                await ApiRemoveItemAsync(vm.Id.Value);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            var id = EditViewModel.Id.Value;
+            await RemoveApi(id);
+            Models.Remove(id);
         }
 
-        
-        protected abstract Task ApiUpdateItemAsync(TModel m);
-        protected abstract Task<int> ApiCreateItemAsync(TModel m);
-        protected abstract Task ApiRemoveItemAsync(int id);
-        */
+        private async Task Create()
+        {
+            CreateViewModel.Id = await CreateApi(CreateModel);
+            Models.AddOrUpdate(CreateModel);
+
+            IsCreateFlyoutOpen = false;
+        }
+
+        protected abstract Task UpdateApi(TModel m);
+        protected abstract Task<int> CreateApi(TModel m);
+        protected abstract Task RemoveApi(int id);
+
+        protected abstract Func<TModel, IComparable> ModelComparer { get; }
+
+        protected abstract ISourceCache<TModel, int> Models { get; }
     }
 
     internal class ModelFilter

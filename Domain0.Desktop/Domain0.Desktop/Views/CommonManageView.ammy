@@ -169,17 +169,21 @@ alias ManageDataGrid()
       }
     ]
 
+    Name: "ManageDataGrid"
     VirtualizingPanel.IsVirtualizing: true
     VirtualizingPanel.VirtualizationMode: "Recycling"
+    SelectionMode: Single
     IsReadOnly: true
     ItemsSource: bind Items
     AutoGenerateColumns: false
+    SelectedItem: bind SelectedItem
     combine Columns: [
       DataGridTextColumn
       {
         Header: "Id"
         Binding: bind Id
         Width: Auto
+        SortDirection: "Ascending"
       }
     ]
   }
@@ -194,7 +198,6 @@ alias ManageRoundButton(kind, tt)
     Height: 32
     ToolTip: $tt
     Style: resource dyn "MahApps.Metro.Styles.MetroCircleButtonStyle"
-    //Click: "ToggleCreate"
     PackIconModern
     {
       Kind: $kind
@@ -212,14 +215,100 @@ alias ManageButtons()
     @ManageRoundButton("Add", "Add new")
     {
       Grid.Column: 0
+      Command: bind OpenCreateFlyoutCommand
     }
     @ManageRoundButton("Edit", "Edit selected")
     {
       Grid.Column: 1
+      Command: bind OpenEditFlyoutCommand
     }
     @ManageRoundButton("Delete", "Remove selected")
     {
       Grid.Column: 2
+      Command: bind DeleteSelectedCommand
     }
+  }
+}
+
+alias FlyoutCreate(header = "Add")
+{
+  Flyout "FlyoutCreate"
+  {
+    IsOpen: bind IsCreateFlyoutOpen
+    Position: Right
+    Width: 300
+    Theme: "Inverse"
+    Header: $header
+  }
+}
+
+alias FlyoutEdit(header = "Edit")
+{
+  Flyout "FlyoutEdit"
+  {
+    IsOpen: bind IsEditFlyoutOpen
+    Position: Right
+    Width: 300
+    Theme: "Inverse"
+    Header: $header
+  }
+}
+
+alias EditTextBox(watermark)
+{
+  TextBox
+  {
+    Margin: "5 5 5 0"
+    TextBoxHelper.Watermark: $watermark
+    TextBoxHelper.UseFloatingWatermark: true
+    TextBoxHelper.ClearTextButton: true
+  }
+}
+
+alias EditTextBoxWrap(watermark)
+{
+  TextBox
+  {
+    Margin: "5 5 5 0"
+    TextBoxHelper.Watermark: $watermark
+    TextBoxHelper.UseFloatingWatermark: true
+    TextWrapping: Wrap
+  }
+}
+
+alias EditComboBox(watermark)
+{
+  ComboBox
+  {
+    Margin: "5 5 5 0"
+    TextBoxHelper.Watermark: $watermark
+    TextBoxHelper.UseFloatingWatermark: true
+  }
+}
+alias EditCheckBox()
+{
+  CheckBox
+  {
+    Margin: "5 5 5 0"
+  }
+}
+
+alias EditButton(command = "{Binding EditSelectedCommand}")
+{
+  Button
+  {
+    Margin: "5 15 5 0"
+    Command: $command
+    Content: "Edit"
+  }
+}
+
+alias CreateButton(command = "{Binding CreateCommand}")
+{
+  Button
+  {
+    Margin: "5 15 5 0"
+    Command: $command
+    Content: "Create"
   }
 }

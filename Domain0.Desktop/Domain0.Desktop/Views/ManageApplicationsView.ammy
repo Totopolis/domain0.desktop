@@ -1,32 +1,68 @@
 ﻿using Domain0.Desktop.Views;
+using MahApps.Metro.Controls;
 
 ViewUserControl "Domain0.Desktop.Views.ManageApplicationsView" {
 
-  Grid 
+  Grid
   {
-    #TwoRows("Auto")
-    @ManageButtons()
+    Grid 
     {
-      Grid.Row: 0
+      #TwoRows("Auto")
+      @ManageButtons()
+      {
+        Grid.Row: 0
+      }
+      @ManageDataGrid 
+      {
+        Grid.Row: 1
+        combine Columns: [
+          DataGridTextColumn
+          {
+            Header: "Name"
+            Binding: bind Name
+            Width: Auto
+          }
+          DataGridTextColumn
+          {
+            Header: "Description"
+            Binding: bind Description
+            Width: Auto
+          }
+        ]
+      }
     }
-    @ManageDataGrid 
+    FlyoutsControl 
     {
-      Grid.Row: 1
-      combine Columns: [
-        DataGridTextColumn
+      @FlyoutCreate()
+      {
+        StackPanel
         {
-          Header: "Name"
-          Binding: bind Name
-          Width: Auto
+          @EditTextBox("Name")
+          {
+            Text: bind CreateViewModel.Name
+          }
+          @EditTextBoxWrap("Description")
+          {
+            Text: bind CreateViewModel.Description
+          }
+          @CreateButton() {}
         }
-        DataGridTextColumn
+      }
+      @FlyoutEdit() 
+      {
+        StackPanel
         {
-          Header: "Description"
-          Binding: bind Description
-          Width: Auto
+          @EditTextBox("Name")
+          {
+            Text: bind EditViewModel.Name
+          }
+          @EditTextBoxWrap("Description")
+          {
+            Text: bind EditViewModel.Description
+          }
+          @EditButton() {}
         }
-      ]
+      } 
     }
   }
-
 }

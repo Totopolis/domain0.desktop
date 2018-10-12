@@ -44,115 +44,128 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
         ]
       }
     }
-    Flyout "flyoutCreateUser"
+
+    FlyoutsControl
     {
-      Position: Left
-      Width: 300
-      Theme: "Inverse"
-      Header: "New User"
-      Grid 
+
+      @FlyoutCreate("Add User")
       {
-        MetroTabControl 
+        Grid
         {
-          TabControlHelper.Underlined: TabPanel
-          TabStripPlacement: Top
-          MetroTabItem 
+          MetroTabControl 
           {
-            ControlsHelper.HeaderFontSize: 18
-            Header: "Phone"
-
-            StackPanel
+            TabControlHelper.Underlined: TabPanel
+            TabStripPlacement: Top
+            MetroTabItem 
             {
-              TextBox
-              {
-                Margin: "5 5 5 0"
-                TextBoxHelper.Watermark: "Phone"
-                Text: bind Phone
-              }
-              TextBox 
-              {
-                Margin: "5 5 5 0"
-                TextBoxHelper.Watermark: "Name"
-                Text: bind Name
-              }
-              CheckBox "CheckBox_BlockSmsSend"
-              {
-                Margin: "5 15 5 5"
-                IsChecked: bind BlockSmsSend
-                "Block Sms Send"
-              }
+              ControlsHelper.HeaderFontSize: 18
+              Header: "Phone"
+      
               StackPanel
               {
-                Visibility: bind BlockSmsSend convert (bool val) => val ? Visibility.Collapsed : Visibility.Visible
+                TextBox
+                {
+                  Margin: "5 5 5 0"
+                  TextBoxHelper.Watermark: "Phone"
+                  Text: bind Phone
+                }
                 TextBox 
                 {
                   Margin: "5 5 5 0"
-                  TextBoxHelper.Watermark: "Custom Sms Template"
-                  Text: bind CustomSmsTemplate
-                  TextWrapping: Wrap
+                  TextBoxHelper.Watermark: "Name"
+                  Text: bind Name
                 }
+                CheckBox "CheckBox_BlockSmsSend"
+                {
+                  Margin: "5 15 5 5"
+                  IsChecked: bind BlockSmsSend
+                  "Block Sms Send"
+                }
+                StackPanel
+                {
+                  Visibility: bind BlockSmsSend convert (bool val) => val ? Visibility.Collapsed : Visibility.Visible
+                  TextBox 
+                  {
+                    Margin: "5 5 5 0"
+                    TextBoxHelper.Watermark: "Custom Sms Template"
+                    Text: bind CustomSmsTemplate
+                    TextWrapping: Wrap
+                  }
+                }
+                @CreateButton(bind ForceCreateUserCommand){}
               }
-              Button
+            }
+            MetroTabItem 
+            {
+              Header: "Email"
+              ControlsHelper.HeaderFontSize: 18
+      
+              StackPanel
               {
-                Margin: "5 15 5 0"
-                Command: bind ForceCreateUserCommand
-                Click: "ToggleCreateUser"
-                "Create"
+                TextBox
+                {
+                  Margin: "5 5 5 0"
+                  TextBoxHelper.Watermark: "Email"
+                  Text: bind Email
+                }
+                TextBox 
+                {
+                  Margin: "5 5 5 0"
+                  TextBoxHelper.Watermark: "Name"
+                  Text: bind Name
+                }
+                CheckBox
+                {
+                  Margin: "5 15 5 5"
+                  IsChecked: bind BlockEmailSend
+                  "Block Email Send"
+                }
+                StackPanel
+                {
+                  Visibility: bind BlockEmailSend convert (bool val) => val ? Visibility.Collapsed : Visibility.Visible
+                  TextBox 
+                  {
+                    Margin: "5 5 5 0"
+                    TextBoxHelper.Watermark: "Custom Email Subject Template"
+                    Text: bind CustomEmailSubjectTemplate
+                    TextWrapping: Wrap
+                  }
+                  TextBox 
+                  {
+                    Margin: "5 5 5 0"
+                    TextBoxHelper.Watermark: "Custom Email Template"
+                    Text: bind CustomEmailTemplate
+                    TextWrapping: Wrap
+                  }
+                }
+                @CreateButton(bind ForceCreateUserEmailCommand){}
               }
             }
           }
-          MetroTabItem 
+        }
+      }
+  
+      @FlyoutEdit() 
+      {
+        StackPanel
+        {
+          @EditTextBox("Name")
           {
-            Header: "Email"
-            ControlsHelper.HeaderFontSize: 18
-
-            StackPanel
-            {
-              TextBox
-              {
-                Margin: "5 5 5 0"
-                TextBoxHelper.Watermark: "Email"
-                Text: bind Email
-              }
-              TextBox 
-              {
-                Margin: "5 5 5 0"
-                TextBoxHelper.Watermark: "Name"
-                Text: bind Name
-              }
-              CheckBox
-              {
-                Margin: "5 15 5 5"
-                IsChecked: bind BlockEmailSend
-                "Block Email Send"
-              }
-              StackPanel
-              {
-                Visibility: bind BlockEmailSend convert (bool val) => val ? Visibility.Collapsed : Visibility.Visible
-                TextBox 
-                {
-                  Margin: "5 5 5 0"
-                  TextBoxHelper.Watermark: "Custom Email Subject Template"
-                  Text: bind CustomEmailSubjectTemplate
-                  TextWrapping: Wrap
-                }
-                TextBox 
-                {
-                  Margin: "5 5 5 0"
-                  TextBoxHelper.Watermark: "Custom Email Template"
-                  Text: bind CustomEmailTemplate
-                  TextWrapping: Wrap
-                }
-              }
-              Button
-              {
-                Margin: "5 15 5 0"
-                Command: bind ForceCreateUserEmailCommand
-                Click: "ToggleCreateUser"
-                "Create"
-              }
-            }
+            Text: bind EditViewModel.Name
           }
+          @EditTextBox("Phone")
+          {
+            Text: bind EditViewModel.Phone
+          }
+          @EditTextBox("Email")
+          {
+            Text: bind EditViewModel.Email
+          }
+          @EditTextBoxWrap("Description")
+          {
+            Text: bind EditViewModel.Description
+          }
+          @EditButton() {}
         }
       }
     }

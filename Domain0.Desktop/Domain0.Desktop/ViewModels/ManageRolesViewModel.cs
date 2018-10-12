@@ -1,9 +1,9 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using Domain0.Api.Client;
 using Domain0.Desktop.Services;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using DynamicData;
+using System.Threading.Tasks;
 
 namespace Domain0.Desktop.ViewModels
 {
@@ -13,29 +13,23 @@ namespace Domain0.Desktop.ViewModels
         {
         }
 
-        protected override ISourceCache<Role, int> Models => _domain0.Model.Roles;
-
-        // BaseManageItemsViewModel
-        /*
-        protected override IEnumerable<Role> GetItemsFromModel()
-        {
-            return _domain0.Model.Roles.Values;
-        }
-
-        protected override async Task ApiUpdateItemAsync(Role m)
+        protected override async Task UpdateApi(Role m)
         {
             await _domain0.Client.UpdateRoleAsync(m);
         }
 
-        protected override async Task<int> ApiCreateItemAsync(Role m)
+        protected override async Task<int> CreateApi(Role m)
         {
             return await _domain0.Client.CreateRoleAsync(m);
         }
 
-        protected override async Task ApiRemoveItemAsync(int id)
+        protected override async Task RemoveApi(int id)
         {
             await _domain0.Client.RemoveRoleAsync(id);
         }
-        */
+
+        protected override Func<Role, IComparable> ModelComparer => m => m.Id;
+
+        protected override ISourceCache<Role, int> Models => _domain0.Model.Roles;
     }
 }

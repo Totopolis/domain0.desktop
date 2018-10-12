@@ -1,9 +1,9 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using Domain0.Api.Client;
 using Domain0.Desktop.Services;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using DynamicData;
+using System.Threading.Tasks;
 
 namespace Domain0.Desktop.ViewModels
 {
@@ -14,28 +14,23 @@ namespace Domain0.Desktop.ViewModels
         {
         }
 
-        protected override ISourceCache<Application, int> Models => _domain0.Model.Applications;
-
-        /*
-        protected override IEnumerable<Application> GetItemsFromModel()
-        {
-            return _domain0.Model.Applications.Values;
-        }
-
-        protected override async Task ApiUpdateItemAsync(Application m)
+        protected override async Task UpdateApi(Application m)
         {
             await _domain0.Client.UpdateApplicationAsync(m);
         }
 
-        protected override async Task<int> ApiCreateItemAsync(Application m)
+        protected override async Task<int> CreateApi(Application m)
         {
             return await _domain0.Client.CreateApplicationAsync(m);
         }
 
-        protected override async Task ApiRemoveItemAsync(int id)
+        protected override async Task RemoveApi(int id)
         {
             await _domain0.Client.RemoveApplicationAsync(id);
         }
-        */
+
+        protected override Func<Application, IComparable> ModelComparer => m => m.Id;
+
+        protected override ISourceCache<Application, int> Models => _domain0.Model.Applications;
     }
 }

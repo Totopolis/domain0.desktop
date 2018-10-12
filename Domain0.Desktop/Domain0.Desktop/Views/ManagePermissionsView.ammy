@@ -1,48 +1,104 @@
 ﻿using Domain0.Desktop.Views;
+using MahApps.Metro.Controls;
 
 ViewUserControl "Domain0.Desktop.Views.ManagePermissionsView" {
 
-
-  Grid 
+  Grid
   {
-    #TwoRows("Auto")
-    @ManageButtons()
+    Grid 
     {
-      Grid.Row: 0
+      #TwoRows("Auto")
+      @ManageButtons()
+      {
+        Grid.Row: 0
+      }
+      @ManageDataGrid 
+      {
+        Grid.Row: 1
+        combine Columns: [
+          DataGridTextColumn
+          {
+            Header: "Name"
+            Binding: bind Name
+            Width: Auto
+          }
+          DataGridTextColumn
+          {
+            Header: "Application Id"
+            Binding: bind ApplicationId
+            Width: Auto
+          }
+          DataGridComboBoxColumn
+          {
+            Header: "Application"
+            ItemsSource: bind Data.Applications from $resource Proxy set [
+             Mode: OneWay
+             // UpdateSourceTrigger: PropertyChanged
+            ]
+            DisplayMemberPath: "Name"
+            SelectedValuePath: "Id"
+            SelectedValueBinding: bind ApplicationId set [
+              Mode:OneWay
+              // UpdateSourceTrigger: PropertyChanged
+            ]
+            Width: Auto
+          }
+          DataGridTextColumn
+          {
+            Header: "Description"
+            Binding: bind Description
+            Width: Auto
+          }
+        ]
+      }
     }
-    @ManageDataGrid 
+    
+    FlyoutsControl
     {
-      Grid.Row: 1
-      combine Columns: [
-        DataGridTextColumn
+      @FlyoutCreate()
+      {
+        StackPanel
         {
-          Header: "Name"
-          Binding: bind Name
-          Width: Auto
+          @EditTextBox("Name")
+          {
+            Text: bind CreateViewModel.Name
+          }
+          @EditComboBox("Application") 
+          {
+            ItemsSource: bind Applications
+            DisplayMemberPath: "Name"
+            SelectedValuePath: "Id"
+            SelectedValue: bind CreateViewModel.ApplicationId
+          }
+          @EditTextBoxWrap("Description")
+          {
+            Text: bind CreateViewModel.Description
+          }
+          @CreateButton() {}
         }
-        DataGridTextColumn
+      }
+      @FlyoutEdit() 
+      {
+        StackPanel
         {
-          Header: "Application Id"
-          Binding: bind ApplicationId
-          Width: Auto
+          @EditTextBox("Name")
+          {
+            Text: bind EditViewModel.Name
+          }
+          @EditComboBox("Application") 
+          {
+            ItemsSource: bind Applications
+            DisplayMemberPath: "Name"
+            SelectedValuePath: "Id"
+            SelectedValue: bind EditViewModel.ApplicationId
+          }
+          @EditTextBoxWrap("Description")
+          {
+            Text: bind EditViewModel.Description
+          }
+          @EditButton() {}
         }
-        /*
-        DataGridComboBoxColumn
-        {
-          Header: "Application"
-          ItemsSource: bind from Domain0.Desktop.ViewModels.ManageMessagesViewModel.SupportedMessageTypes
-          SelectedItemBinding: bind Type
-          Width: Auto
-        }
-        */
-        DataGridTextColumn
-        {
-          Header: "Description"
-          Binding: bind Description
-          Width: Auto
-        }
-      ]
+      } 
     }
   }
-
 }

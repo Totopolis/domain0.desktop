@@ -1,9 +1,13 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using AutoMapper;
 using Domain0.Api.Client;
 using Domain0.Desktop.Services;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using DynamicData;
+using System.Threading.Tasks;
+using DynamicData.Binding;
 
 namespace Domain0.Desktop.ViewModels
 {
@@ -11,31 +15,35 @@ namespace Domain0.Desktop.ViewModels
     {
         public ManagePermissionsViewModel(IDomain0Service domain0, IMapper mapper) : base(domain0, mapper)
         {
+            _domain0.Model.Applications.Connect()
+                .Sort(SortExpressionComparer<Application>.Ascending(t => t.Id), SortOptimisations.ComparesImmutableValuesOnly, 25)
+                .ObserveOnDispatcher()
+                .Bind(out _applications)
+                .DisposeMany()
+                .Subscribe()
+                .DisposeWith(Disposables);
         }
 
-        protected override ISourceCache<Permission, int> Models => _domain0.Model.Permissions;
+        private readonly ReadOnlyObservableCollection<Application> _applications;
+        public ReadOnlyObservableCollection<Application> Applications => _applications;
 
-        // BaseManageItemsViewModel
-        /*
-        protected override IEnumerable<Permission> GetItemsFromModel()
-        {
-            return _domain0.Model.Permissions.Values;
-        }
-
-        protected override async Task ApiUpdateItemAsync(Permission m)
+        protected override async Task UpdateApi(Permission m)
         {
             await _domain0.Client.UpdatePermissionAsync(m);
         }
 
-        protected override async Task<int> ApiCreateItemAsync(Permission m)
+        protected override async Task<int> CreateApi(Permission m)
         {
             return await _domain0.Client.CreatePermissionAsync(m);
         }
 
-        protected override async Task ApiRemoveItemAsync(int id)
+        protected override async Task RemoveApi(int id)
         {
             await _domain0.Client.RemovePermissionAsync(id);
         }
-        */
+
+        protected override Func<Permission, IComparable> ModelComparer => m => m.Id;
+
+        protected override ISourceCache<Permission, int> Models => _domain0.Model.Permissions;
     }
 }

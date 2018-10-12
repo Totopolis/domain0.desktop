@@ -1,48 +1,95 @@
 ﻿using Domain0.Desktop.Views;
+using MahApps.Metro.Controls;
 
 ViewUserControl "Domain0.Desktop.Views.ManageRolesView" {
 
-
   Grid 
   {
-    #TwoRows("Auto")
-    @ManageButtons()
+    
+    Grid 
     {
-      Grid.Row: 0
-    }
-    @ManageDataGrid 
-    {
-      Grid.Row: 1
-      combine Columns: [
-        DataGridTextColumn
-        {
-          Header: "Name"
-          Binding: bind Name
-          Width: Auto
-        }
-        DataGridTemplateColumn
-        {
-          Header: "Is Default"
-          SortMemberPath: "IsDefault"
-          CellTemplate: DataTemplate
+      #TwoRows("Auto")
+      @ManageButtons()
+      {
+        Grid.Row: 0
+      }
+      @ManageDataGrid 
+      {
+        Grid.Row: 1
+        combine Columns: [
+          DataGridTextColumn
           {
-            CheckBox
+            Header: "Name"
+            Binding: bind Name
+            Width: Auto
+          }
+          DataGridTemplateColumn
+          {
+            Header: "Is Default"
+            SortMemberPath: "IsDefault"
+            CellTemplate: DataTemplate
             {
-              IsEnabled: false
-              HorizontalAlignment: Center
-              VerticalAlignment: Center
-              IsChecked: bind IsDefault set [ Mode:OneWay ]
+              CheckBox
+              {
+                IsEnabled: false
+                HorizontalAlignment: Center
+                VerticalAlignment: Center
+                IsChecked: bind IsDefault set [ Mode:OneWay ]
+              }
             }
           }
-        }
-        DataGridTextColumn
+          DataGridTextColumn
+          {
+            Header: "Description"
+            Binding: bind Description
+            Width: Auto
+          }
+        ]
+      }
+    }
+
+    FlyoutsControl
+    {
+      @FlyoutCreate()
+      {
+        StackPanel
         {
-          Header: "Description"
-          Binding: bind Description
-          Width: Auto
+          @EditTextBox("Name")
+          {
+            Text: bind CreateViewModel.Name
+          }
+          @EditCheckBox()
+          {
+            IsChecked: bind CreateViewModel.IsDefault
+            "Is Default"
+          }
+          @EditTextBoxWrap("Description")
+          {
+            Text: bind CreateViewModel.Description
+          }
+          @CreateButton() {}
         }
-      ]
+      }
+      @FlyoutEdit() 
+      {
+        StackPanel
+        {
+          @EditTextBox("Name")
+          {
+            Text: bind EditViewModel.Name
+          }
+          @EditCheckBox()
+          {
+            IsChecked: bind EditViewModel.IsDefault
+            "Is Default"
+          }
+          @EditTextBoxWrap("Description")
+          {
+            Text: bind EditViewModel.Description
+          }
+          @EditButton() {}
+        }
+      } 
     }
   }
-
 }
