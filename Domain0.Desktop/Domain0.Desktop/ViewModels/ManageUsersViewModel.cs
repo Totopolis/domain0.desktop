@@ -5,6 +5,7 @@ using DynamicData;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Domain0.Desktop.ViewModels
@@ -28,9 +29,21 @@ namespace Domain0.Desktop.ViewModels
             throw new NotImplementedException();
         }
 
-        protected override Task RemoveApi(int id)
+        protected override async Task RemoveApi(int id)
         {
-            throw new NotImplementedException();
+            var userProfile = Models.Lookup(id).Value;
+            await _domain0.Client.DeleteUserAsync((long)userProfile.Phone.Value);
+        }
+
+        protected override void AfterDeletedSelected(int id)
+        {
+            _domain0.Model.UserPermissions.Edit(innerList =>
+            {
+                var userPermissions = innerList.Where(x => x.UserId == id);
+                innerList.RemoveMany(userPermissions);
+            });
+
+            base.AfterDeletedSelected(id);
         }
 
         protected override Func<UserProfile, IComparable> ModelComparer => m => m.Id;

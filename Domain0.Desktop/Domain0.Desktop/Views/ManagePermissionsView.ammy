@@ -22,25 +22,13 @@ ViewUserControl "Domain0.Desktop.Views.ManagePermissionsView" {
             Binding: bind Name
             Width: Auto
           }
-          DataGridTextColumn
-          {
-            Header: "Application Id"
-            Binding: bind ApplicationId
-            Width: Auto
-          }
           DataGridComboBoxColumn
           {
             Header: "Application"
-            ItemsSource: bind Data.Applications from $resource Proxy set [
-             Mode: OneWay
-             // UpdateSourceTrigger: PropertyChanged
-            ]
+            ItemsSource: bind Data.Applications from $resource Proxy set [ Mode: OneWay ]
             DisplayMemberPath: "Name"
             SelectedValuePath: "Id"
-            SelectedValueBinding: bind ApplicationId set [
-              Mode:OneWay
-              // UpdateSourceTrigger: PropertyChanged
-            ]
+            SelectedValueBinding: bind ApplicationId set [ Mode:OneWay ]
             Width: Auto
           }
           DataGridTextColumn

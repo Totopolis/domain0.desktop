@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using AutoMapper;
@@ -40,6 +41,22 @@ namespace Domain0.Desktop.ViewModels
         protected override async Task RemoveApi(int id)
         {
             await _domain0.Client.RemovePermissionAsync(id);
+        }
+
+        protected override void AfterDeletedSelected(int id)
+        {
+            _domain0.Model.UserPermissions.Edit(innerList =>
+            {
+                var userPermissions = innerList.Where(x => x.Id == id);
+                innerList.RemoveMany(userPermissions);
+            });
+            _domain0.Model.RolePermissions.Edit(innerList =>
+            {
+                var rolePermissions = innerList.Where(x => x.Id == id);
+                innerList.RemoveMany(rolePermissions);
+            });
+
+            base.AfterDeletedSelected(id);
         }
 
         protected override Func<Permission, IComparable> ModelComparer => m => m.Id;

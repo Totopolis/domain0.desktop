@@ -5,9 +5,11 @@ using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using DynamicData;
 
 namespace Domain0.Desktop.Services
 {
@@ -129,6 +131,24 @@ namespace Domain0.Desktop.Services
             {
                 innerCache.Clear();
                 innerCache.AddOrUpdate(messageTemplates);
+            });
+
+            controller.SetMessage("Load Role's Permissions...");
+            var roleIds = roles.Select(x => x.Id.Value).ToList();
+            var rolePermissions = await _client.LoadPermissionsByRoleFilterAsync(new RolePermissionFilter(roleIds));
+            Model.RolePermissions.Edit(innerList =>
+            {
+                innerList.Clear();
+                innerList.AddRange(rolePermissions);
+            });
+
+            controller.SetMessage("Load User's Permissions...");
+            var userIds = userProfiles.Select(x => x.Id).ToList();
+            var userPermissions = await _client.LoadPermissionsByUserFilterAsync(new UserPermissionFilter(userIds));
+            Model.UserPermissions.Edit(innerList =>
+            {
+                innerList.Clear();
+                innerList.AddRange(userPermissions);
             });
 
             await controller.CloseAsync();

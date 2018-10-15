@@ -146,6 +146,11 @@ namespace Domain0.Desktop.ViewModels
         {
             var id = EditViewModel.Id.Value;
             await RemoveApi(id);
+            AfterDeletedSelected(id);
+        }
+
+        protected virtual void AfterDeletedSelected(int id)
+        {
             Models.Remove(id);
         }
 
