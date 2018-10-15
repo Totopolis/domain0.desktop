@@ -44,6 +44,28 @@ ViewUserControl "Domain0.Desktop.Views.ManageRolesView" {
             Binding: bind Description
             Width: Auto
           }
+          DataGridTemplateColumn
+          {
+            Header: "Permissions"
+            SortMemberPath: "PermissionsString"
+            CellTemplate: DataTemplate
+            {
+              ItemsControl
+              {
+                ScrollViewer.HorizontalScrollBarVisibility: Disabled
+                ItemsSource: bind Permissions set [ Mode: OneWay ]
+                ItemsPanel: ItemsPanelTemplate {
+                    @StackPanelHorizontal() 
+                    {
+                      IsItemsHost: true
+                    }
+                }
+                ItemTemplate: DataTemplate {
+                  @LabelTag(DarkBlue, bind Name) {}
+                }
+              }
+            }
+          }
         ]
       }
     }

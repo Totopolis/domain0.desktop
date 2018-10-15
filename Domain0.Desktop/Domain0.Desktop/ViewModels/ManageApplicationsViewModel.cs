@@ -4,6 +4,7 @@ using Domain0.Api.Client;
 using Domain0.Desktop.Services;
 using DynamicData;
 using System.Threading.Tasks;
+using Domain0.Desktop.ViewModels.Items;
 
 namespace Domain0.Desktop.ViewModels
 {
@@ -28,8 +29,6 @@ namespace Domain0.Desktop.ViewModels
         {
             await _domain0.Client.RemoveApplicationAsync(id);
         }
-
-        protected override Func<Application, IComparable> ModelComparer => m => m.Id;
 
         protected override ISourceCache<Application, int> Models => _domain0.Model.Applications;
     }

@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using Domain0.Api.Client;
 using Domain0.Desktop.Services;
+using Domain0.Desktop.ViewModels.Items;
 using DynamicData;
 using System;
 using System.Linq;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 
 namespace Domain0.Desktop.ViewModels
@@ -12,6 +15,43 @@ namespace Domain0.Desktop.ViewModels
     {
         public ManageRolesViewModel(IDomain0Service domain0, IMapper mapper) : base(domain0, mapper)
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
+            _permissions = _domain0.Model.Permissions
+                .AsObservableCache()
+                .DisposeWith(Disposables);
+        }
+
+        private IObservableCache<Permission, int> _permissions;
+
+        protected override RoleViewModel TransformToViewModel(Role model)
+        {
+            var vm = base.TransformToViewModel(model);
+
+            var permissionsChanges = _permissions.Connect();
+            var rolePermissions = _domain0.Model.RolePermissions
+                .Connect()
+                .Filter(x => x.RoleId == vm.Id)
+                .ToCollection();
+
+            var combined = Observable.CombineLatest(
+                rolePermissions,
+                permissionsChanges,
+                (rp, _) => rp.Select(x => _permissions.Lookup(x.Id.Value).Value)
+            );
+
+            combined
+                .Subscribe(x =>
+                {
+                    vm.Permissions = x;
+                    vm.PermissionsString = string.Join(",", x.Select(p => p.Name));
+                })
+                .DisposeWith(vm.Disposables);
+
+            return vm;
         }
 
         protected override async Task UpdateApi(Role m)
@@ -44,8 +84,6 @@ namespace Domain0.Desktop.ViewModels
 
             base.AfterDeletedSelected(id);
         }
-
-        protected override Func<Role, IComparable> ModelComparer => m => m.Id;
 
         protected override ISourceCache<Role, int> Models => _domain0.Model.Roles;
     }

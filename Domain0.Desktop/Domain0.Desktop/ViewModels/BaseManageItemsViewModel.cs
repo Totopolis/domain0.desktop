@@ -2,6 +2,7 @@
 using Domain0.Desktop.Services;
 using Domain0.Desktop.Views.Converters;
 using DynamicData;
+using DynamicData.Binding;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
@@ -11,7 +12,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using DynamicData.Binding;
+using Domain0.Desktop.ViewModels.Items;
 using Ui.Wpf.Common.ViewModels;
 
 namespace Domain0.Desktop.ViewModels
@@ -57,9 +58,12 @@ namespace Domain0.Desktop.ViewModels
                 .Bind(out _modelFilters)
                 .Select(_ => CreateFilter());
 
+            Initialize();
+
             Models.Connect()
+                .Transform(TransformToViewModel)
                 .Filter(dynamicFilter)
-                .Sort(SortExpressionComparer<TModel>.Ascending(ModelComparer), SortOptimisations.ComparesImmutableValuesOnly, 25)
+                .Sort(SortExpressionComparer<TViewModel>.Ascending(x => x.Id), SortOptimisations.ComparesImmutableValuesOnly, 25)
                 .ObserveOnDispatcher()
                 .Bind(out _items)
                 .DisposeMany()
@@ -71,7 +75,12 @@ namespace Domain0.Desktop.ViewModels
                 .DisposeWith(Disposables);
         }
 
-        private Func<TModel, bool> CreateFilter()
+        protected virtual void Initialize()
+        {
+
+        }
+
+        private Func<TViewModel, bool> CreateFilter()
         {
             return model =>
             {
@@ -97,26 +106,30 @@ namespace Domain0.Desktop.ViewModels
             ModelFilters.AddOrUpdate(new ModelFilter
             {
                 Filter = filter.Filter,
-                Property = typeof(TModel).GetProperty(filter.Name)
+                Property = typeof(TViewModel).GetProperty(filter.Name)
             });
         }
 
-        private void SelectionChanged(TModel item)
+        private void SelectionChanged(TViewModel item)
         {
             if (item != null)
                 _mapper.Map(item, EditViewModel);
             IsEditFlyoutOpen = false;
         }
 
+        protected virtual TViewModel TransformToViewModel(TModel model)
+        {
+            return _mapper.Map<TViewModel>(model);
+        }
 
         public ReactiveCommand UpdateFilters { get; set; }
         private SourceCache<ModelFilter, PropertyInfo> ModelFilters { get; }
         private readonly ReadOnlyObservableCollection<ModelFilter> _modelFilters;
 
-        private readonly ReadOnlyObservableCollection<TModel> _items;
-        public ReadOnlyObservableCollection<TModel> Items => _items;
+        private readonly ReadOnlyObservableCollection<TViewModel> _items;
+        public ReadOnlyObservableCollection<TViewModel> Items => _items;
 
-        [Reactive] public TModel SelectedItem { get; set; }
+        [Reactive] public TViewModel SelectedItem { get; set; }
         public TViewModel CreateViewModel { get; set; } = new TViewModel();
         public TViewModel EditViewModel { get; set; } = new TViewModel();
         public TModel CreateModel => _mapper.Map<TModel>(CreateViewModel);
@@ -165,8 +178,6 @@ namespace Domain0.Desktop.ViewModels
         protected abstract Task UpdateApi(TModel m);
         protected abstract Task<int> CreateApi(TModel m);
         protected abstract Task RemoveApi(int id);
-
-        protected abstract Func<TModel, IComparable> ModelComparer { get; }
 
         protected abstract ISourceCache<TModel, int> Models { get; }
     }

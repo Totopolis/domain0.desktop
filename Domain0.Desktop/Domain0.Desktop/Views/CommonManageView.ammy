@@ -312,3 +312,22 @@ alias CreateButton(command = "{Binding CreateCommand}")
     Content: "Create"
   }
 }
+
+alias LabelTag(color, binding)
+{
+  Border 
+  {
+    Margin: "0,0,10,0"
+    Padding: "5, 1, 5, 2"
+    Background: $color
+    CornerRadius: 5
+    TextBlock
+    {
+      VerticalAlignment: Center
+      HorizontalAlignment: Center
+      FontSize: 10
+      Foreground: White
+      Text: $binding
+    } 
+  }
+}

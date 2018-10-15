@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain0.Desktop.ViewModels.Items;
 
 namespace Domain0.Desktop.ViewModels
 {
@@ -45,8 +46,6 @@ namespace Domain0.Desktop.ViewModels
 
             base.AfterDeletedSelected(id);
         }
-
-        protected override Func<UserProfile, IComparable> ModelComparer => m => m.Id;
 
         protected override ISourceCache<UserProfile, int> Models => _domain0.Model.UserProfiles;
         

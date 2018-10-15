@@ -3,6 +3,7 @@ using AutoMapper;
 using Domain0.Api.Client;
 using Domain0.Desktop.Services;
 using Domain0.Desktop.ViewModels;
+using Domain0.Desktop.ViewModels.Items;
 using Domain0.Desktop.Views;
 using Ui.Wpf.Common;
 
@@ -53,22 +54,27 @@ namespace Domain0.Desktop
         {
             var config = new MapperConfiguration(cfg =>
             {
+                cfg.CreateMap<MessageTemplateViewModel, MessageTemplateViewModel>();
                 cfg.CreateMap<MessageTemplate, MessageTemplateViewModel>();
                 cfg.CreateMap<MessageTemplateViewModel, MessageTemplate>().ConstructUsing(x =>
                     new MessageTemplate(x.Description, x.Id, x.Locale, x.Name, x.Template, x.Type));
 
+                cfg.CreateMap<ApplicationViewModel, ApplicationViewModel>();
                 cfg.CreateMap<Application, ApplicationViewModel>();
                 cfg.CreateMap<ApplicationViewModel, Application>().ConstructUsing(x =>
                     new Application(x.Description, x.Id, x.Name));
 
+                cfg.CreateMap<UserProfileViewModel, UserProfileViewModel>();
                 cfg.CreateMap<UserProfile, UserProfileViewModel>();
                 cfg.CreateMap<UserProfileViewModel, UserProfile>().ConstructUsing(x =>
                     new UserProfile(x.Description, x.Email, x.Id.Value, x.Name, x.Phone));
 
+                cfg.CreateMap<RoleViewModel, RoleViewModel>();
                 cfg.CreateMap<Role, RoleViewModel>();
                 cfg.CreateMap<RoleViewModel, Role>().ConstructUsing(x =>
                     new Role(x.Description, x.Id.Value, x.IsDefault, x.Name));
 
+                cfg.CreateMap<PermissionViewModel, PermissionViewModel>();
                 cfg.CreateMap<Permission, PermissionViewModel>();
                 cfg.CreateMap<PermissionViewModel, Permission>().ConstructUsing(x =>
                     new Permission(x.ApplicationId, x.Description, x.Id, x.Name));

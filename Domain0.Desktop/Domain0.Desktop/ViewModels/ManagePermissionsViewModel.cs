@@ -1,14 +1,16 @@
-﻿using System;
+﻿using AutoMapper;
+using Domain0.Api.Client;
+using Domain0.Desktop.Services;
+using Domain0.Desktop.ViewModels.Items;
+using DynamicData;
+using DynamicData.Binding;
+using ReactiveUI;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using AutoMapper;
-using Domain0.Api.Client;
-using Domain0.Desktop.Services;
-using DynamicData;
 using System.Threading.Tasks;
-using DynamicData.Binding;
 
 namespace Domain0.Desktop.ViewModels
 {
@@ -16,6 +18,11 @@ namespace Domain0.Desktop.ViewModels
     {
         public ManagePermissionsViewModel(IDomain0Service domain0, IMapper mapper) : base(domain0, mapper)
         {
+        }
+
+        protected override void Initialize()
+        {
+            base.Initialize();
             _domain0.Model.Applications.Connect()
                 .Sort(SortExpressionComparer<Application>.Ascending(t => t.Id), SortOptimisations.ComparesImmutableValuesOnly, 25)
                 .ObserveOnDispatcher()
@@ -23,10 +30,28 @@ namespace Domain0.Desktop.ViewModels
                 .DisposeMany()
                 .Subscribe()
                 .DisposeWith(Disposables);
+
+            _applicationsCache = _domain0.Model.Applications
+                .AsObservableCache()
+                .DisposeWith(Disposables);
         }
 
-        private readonly ReadOnlyObservableCollection<Application> _applications;
+        private IObservableCache<Application, int> _applicationsCache;
+        private ReadOnlyObservableCollection<Application> _applications;
         public ReadOnlyObservableCollection<Application> Applications => _applications;
+
+        protected override PermissionViewModel TransformToViewModel(Permission model)
+        {
+            var vm = base.TransformToViewModel(model);
+
+            _applicationsCache
+                .Connect()
+                .Select(x => _applicationsCache.Lookup(vm.ApplicationId).Value.Name)
+                .Subscribe(x => vm.Application = x)
+                .DisposeWith(vm.Disposables);
+            
+            return vm;
+        }
 
         protected override async Task UpdateApi(Permission m)
         {
@@ -58,8 +83,6 @@ namespace Domain0.Desktop.ViewModels
 
             base.AfterDeletedSelected(id);
         }
-
-        protected override Func<Permission, IComparable> ModelComparer => m => m.Id;
 
         protected override ISourceCache<Permission, int> Models => _domain0.Model.Permissions;
     }

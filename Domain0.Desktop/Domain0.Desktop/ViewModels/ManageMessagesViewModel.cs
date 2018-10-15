@@ -7,6 +7,7 @@ using ReactiveUI;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Domain0.Desktop.ViewModels.Items;
 
 namespace Domain0.Desktop.ViewModels
 {
@@ -36,8 +37,6 @@ namespace Domain0.Desktop.ViewModels
         {
             await _domain0.Client.RemoveMessageTemplateAsync(id);
         }
-
-        protected override Func<MessageTemplate, IComparable> ModelComparer => m => m.Id;
 
         protected override ISourceCache<MessageTemplate, int> Models => _domain0.Model.MessageTemplates;
     }

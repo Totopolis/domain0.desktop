@@ -15,19 +15,18 @@ namespace Domain0.Desktop.Views.Converters
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            try
-            {
+            var columns = ((DataGrid) values[0]).Columns;
+            var index = (int) values[1];
+
+            // check that index is in range
+            if (index >= 0 && index < columns.Count)
                 return new PropertyFilter
                 {
-                    Name = ((DataGrid)values[0]).Columns[(int)values[1]].SortMemberPath,
-                    Filter = (string)values[2]
+                    Name = columns[index].SortMemberPath,
+                    Filter = (string) values[2]
                 };
-            }
-            catch (Exception e)
-            {
-                // consume exceptions
+            else
                 return null;
-            }
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

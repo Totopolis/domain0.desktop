@@ -147,13 +147,13 @@
     <Compile Include="Bootstrap.cs" />
     <Compile Include="Extensions\ReactiveListExtenstions.cs" />
     <Compile Include="Models\Domain0Model.cs" />
-    <Compile Include="ViewModels\ApplicationViewModel.cs" />
+    <Compile Include="ViewModels\Items\ApplicationViewModel.cs" />
     <Compile Include="ViewModels\BaseManageItemsViewModel.cs" />
-    <Compile Include="ViewModels\IItemViewModel.cs" />
+    <Compile Include="ViewModels\Items\IItemViewModel.cs" />
     <Compile Include="ViewModels\ManagePermissionsViewModel.cs" />
     <Compile Include="ViewModels\ManageRolesViewModel.cs" />
     <Compile Include="ViewModels\ManageToolsViewModel.cs" />
-    <Compile Include="ViewModels\MessageTemplateViewModel.cs" />
+    <Compile Include="ViewModels\Items\MessageTemplateViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -174,9 +174,9 @@
     <Compile Include="ViewModels\ManageApplicationsViewModel.cs" />
     <Compile Include="ViewModels\ManageMessagesViewModel.cs" />
     <Compile Include="ViewModels\ManageUsersViewModel.cs" />
-    <Compile Include="ViewModels\PermissionViewModel.cs" />
-    <Compile Include="ViewModels\RoleViewModel.cs" />
-    <Compile Include="ViewModels\UserProfileViewModel.cs" />
+    <Compile Include="ViewModels\Items\PermissionViewModel.cs" />
+    <Compile Include="ViewModels\Items\RoleViewModel.cs" />
+    <Compile Include="ViewModels\Items\UserProfileViewModel.cs" />
     <Compile Include="Views\BindingProxy.cs" />
     <Compile Include="Views\Converters\DataGridFilterByPropertyConverter.cs" />
     <Compile Include="Views\Dialogs\LoginWithUrlDialog.ammy.cs">

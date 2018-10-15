@@ -22,14 +22,14 @@ ViewUserControl "Domain0.Desktop.Views.ManagePermissionsView" {
             Binding: bind Name
             Width: Auto
           }
-          DataGridComboBoxColumn
+          DataGridTemplateColumn
           {
             Header: "Application"
-            ItemsSource: bind Data.Applications from $resource Proxy set [ Mode: OneWay ]
-            DisplayMemberPath: "Name"
-            SelectedValuePath: "Id"
-            SelectedValueBinding: bind ApplicationId set [ Mode:OneWay ]
-            Width: Auto
+            SortMemberPath: "Application"
+            CellTemplate: DataTemplate
+            {
+              @LabelTag(Green, bind Application) {}
+            }
           }
           DataGridTextColumn
           {
