@@ -1,18 +1,19 @@
 ﻿using AutoMapper;
 using Domain0.Desktop.Services;
+using Domain0.Desktop.ViewModels.Items;
 using Domain0.Desktop.Views.Converters;
 using DynamicData;
 using DynamicData.Binding;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Domain0.Desktop.ViewModels.Items;
 using Ui.Wpf.Common.ViewModels;
 
 namespace Domain0.Desktop.ViewModels
@@ -130,6 +131,7 @@ namespace Domain0.Desktop.ViewModels
         public ReadOnlyObservableCollection<TViewModel> Items => _items;
 
         [Reactive] public TViewModel SelectedItem { get; set; }
+        [Reactive] public IEnumerable<TViewModel> SelectedItems { get; set; }
         public TViewModel CreateViewModel { get; set; } = new TViewModel();
         public TViewModel EditViewModel { get; set; } = new TViewModel();
         public TModel CreateModel => _mapper.Map<TModel>(CreateViewModel);

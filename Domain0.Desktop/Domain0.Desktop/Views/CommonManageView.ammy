@@ -4,7 +4,7 @@ using Domain0.Desktop.Views.Converters;
 using Domain0.Desktop.Views;
 
 
-alias ManageDataGrid()
+alias ManageDataGrid(selectionMode="Single")
 {
   DataGrid
   {
@@ -172,7 +172,7 @@ alias ManageDataGrid()
     Name: "ManageDataGrid"
     VirtualizingPanel.IsVirtualizing: true
     VirtualizingPanel.VirtualizationMode: "Recycling"
-    SelectionMode: Single
+    SelectionMode: $selectionMode
     IsReadOnly: true
     ItemsSource: bind Items
     AutoGenerateColumns: false
@@ -317,7 +317,6 @@ alias LabelTag(color, binding)
 {
   Border 
   {
-    Margin: "0,0,10,0"
     Padding: "5, 1, 5, 2"
     Background: $color
     CornerRadius: 5
@@ -325,7 +324,7 @@ alias LabelTag(color, binding)
     {
       VerticalAlignment: Center
       HorizontalAlignment: Center
-      FontSize: 10
+      FontSize: 12
       Foreground: White
       Text: $binding
     } 

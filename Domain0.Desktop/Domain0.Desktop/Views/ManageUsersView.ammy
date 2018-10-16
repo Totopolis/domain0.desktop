@@ -4,18 +4,24 @@ using MahApps.Metro.IconPacks;
 
 ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
 
+  Resources: [
+    BindingProxy Key="Proxy" { Data: bind }
+  ]
+
   Grid
   {
     Grid 
     {
       #TwoRows("Auto")
+      #TwoColumns("*", "300")
       @ManageButtons()
       {
         Grid.Row: 0
       }
-      @ManageDataGrid 
+      @ManageDataGrid("Extended")
       {
         Grid.Row: 1
+        SelectionChanged: "OnSelectionChanged"
         combine Columns: [
           DataGridTextColumn
           {
@@ -43,11 +49,83 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
           }
         ]
       }
+      Grid 
+      {
+        #Cell(0, 1, 2, 1)
+        #TwoRows()
+        Grid
+        {
+          Grid.Row: 0
+          #TwoRows("Auto", "*")
+          #ThreeColumns("*", "Auto", "Auto")
+          TextBlock
+          {
+            #Cell(0,0)
+            Text:"Roles"
+          }
+          DropDownButton
+          {
+            #Cell(0,1)
+            Width: 32
+            Height: 32
+            ArrowVisibility: Collapsed
+            BorderThickness: 0
+            ButtonStyle: resource dyn "MahApps.Metro.Styles.MetroCircleButtonStyle"
+            FocusVisualStyle: resource dyn "MahApps.Metro.Styles.MetroCircleFocusVisual"
+            ItemTemplate: DataTemplate 
+            {
+              @LabelTag(DarkOrange, bind Name)
+              {
+              }
+            }
+            ItemContainerStyle: Style
+            {
+              TargetType: MenuItem
+              BasedOn: "{StaticResource {x:Type MenuItem}}"
+              #Setter("Command", bind Data.AddRoleCommand from $resource Proxy)
+              #Setter("CommandParameter", bind)
+            }
+            Icon: PackIconModern
+            {
+              Kind: "Add"
+              Height: 16
+              Width: 16
+            }
+            ItemsSource: bind Roles
+          }
+          Button 
+          {
+            #Cell(0,2)
+            Style: resource dyn "MahApps.Metro.Styles.MetroCircleButtonStyle"
+            Width: 32
+            Height: 32
+            Command: bind RemoveRoleCommand
+            PackIconModern
+            {
+              Kind: "Delete"
+              Height: 16
+              Width: 16
+            }
+          }
+          ListBox
+          {
+            #Cell(1,0,1,3)
+            SelectionMode: Extended
+            ItemsSource: bind SelectedUserRoles set [ Mode: OneWay ]
+            //ScrollViewer.HorizontalScrollBarVisibility: "Disabled"
+            //ItemsPanel: ItemsPanelTemplate { WrapPanel { IsItemsHost: true } }
+            ItemTemplate: DataTemplate {
+              @LabelTag(DarkOrange, bind Name) 
+              {
+              }
+            }
+          }
+        }
+      }
     }
 
     FlyoutsControl
     {
-
       @FlyoutCreate("Add User")
       {
         Grid
