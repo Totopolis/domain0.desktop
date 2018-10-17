@@ -1,5 +1,6 @@
 ﻿using Domain0.Desktop.ViewModels;
 using Domain0.Desktop.ViewModels.Items;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Controls;
 
@@ -12,11 +13,11 @@ namespace Domain0.Desktop.Views
             InitializeComponent();
         }
 
-        private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void OnUsersSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DataGrid dataGrid = (DataGrid) sender;
-            ((ManageUsersViewModel) ViewModel).SelectedItems =
-                dataGrid.SelectedItems.Cast<UserProfileViewModel>();
+            ((ManageUsersViewModel) ViewModel).SelectedItemsIds =
+                new HashSet<int>(dataGrid.SelectedItems.Cast<UserProfileViewModel>().Select(x => x.Id.Value));
         }
     }
 }

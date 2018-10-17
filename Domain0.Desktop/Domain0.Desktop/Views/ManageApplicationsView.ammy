@@ -12,7 +12,7 @@ ViewUserControl "Domain0.Desktop.Views.ManageApplicationsView" {
       {
         Grid.Row: 0
       }
-      @ManageDataGrid 
+      @ManageDataGrid()
       {
         Grid.Row: 1
         combine Columns: [

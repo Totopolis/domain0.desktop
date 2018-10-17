@@ -67,12 +67,12 @@ namespace Domain0.Desktop
                 cfg.CreateMap<UserProfileViewModel, UserProfileViewModel>();
                 cfg.CreateMap<UserProfile, UserProfileViewModel>();
                 cfg.CreateMap<UserProfileViewModel, UserProfile>().ConstructUsing(x =>
-                    new UserProfile(x.Description, x.Email, x.Id.Value, x.Name, x.Phone));
+                    new UserProfile(x.Description, x.Email, x.Id ?? 0, x.Name, x.Phone));
 
                 cfg.CreateMap<RoleViewModel, RoleViewModel>();
                 cfg.CreateMap<Role, RoleViewModel>();
                 cfg.CreateMap<RoleViewModel, Role>().ConstructUsing(x =>
-                    new Role(x.Description, x.Id.Value, x.IsDefault, x.Name));
+                    new Role(x.Description, x.Id ?? 0, x.IsDefault, x.Name));
 
                 cfg.CreateMap<PermissionViewModel, PermissionViewModel>();
                 cfg.CreateMap<Permission, PermissionViewModel>();

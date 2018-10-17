@@ -3,19 +3,25 @@ using MahApps.Metro.Controls;
 
 ViewUserControl "Domain0.Desktop.Views.ManageRolesView" {
 
+  Resources: [
+    BindingProxy Key="Proxy" { Data: bind }
+  ]
+
   Grid 
   {
     
     Grid 
     {
-      #TwoRows("Auto")
+      #TwoRows("Auto", "*")
+      #TwoColumns("*", "300")
       @ManageButtons()
       {
-        Grid.Row: 0
+        #Cell(0,0)
       }
-      @ManageDataGrid 
+      @ManageDataGrid("Extended")
       {
-        Grid.Row: 1
+        #Cell(1,0)
+        SelectionChanged: "OnRolesSelectionChanged"
         combine Columns: [
           DataGridTextColumn
           {
@@ -71,6 +77,18 @@ ViewUserControl "Domain0.Desktop.Views.ManageRolesView" {
           }
         ]
       }
+
+        @ManageItemsSubset("Permissions", Colors.DarkRed,
+          bind Name, bind Permissions,
+          bind Data.AddPermissionCommand from $resource Proxy,
+          bind RemovePermissionsCommand,
+          "PermissionsList",
+          bind SelectedRolePermissions set [ Mode: OneWay ])
+        {
+        #Cell(0, 1, 2, 1)
+        }
+        
+
     }
 
     FlyoutsControl

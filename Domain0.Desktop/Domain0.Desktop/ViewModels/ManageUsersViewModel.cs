@@ -3,16 +3,17 @@ using Domain0.Api.Client;
 using Domain0.Desktop.Services;
 using Domain0.Desktop.ViewModels.Items;
 using DynamicData;
+using DynamicData.Binding;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using DynamicData.Binding;
 
 namespace Domain0.Desktop.ViewModels
 {
@@ -30,6 +31,13 @@ namespace Domain0.Desktop.ViewModels
             ForceCreateUserCommand = ReactiveCommand.Create(ForceCreateUser);
             ForceCreateUserEmailCommand = ReactiveCommand.Create(ForceCreateUserEmail);
 
+            AddRoleCommand = ReactiveCommand.CreateFromTask<Role>(AddRole);
+            RemoveRolesCommand = ReactiveCommand.CreateFromTask<IList>(RemoveRoles);
+            AddPermissionCommand = ReactiveCommand.CreateFromTask<Permission>(AddPermission);
+            RemovePermissionsCommand = ReactiveCommand.CreateFromTask<IList>(RemovePermissions);
+
+            this.SelectedItemsIds = new HashSet<int>(new int [0]);
+
             // Permissions
 
             _domain0.Model.Permissions.Connect()
@@ -39,16 +47,27 @@ namespace Domain0.Desktop.ViewModels
                 .DisposeWith(Disposables);
 
             var permissionsDynamicFilter = this
-                .WhenAnyValue(x => x.SelectedItem)
+                .WhenAnyValue(x => x.SelectedItemsIds)
                 .Select(CreatePermissionsFilter);
+                //.ObserveOn(RxApp.MainThreadScheduler);
 
             _domain0.Model.UserPermissions
                 .Connect()
-                .Filter(permissionsDynamicFilter)
-                .QueryWhenChanged(items => items.Select(x => x.Id.Value))
+                .Filter(permissionsDynamicFilter, ListFilterPolicy.ClearAndReplace)
+                .GroupWithImmutableState(x => x.Id.Value)
+                .ToCollection()
                 .CombineLatest(
                     _domain0.Model.Permissions.Connect().QueryWhenChanged(items => items),
-                    (ids, permissions) => ids.Select(id => permissions.Lookup(id).Value)
+                    (groups, permissions) => groups
+                        .Select(group => new SelectedUserPermissionViewModel
+                        {
+                            Id = group.Key,
+                            Permission = permissions.Lookup(group.Key).Value,
+                            Count = group.Items.Count(),
+                            Total = SelectedItemsIds.Count,
+                            ParentIds = group.Items.Select(x => x.UserId.Value)
+                        })
+                        .OrderByDescending(x => x.Count)
                 )
                 .Subscribe(x => SelectedUserPermissions = x)
                 .DisposeWith(Disposables);
@@ -62,37 +81,56 @@ namespace Domain0.Desktop.ViewModels
                 .DisposeWith(Disposables);
 
             var rolesDynamicFilter = this
-                .WhenAnyValue(x => x.SelectedItem)
+                .WhenAnyValue(x => x.SelectedItemsIds)
                 .Select(CreateRolesFilter);
+                //.ObserveOn(RxApp.MainThreadScheduler);
 
             _domain0.Model.UserPermissions
                 .Connect()
-                .Filter(rolesDynamicFilter)
-                .DistinctValues(x => x.RoleId.Value)
+                .Filter(rolesDynamicFilter, ListFilterPolicy.ClearAndReplace)
+                .GroupWithImmutableState(x => x.RoleId.Value)
                 .ToCollection()
                 .CombineLatest(
                     _domain0.Model.Roles.Connect().QueryWhenChanged(items => items),
-                    (ids, roles) => ids.Select(id => roles.Lookup(id).Value)
+                    (groups, roles) => groups
+                        .Select(g =>
+                        {
+                            var result = new SelectedUserRoleViewModel
+                            {
+                                Id = g.Key,
+                                Role = roles.Lookup(g.Key).Value,
+                                Count = g.Items
+                                    .Select(x => x.UserId.Value)
+                                    .Distinct()
+                                    .Count(),
+                                Total = SelectedItemsIds.Count,
+                                ParentIds = g.Items
+                                    .Select(x => x.UserId.Value)
+                                    .Distinct()
+                            };
+                            return result;
+                        })
+                        .OrderByDescending(x => x.Count)
                 )
                 .Subscribe(x => SelectedUserRoles = x)
                 .DisposeWith(Disposables);
         }
 
-        private Func<UserPermission, bool> CreatePermissionsFilter(UserProfileViewModel x)
+        private Func<UserPermission, bool> CreatePermissionsFilter(ICollection<int> x)
         {
             if (x == null)
                 return permission => false;
 
-            return permission => permission.UserId == x.Id &&
+            return permission => x.Contains(permission.UserId.Value) &&
                                  !permission.RoleId.HasValue;
         }
 
-        private Func<UserPermission, bool> CreateRolesFilter(UserProfileViewModel x)
+        private Func<UserPermission, bool> CreateRolesFilter(ICollection<int> x)
         {
             if (x == null)
                 return permission => false;
 
-            return permission => permission.UserId == x.Id &&
+            return permission => x.Contains(permission.UserId.Value) &&
                                  permission.RoleId.HasValue;
         }
 
@@ -102,8 +140,13 @@ namespace Domain0.Desktop.ViewModels
         private ReadOnlyObservableCollection<Role> _roles;
         public ReadOnlyObservableCollection<Role> Roles => _roles;
 
-        [Reactive] public IEnumerable<Permission> SelectedUserPermissions { get; set; }
-        [Reactive] public IEnumerable<Role> SelectedUserRoles {get; set; }
+        [Reactive] public IEnumerable<SelectedUserPermissionViewModel> SelectedUserPermissions { get; set; }
+        [Reactive] public IEnumerable<SelectedUserRoleViewModel> SelectedUserRoles {get; set; }
+
+        public ReactiveCommand AddRoleCommand { get; set; }
+        public ReactiveCommand RemoveRolesCommand { get; set; }
+        public ReactiveCommand AddPermissionCommand { get; set; }
+        public ReactiveCommand RemovePermissionsCommand { get; set; }
 
         public ReactiveCommand ForceCreateUserCommand { get; set; }
         public ReactiveCommand ForceCreateUserEmailCommand { get; set; }
@@ -135,6 +178,91 @@ namespace Domain0.Desktop.ViewModels
             });
 
             base.AfterDeletedSelected(id);
+        }
+
+        // Manage Roles and Permissions
+
+        private async Task AddRole(Role role)
+        {
+            var roleId = role.Id.Value;
+            var userIds = SelectedItemsIds.ToList();
+            var vm = SelectedUserRoles?.FirstOrDefault(x => x.Id == roleId);
+            var permissions =
+                _domain0.Model.RolePermissions.Items
+                    .Where(x => x.RoleId.HasValue && x.RoleId.Value == roleId)
+                    .ToList();
+
+            foreach (var userId in userIds)
+            {
+                if (vm == null || !vm.ParentIds.Contains(userId))
+                {
+                    await _domain0.Client.AddUserRolesAsync(userId,
+                        new IdArrayRequest(new List<int> {roleId}));
+
+                    _domain0.Model.UserPermissions.AddRange(
+                        permissions.Select(p =>
+                            new UserPermission(p.ApplicationId, p.Description,
+                                p.Id.Value, p.Name, roleId, userId)));
+                }
+            }
+        }
+
+        private async Task RemoveRoles(IList list)
+        {
+            var src = list.Cast<SelectedUserRoleViewModel>();
+            var dst = SelectedItemsToParents(src);
+            foreach (var kv in dst)
+            {
+                await _domain0.Client.RemoveUserRolesAsync(kv.Key, new IdArrayRequest(kv.Value.ToList()));
+                _domain0.Model.UserPermissions.Edit(innerList =>
+                {
+                    var toRemove = innerList.Where(x =>
+                        x.UserId.Value == kv.Key &&
+                        x.RoleId.HasValue &&
+                        kv.Value.Contains(x.RoleId.Value)
+                    ).ToList();
+                    innerList.RemoveMany(toRemove);
+                });
+            }
+        }
+
+        private async Task AddPermission(Permission permission)
+        {
+            var permissionId = permission.Id.Value;
+            var userIds = SelectedItemsIds.ToList();
+            var vm = SelectedUserPermissions?.FirstOrDefault(x => x.Id == permissionId);
+
+            foreach (var userId in userIds)
+            {
+                if (vm == null || !vm.ParentIds.Contains(userId))
+                {
+                    await _domain0.Client.AddUserPermissionsAsync(userId,
+                        new IdArrayRequest(new List<int> {permissionId}));
+
+                    _domain0.Model.UserPermissions.Add(
+                        new UserPermission(permission.ApplicationId, permission.Description,
+                            permissionId, permission.Name, null, userId));
+                }
+            }
+        }
+
+        private async Task RemovePermissions(IList list)
+        {
+            var src = list.Cast<SelectedUserPermissionViewModel>();
+            var dst = SelectedItemsToParents(src);
+            foreach (var kv in dst)
+            {
+                await _domain0.Client.RemoveUserPermissionsAsync(kv.Key, new IdArrayRequest(kv.Value.ToList()));
+                _domain0.Model.UserPermissions.Edit(innerList =>
+                {
+                    var toRemove = innerList.Where(x =>
+                        x.UserId.Value == kv.Key &&
+                        !x.RoleId.HasValue &&
+                        kv.Value.Contains(x.Id.Value)
+                    );
+                    innerList.RemoveMany(toRemove);
+                });
+            }
         }
 
         // Creation

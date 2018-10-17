@@ -330,3 +330,104 @@ alias LabelTag(color, binding)
     } 
   }
 }
+
+
+alias ManageItemsSubset(text, color,
+    dropDownNameBinding, dropDownSourceBinding,
+    addBinding, removeBinding,
+    listName, listSourceBinding)
+{
+  Grid
+  {
+    #TwoRows("Auto", "*")
+    #ThreeColumns("*", "Auto", "Auto")
+    TextBlock
+    {
+      #Cell(0,0)
+      Text:$text
+    }
+    DropDownButton
+    {
+      #Cell(0,1)
+      Width: 32
+      Height: 32
+      ArrowVisibility: Collapsed
+      BorderThickness: 0
+      ButtonStyle: resource dyn "MahApps.Metro.Styles.MetroCircleButtonStyle"
+      FocusVisualStyle: resource dyn "MahApps.Metro.Styles.MetroCircleFocusVisual"
+      ItemTemplate: DataTemplate 
+      {
+        @LabelTag(none, $dropDownNameBinding)
+        {
+          Background: SolidColorBrush { Color:$color }
+        }
+      }
+      ItemContainerStyle: Style
+      {
+        TargetType: MenuItem
+        BasedOn: "{StaticResource {x:Type MenuItem}}"
+        #Setter("Command", $addBinding)
+        #Setter("CommandParameter", bind)
+      }
+      Icon: PackIconModern
+      {
+        Kind: "Add"
+        Height: 16
+        Width: 16
+      }
+      ItemsSource: $dropDownSourceBinding
+    }
+    Button 
+    {
+      #Cell(0,2)
+      Style: resource dyn "MahApps.Metro.Styles.MetroCircleButtonStyle"
+      Width: 32
+      Height: 32
+      Command: $removeBinding
+      CommandParameter: Binding {
+        Path: "SelectedItems"
+        ElementName: $listName
+      }
+      PackIconModern
+      {
+        Kind: "Delete"
+        Height: 16
+        Width: 16
+      }
+    }
+    ListBox
+    {
+      #Cell(1,0,1,3)
+      Name: $listName
+      SelectionMode: Extended
+      ItemsSource: $listSourceBinding
+      ItemTemplate: DataTemplate {
+        Border 
+        {
+          Padding: "5, 1, 5, 2"
+          Background: SolidColorBrush{ Color: $color, Opacity: bind Percent}
+          CornerRadius: 5
+          Grid
+          {
+            TextBlock
+            {
+              VerticalAlignment: Center
+              HorizontalAlignment: Center
+              FontSize: 12
+              Foreground: White
+              Text: bind Name
+            }
+            TextBlock 
+            {
+              VerticalAlignment: Top
+              HorizontalAlignment: Right
+              FontSize: 8
+              Foreground: White
+              Text: bind AmountString
+            }
+          }
+        }
+      }
+    }
+  }
+}

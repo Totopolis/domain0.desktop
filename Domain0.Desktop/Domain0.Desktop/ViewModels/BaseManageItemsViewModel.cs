@@ -118,6 +118,20 @@ namespace Domain0.Desktop.ViewModels
             IsEditFlyoutOpen = false;
         }
 
+        protected static Dictionary<int, HashSet<int>> SelectedItemsToParents(IEnumerable<ISelectedItemViewModel> src)
+        {
+            var dst = new Dictionary<int, HashSet<int>>();
+            foreach (var x in src)
+            {
+                foreach (var id in x.ParentIds)
+                    if (dst.ContainsKey(id))
+                        dst[id].Add(x.Id);
+                    else
+                        dst[id] = new HashSet<int>(new[] { x.Id });
+            }
+            return dst;
+        }
+
         protected virtual TViewModel TransformToViewModel(TModel model)
         {
             return _mapper.Map<TViewModel>(model);
@@ -131,7 +145,7 @@ namespace Domain0.Desktop.ViewModels
         public ReadOnlyObservableCollection<TViewModel> Items => _items;
 
         [Reactive] public TViewModel SelectedItem { get; set; }
-        [Reactive] public IEnumerable<TViewModel> SelectedItems { get; set; }
+        [Reactive] public ICollection<int> SelectedItemsIds { get; set; }
         public TViewModel CreateViewModel { get; set; } = new TViewModel();
         public TViewModel EditViewModel { get; set; } = new TViewModel();
         public TModel CreateModel => _mapper.Map<TModel>(CreateViewModel);
