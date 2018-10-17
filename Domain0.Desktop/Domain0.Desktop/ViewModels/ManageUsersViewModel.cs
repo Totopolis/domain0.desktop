@@ -165,8 +165,7 @@ namespace Domain0.Desktop.ViewModels
 
         protected override async Task RemoveApi(int id)
         {
-            var userProfile = Models.Lookup(id).Value;
-            await _domain0.Client.DeleteUserAsync((long)userProfile.Phone.Value);
+            await _domain0.Client.DeleteUserAsync(id);
         }
 
         protected override void AfterDeletedSelected(int id)
