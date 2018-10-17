@@ -14,15 +14,33 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
     {
       #TwoRows("Auto")
       #TwoColumns("*", "300")
-      @ManageButtons()
+      @StackPanelHorizontal()
       {
         Grid.Row: 0
+        @ManageButtons() {}
+        @ManageRoundButton("Lock", "Toggle Lock")
+        {
+          Margin: "30,0,0,0"
+          Command: bind LockUsersCommand
+          CommandParameter: Binding {
+            ElementName: "ManageUsersDataGrid"
+            Path: "SelectedItems"
+          }
+        }
       }
       @ManageDataGrid("Extended")
       {
         Grid.Row: 1
+        Name: "ManageUsersDataGrid"
         SelectionChanged: "OnUsersSelectionChanged"
         combine Columns: [
+          DataGridTextColumn
+          {
+            Header: "🔒"
+            SortMemberPath: "IsLocked"
+            Binding: bind IsLocked convert (bool val) => val ? "🔒" : ""
+            Width: Auto
+          }
           DataGridTextColumn
           {
             Header: "Name"

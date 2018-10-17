@@ -31,6 +31,8 @@ namespace Domain0.Desktop.ViewModels
             ForceCreateUserCommand = ReactiveCommand.Create(ForceCreateUser);
             ForceCreateUserEmailCommand = ReactiveCommand.Create(ForceCreateUserEmail);
 
+            LockUsersCommand = ReactiveCommand.CreateFromTask<IList>(LockUsers);
+
             AddRoleCommand = ReactiveCommand.CreateFromTask<Role>(AddRole);
             RemoveRolesCommand = ReactiveCommand.CreateFromTask<IList>(RemoveRoles);
             AddPermissionCommand = ReactiveCommand.CreateFromTask<Permission>(AddPermission);
@@ -148,6 +150,8 @@ namespace Domain0.Desktop.ViewModels
         public ReactiveCommand AddPermissionCommand { get; set; }
         public ReactiveCommand RemovePermissionsCommand { get; set; }
 
+        public ReactiveCommand LockUsersCommand { get; set; }
+
         public ReactiveCommand ForceCreateUserCommand { get; set; }
         public ReactiveCommand ForceCreateUserEmailCommand { get; set; }
 
@@ -264,6 +268,27 @@ namespace Domain0.Desktop.ViewModels
             }
         }
 
+        // Lock
+
+        private async Task LockUsers(IList list)
+        {
+            var users = list.Cast<UserProfileViewModel>();
+
+            var toLock = users.Any(x => !x.IsLocked);
+            foreach (var user in users)
+            {
+                if (toLock != user.IsLocked)
+                {
+                    if (toLock)
+                        await _domain0.Client.LockUserAsync(user.Id.Value);
+                    else
+                        await _domain0.Client.UnlockUserAsync(user.Id.Value);
+
+                    user.IsLocked = toLock;
+                }
+            }
+        }
+
         // Creation
 
         public string Phone { get; set; }
@@ -327,6 +352,7 @@ namespace Domain0.Desktop.ViewModels
         private void OnUserProfileCreated(UserProfile userProfile)
         {
             Models.AddOrUpdate(userProfile);
+            IsCreateFlyoutOpen = false;
         }
     }
 }
