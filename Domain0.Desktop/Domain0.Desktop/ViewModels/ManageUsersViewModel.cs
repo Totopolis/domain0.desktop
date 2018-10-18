@@ -66,7 +66,7 @@ namespace Domain0.Desktop.ViewModels
                             Permission = permissions.Lookup(group.Key).Value,
                             Count = group.Items.Count(),
                             Total = SelectedItemsIds?.Count ?? 0,
-                            ParentIds = group.Items.Select(x => x.UserId.Value)
+                            ParentIds = group.Items.Select(x => x.UserId)
                         })
                         .OrderByDescending(x => x.Count)
                 )
@@ -108,12 +108,12 @@ namespace Domain0.Desktop.ViewModels
                                 Id = g.Key,
                                 Role = roles.Lookup(g.Key).Value,
                                 Count = g.Items
-                                    .Select(x => x.UserId.Value)
+                                    .Select(x => x.UserId)
                                     .Distinct()
                                     .Count(),
                                 Total = SelectedItemsIds?.Count ?? 0,
                                 ParentIds = g.Items
-                                    .Select(x => x.UserId.Value)
+                                    .Select(x => x.UserId)
                                     .Distinct()
                             };
                             return result;
@@ -129,7 +129,7 @@ namespace Domain0.Desktop.ViewModels
             if (x == null)
                 return permission => false;
 
-            return permission => x.Contains(permission.UserId.Value) &&
+            return permission => x.Contains(permission.UserId) &&
                                  !permission.RoleId.HasValue;
         }
 
@@ -138,7 +138,7 @@ namespace Domain0.Desktop.ViewModels
             if (x == null)
                 return permission => false;
 
-            return permission => x.Contains(permission.UserId.Value) &&
+            return permission => x.Contains(permission.UserId) &&
                                  permission.RoleId.HasValue;
         }
 
@@ -204,7 +204,7 @@ namespace Domain0.Desktop.ViewModels
             var vm = SelectedUserRoles?.FirstOrDefault(x => x.Id == roleId);
             var permissions =
                 _domain0.Model.RolePermissions.Items
-                    .Where(x => x.RoleId.HasValue && x.RoleId.Value == roleId)
+                    .Where(x => x.RoleId == roleId)
                     .ToList();
 
             foreach (var userId in userIds)
@@ -232,7 +232,7 @@ namespace Domain0.Desktop.ViewModels
                 _domain0.Model.UserPermissions.Edit(innerList =>
                 {
                     var toRemove = innerList.Where(x =>
-                        x.UserId.Value == kv.Key &&
+                        x.UserId == kv.Key &&
                         x.RoleId.HasValue &&
                         kv.Value.Contains(x.RoleId.Value)
                     ).ToList();
@@ -274,7 +274,7 @@ namespace Domain0.Desktop.ViewModels
                 _domain0.Model.UserPermissions.Edit(innerList =>
                 {
                     var toRemove = innerList.Where(x =>
-                        x.UserId.Value == kv.Key &&
+                        x.UserId == kv.Key &&
                         !x.RoleId.HasValue &&
                         kv.Value.Contains(x.Id.Value)
                     );

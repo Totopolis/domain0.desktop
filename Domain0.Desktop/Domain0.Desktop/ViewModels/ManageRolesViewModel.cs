@@ -58,7 +58,7 @@ namespace Domain0.Desktop.ViewModels
                             Permission = permissions.Lookup(group.Key).Value,
                             Count = group.Items.Count(),
                             Total = SelectedItemsIds.Count,
-                            ParentIds = group.Items.Select(x => x.RoleId.Value)
+                            ParentIds = group.Items.Select(x => x.RoleId)
                         })
                         .OrderByDescending(x => x.Count)
                 )
@@ -71,7 +71,7 @@ namespace Domain0.Desktop.ViewModels
             if (x == null)
                 return permission => false;
 
-            return permission => x.Contains(permission.RoleId.Value);
+            return permission => x.Contains(permission.RoleId);
         }
 
         private ReadOnlyObservableCollection<Permission> _permissions;
@@ -143,7 +143,7 @@ namespace Domain0.Desktop.ViewModels
                 _domain0.Model.RolePermissions.Edit(innerList =>
                 {
                     var toRemove = innerList.Where(x =>
-                        x.RoleId.Value == kv.Key &&
+                        x.RoleId == kv.Key &&
                         kv.Value.Contains(x.Id.Value)
                     );
                     innerList.RemoveMany(toRemove);
