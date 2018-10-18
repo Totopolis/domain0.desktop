@@ -28,9 +28,9 @@ namespace Domain0.Desktop.ViewModels
         {
             base.Initialize();
 
+            ForceCreateUserRolesFilterCommand = ReactiveCommand.Create<string>(x => ForceCreateUserRolesFilter = x);
             ForceCreateUserCommand = ReactiveCommand.Create(ForceCreateUser);
-            ForceCreateUserEmailCommand = ReactiveCommand.Create(ForceCreateUserEmail);
-
+            
             LockUsersCommand = ReactiveCommand.CreateFromTask<IList>(LockUsers,
                 this.WhenAny(x => x.SelectedItemsIds, x => x.Value != null && x.Value.Count > 0));
 
@@ -75,7 +75,12 @@ namespace Domain0.Desktop.ViewModels
 
             // Roles
 
+            var dynamicForceCreateUserRolesFilter =
+                this.WhenAnyValue(x => x.ForceCreateUserRolesFilter)
+                    .Select(CreateForceCreateUserRolesFilter);
+
             _domain0.Model.Roles.Connect()
+                .Filter(dynamicForceCreateUserRolesFilter)
                 .Transform(x => new ForceCreateUserRoleViewModel { Role = x })
                 .Sort(SortExpressionComparer<ForceCreateUserRoleViewModel>.Ascending(x => x.Role.Id))
                 .Bind(out _forceCreateUserRoles)
@@ -142,6 +147,15 @@ namespace Domain0.Desktop.ViewModels
                                  permission.RoleId.HasValue;
         }
 
+        private Func<Role, bool> CreateForceCreateUserRolesFilter(string x)
+        {
+            if (string.IsNullOrEmpty(x))
+                return role => true;
+
+            return role => !string.IsNullOrEmpty(role.Name) &&
+                           role.Name.Contains(x);
+        }
+
         private ReadOnlyObservableCollection<Permission> _permissions;
         public ReadOnlyObservableCollection<Permission> Permissions => _permissions;
 
@@ -160,9 +174,6 @@ namespace Domain0.Desktop.ViewModels
         public ReactiveCommand RemovePermissionsCommand { get; set; }
 
         public ReactiveCommand LockUsersCommand { get; set; }
-
-        public ReactiveCommand ForceCreateUserCommand { get; set; }
-        public ReactiveCommand ForceCreateUserEmailCommand { get; set; }
 
         protected override ISourceCache<UserProfile, int> Models => _domain0.Model.UserProfiles;
 
@@ -306,6 +317,11 @@ namespace Domain0.Desktop.ViewModels
 
         // Creation
 
+        [Reactive] public string ForceCreateUserRolesFilter { get; set; }
+        public ReactiveCommand ForceCreateUserRolesFilterCommand { get; set; }
+        public ReactiveCommand ForceCreateUserCommand { get; set; }
+        
+        public int ForceCreateUserMode { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
         public string Name { get; set; }
@@ -320,13 +336,9 @@ namespace Domain0.Desktop.ViewModels
             IsBusy = true;
             try
             {
-                var phone = long.Parse(Phone);
-                var request = new ForceCreateUserRequest(
-                    BlockSmsSend, CustomSmsTemplate,
-                    Name, phone,
-                    new List<string>());
-                var userProfile = await _domain0.Client.ForceCreateUserAsync(request);
-                OnUserProfileCreated(userProfile);
+                var userProfile = await ForceCreateUserApi();
+                Models.AddOrUpdate(userProfile);
+                IsCreateFlyoutOpen = false;
             }
             catch (Exception e)
             {
@@ -339,35 +351,39 @@ namespace Domain0.Desktop.ViewModels
             }
         }
 
-        private async void ForceCreateUserEmail()
+        private async Task<UserProfile> ForceCreateUserApi()
         {
-            IsBusy = true;
-            try
-            {
-                var request = new ForceCreateEmailUserRequest(
-                    BlockEmailSend,
-                    CustomEmailSubjectTemplate,
-                    CustomEmailTemplate,
-                    Email, Name,
-                    new List<string>());
-                var userProfile = await _domain0.Client.ForceCreateUser2Async(request);
-                OnUserProfileCreated(userProfile);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                //throw;
-            }
-            finally
-            {
-                IsBusy = false;
-            }
-        }
+            var roles = ForceCreateUserRoles
+                .Where(x => x.IsSelected)
+                .Select(x => x.Role.Name)
+                .ToList();
 
-        private void OnUserProfileCreated(UserProfile userProfile)
-        {
-            Models.AddOrUpdate(userProfile);
-            IsCreateFlyoutOpen = false;
+            switch ((ForceCreateUserModeEnum)ForceCreateUserMode)
+            {
+                case ForceCreateUserModeEnum.Phone:
+                    var phone = long.Parse(Phone);
+                    var requestByPhone = new ForceCreateUserRequest(
+                        BlockSmsSend, CustomSmsTemplate,
+                        Name, phone,
+                        roles);
+                    return await _domain0.Client.ForceCreateUserAsync(requestByPhone);
+                case ForceCreateUserModeEnum.Email:
+                    var requestByEmail = new ForceCreateEmailUserRequest(
+                        BlockEmailSend,
+                        CustomEmailSubjectTemplate,
+                        CustomEmailTemplate,
+                        Email, Name,
+                        roles);
+                    return await _domain0.Client.ForceCreateUser2Async(requestByEmail);
+                default:
+                    throw new ArgumentException();
+            }
         }
+    }
+
+    public enum ForceCreateUserModeEnum
+    {
+        Phone,
+        Email
     }
 }

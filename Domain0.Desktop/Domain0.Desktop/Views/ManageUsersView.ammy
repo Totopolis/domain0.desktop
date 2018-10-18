@@ -1,4 +1,5 @@
 ﻿using Domain0.Desktop.Views;
+using Domain0.Desktop.ViewModels;
 using MahApps.Metro.Controls;
 using MahApps.Metro.IconPacks;
 
@@ -104,10 +105,13 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
       {
         Grid
         {
+          #ThreeRows("Auto", "*", "Auto")
           MetroTabControl 
           {
+            Grid.Row: 0
             TabControlHelper.Underlined: TabPanel
             TabStripPlacement: Top
+            SelectedIndex: bind ForceCreateUserMode
             MetroTabItem 
             {
               ControlsHelper.HeaderFontSize: 18
@@ -144,7 +148,6 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
                     TextWrapping: Wrap
                   }
                 }
-                @CreateButton(bind ForceCreateUserCommand){}
               }
             }
             MetroTabItem 
@@ -190,9 +193,75 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
                     TextWrapping: Wrap
                   }
                 }
-                @CreateButton(bind ForceCreateUserEmailCommand){}
               }
             }
+          }
+
+          MetroHeader 
+          {
+            Margin: "10,10,10,0"
+            Grid.Row: 1
+            Header: "Roles"
+            Grid 
+            {
+              #TwoRows("Auto", "*")
+              TextBox "RolesFilter"
+              {
+                Grid.Row: 0
+                Margin: 5
+                TextBoxHelper.ClearTextButton: true
+                TextBoxHelper.Watermark: "Search..."
+                ToolTip: "Roles filter"
+                TextBoxHelper.ButtonCommand: bind ForceCreateUserRolesFilterCommand set [ Mode: OneWay ]
+                TextBoxHelper.ButtonCommandParameter: Binding { ElementName: "RolesFilter", Path: "Text" }
+                InputBindings: [
+                  KeyBinding {
+                    Key: Return
+                    Command: bind ForceCreateUserRolesFilterCommand set [ Mode: OneWay ]
+                    CommandParameter: Binding { ElementName: "RolesFilter", Path: "Text" }
+                  }
+                ]
+                Style: Style {
+                  "xmlns:Controls": "http://metro.mahapps.com/winfx/xaml/controls"
+                  BasedOn: resource "SearchMetroTextBox"
+                  TargetType: TextBox
+                  Triggers: [
+                    Trigger {
+                      Property: "Controls:TextBoxHelper.HasText"
+                      Value: true
+                      #Setter("Controls:TextBoxHelper.ButtonContent", "r")
+                      #Setter("Controls:TextBoxHelper.ButtonContentTemplate", null)
+                    }
+                  ]
+                }
+              }
+              ListBox 
+              {
+                Grid.Row: 1
+                Resources: [
+                  Style {
+                    TargetType: ListBoxItem
+                    BasedOn: resource "{x:Type ListBoxItem}"
+                    #Setter("Focusable", false)
+                  }
+                ]
+                ItemsSource: bind ForceCreateUserRoles
+                ItemTemplate: DataTemplate {
+                  ToggleButton
+                  {
+                    Content: bind Role.Name
+                    IsChecked: bind IsSelected
+                    Style: resource dyn "MetroFlatToggleButton"
+                  }
+                }
+              }
+            }
+            
+          }
+
+          @CreateButton(bind ForceCreateUserCommand)
+          {
+            Grid.Row: 2
           }
         }
       }
