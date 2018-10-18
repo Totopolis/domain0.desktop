@@ -70,11 +70,12 @@ namespace Domain0.Desktop.ViewModels
 
         protected virtual void DoChangeTheme()
         {
-            var (theme, _) = ThemeManager.DetectAppStyle();
-            ThemeManager.ChangeAppStyle(Application.Current, ThemeManager.GetAccent(Name), theme);
-
             Settings.Default.AccentColor = Name;
             Settings.Default.Save();
+
+            ThemeManager.ChangeAppStyle(Application.Current,
+                ThemeManager.GetAccent(Settings.Default.AccentColor),
+                ThemeManager.GetAppTheme(Settings.Default.AppTheme));
         }
     }
 
@@ -82,10 +83,12 @@ namespace Domain0.Desktop.ViewModels
     {
         protected override void DoChangeTheme()
         {
-            ThemeManager.ChangeAppTheme(Application.Current, Name);
-
             Settings.Default.AppTheme = Name;
             Settings.Default.Save();
+
+            ThemeManager.ChangeAppStyle(Application.Current,
+                ThemeManager.GetAccent(Settings.Default.AccentColor),
+                ThemeManager.GetAppTheme(Settings.Default.AppTheme));
         }
     }
 

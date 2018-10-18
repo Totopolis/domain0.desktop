@@ -31,14 +31,13 @@ namespace Domain0.Desktop.ViewModels
             ForceCreateUserCommand = ReactiveCommand.Create(ForceCreateUser);
             ForceCreateUserEmailCommand = ReactiveCommand.Create(ForceCreateUserEmail);
 
-            LockUsersCommand = ReactiveCommand.CreateFromTask<IList>(LockUsers);
+            LockUsersCommand = ReactiveCommand.CreateFromTask<IList>(LockUsers,
+                this.WhenAny(x => x.SelectedItemsIds, x => x.Value != null && x.Value.Count > 0));
 
             AddRoleCommand = ReactiveCommand.CreateFromTask<Role>(AddRole);
             RemoveRolesCommand = ReactiveCommand.CreateFromTask<IList>(RemoveRoles);
             AddPermissionCommand = ReactiveCommand.CreateFromTask<Permission>(AddPermission);
             RemovePermissionsCommand = ReactiveCommand.CreateFromTask<IList>(RemovePermissions);
-
-            this.SelectedItemsIds = new HashSet<int>(new int [0]);
 
             // Permissions
 
@@ -66,7 +65,7 @@ namespace Domain0.Desktop.ViewModels
                             Id = group.Key,
                             Permission = permissions.Lookup(group.Key).Value,
                             Count = group.Items.Count(),
-                            Total = SelectedItemsIds.Count,
+                            Total = SelectedItemsIds?.Count ?? 0,
                             ParentIds = group.Items.Select(x => x.UserId.Value)
                         })
                         .OrderByDescending(x => x.Count)
@@ -75,6 +74,13 @@ namespace Domain0.Desktop.ViewModels
                 .DisposeWith(Disposables);
 
             // Roles
+
+            _domain0.Model.Roles.Connect()
+                .Transform(x => new ForceCreateUserRoleViewModel { Role = x })
+                .Sort(SortExpressionComparer<ForceCreateUserRoleViewModel>.Ascending(x => x.Role.Id))
+                .Bind(out _forceCreateUserRoles)
+                .Subscribe()
+                .DisposeWith(Disposables);
 
             _domain0.Model.Roles.Connect()
                 .Sort(SortExpressionComparer<Role>.Ascending(x => x.Id))
@@ -105,7 +111,7 @@ namespace Domain0.Desktop.ViewModels
                                     .Select(x => x.UserId.Value)
                                     .Distinct()
                                     .Count(),
-                                Total = SelectedItemsIds.Count,
+                                Total = SelectedItemsIds?.Count ?? 0,
                                 ParentIds = g.Items
                                     .Select(x => x.UserId.Value)
                                     .Distinct()
@@ -141,6 +147,9 @@ namespace Domain0.Desktop.ViewModels
 
         private ReadOnlyObservableCollection<Role> _roles;
         public ReadOnlyObservableCollection<Role> Roles => _roles;
+
+        private ReadOnlyObservableCollection<ForceCreateUserRoleViewModel> _forceCreateUserRoles;
+        public ReadOnlyObservableCollection<ForceCreateUserRoleViewModel> ForceCreateUserRoles => _forceCreateUserRoles;
 
         [Reactive] public IEnumerable<SelectedUserPermissionViewModel> SelectedUserPermissions { get; set; }
         [Reactive] public IEnumerable<SelectedUserRoleViewModel> SelectedUserRoles {get; set; }
@@ -187,6 +196,9 @@ namespace Domain0.Desktop.ViewModels
 
         private async Task AddRole(Role role)
         {
+            if (SelectedItemsIds == null || SelectedItemsIds.Count == 0)
+                return;
+
             var roleId = role.Id.Value;
             var userIds = SelectedItemsIds.ToList();
             var vm = SelectedUserRoles?.FirstOrDefault(x => x.Id == roleId);
@@ -231,6 +243,9 @@ namespace Domain0.Desktop.ViewModels
 
         private async Task AddPermission(Permission permission)
         {
+            if (SelectedItemsIds == null || SelectedItemsIds.Count == 0)
+                return;
+
             var permissionId = permission.Id.Value;
             var userIds = SelectedItemsIds.ToList();
             var vm = SelectedUserPermissions?.FirstOrDefault(x => x.Id == permissionId);

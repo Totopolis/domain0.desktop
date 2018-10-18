@@ -149,6 +149,7 @@
     <Compile Include="Models\Domain0Model.cs" />
     <Compile Include="ViewModels\Items\ApplicationViewModel.cs" />
     <Compile Include="ViewModels\BaseManageItemsViewModel.cs" />
+    <Compile Include="ViewModels\Items\ForceCreateUserRoleViewModel.cs" />
     <Compile Include="ViewModels\Items\IItemViewModel.cs" />
     <Compile Include="ViewModels\Items\ISelectedItemViewModel.cs" />
     <Compile Include="ViewModels\Items\SelectedRolePermissionViewModel.cs" />

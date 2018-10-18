@@ -237,7 +237,7 @@ alias FlyoutCreate(header = "Add")
     IsOpen: bind IsCreateFlyoutOpen
     Position: Right
     Width: 300
-    Theme: "Inverse"
+    Theme: "Adapt"
     Header: $header
   }
 }
@@ -249,7 +249,7 @@ alias FlyoutEdit(header = "Edit")
     IsOpen: bind IsEditFlyoutOpen
     Position: Right
     Width: 300
-    Theme: "Inverse"
+    Theme: "Adapt"
     Header: $header
   }
 }

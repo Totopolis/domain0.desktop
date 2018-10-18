@@ -28,29 +28,32 @@ namespace Domain0.Desktop.ViewModels
             _domain0 = domain0;
             _mapper = mapper;
 
-            var canOpenCreateFlyout = this.WhenAny(
-                x => x.IsCreateFlyoutOpen,
-                x => !x.Value);
             OpenCreateFlyoutCommand = ReactiveCommand.Create(() =>
             {
                 IsCreateFlyoutOpen = true;
                 IsEditFlyoutOpen = false;
-            }, canOpenCreateFlyout);
-            var canOpenEditFlyout = this.WhenAny(
-                x => x.IsEditFlyoutOpen,
-                x => x.SelectedItem,
-                (e, i) => !e.Value && i.Value != null);
+            }, this.WhenAny(
+                x => x.IsCreateFlyoutOpen,
+                x => !x.Value));
+
             OpenEditFlyoutCommand = ReactiveCommand.Create(() =>
             {
                 IsCreateFlyoutOpen = false;
                 IsEditFlyoutOpen = true;
-            }, canOpenEditFlyout);
+            }, this.WhenAny(
+                x => x.IsEditFlyoutOpen,
+                x => x.SelectedItem,
+                x => x.SelectedItemsIds,
+                (e, item, items) => !e.Value && item.Value != null && (items.Value == null || items.Value.Count == 1)));
 
-            EditSelectedCommand = ReactiveCommand.CreateFromTask(EditSelected,
-                this.WhenAny(x => x.SelectedItem, x => x.Value != null));
-            DeleteSelectedCommand = ReactiveCommand.CreateFromTask(DeleteSelected,
-                this.WhenAny(x => x.SelectedItem, x => x.Value != null));
+            EditSelectedCommand = ReactiveCommand.CreateFromTask(EditSelected);
             CreateCommand = ReactiveCommand.Create(Create);
+
+            DeleteSelectedCommand = ReactiveCommand.CreateFromTask(DeleteSelected,
+                this.WhenAny(
+                    x => x.SelectedItem,
+                    x => x.SelectedItemsIds,
+                    (item, items) => item.Value != null && (items.Value == null || items.Value.Count == 1)));
 
             UpdateFilters = ReactiveCommand.Create<PropertyFilter>(UpdateFilter);
             ModelFilters = new SourceCache<ModelFilter, PropertyInfo>(x => x.Property);
