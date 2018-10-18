@@ -1,41 +1,82 @@
 ﻿using Domain0.Desktop.Views;
 using MahApps.Metro.IconPacks;
+using MahApps.Metro.Controls;
+
+alias CircleDropDown(fill, command) {
+  DropDownButton
+  {
+    Width: 32
+    Height: 32
+    ArrowVisibility: Collapsed
+    BorderThickness: 0
+    ButtonStyle: resource dyn "MahApps.Metro.Styles.MetroCircleButtonStyle"
+    FocusVisualStyle: resource dyn "MahApps.Metro.Styles.MetroCircleFocusVisual"
+    DisplayMemberPath: "Name"
+    ItemContainerStyle: Style
+    {
+      TargetType: MenuItem
+      BasedOn: "{StaticResource {x:Type MenuItem}}"
+      #Setter("Command", $command)
+    }
+    Icon: Ellipse
+    {
+      Height: 24
+      Width: 24
+      Fill: $fill
+    }
+  }
+}
+
+alias CircleButton(icon) {
+  Button
+  {
+    Width: 32
+    Height: 32
+    Style: resource dyn "MahApps.Metro.Styles.MetroCircleButtonStyle"
+    PackIconModern
+    {
+      Kind: $icon
+      Height: 16
+      Width: 16
+    }
+  }
+}
 
 ViewUserControl "Domain0.Desktop.Views.ManageToolsView"
 {
   Grid
   {
-    #ThreeRows("*", "Auto", "Auto")
-    Button
+    #ThreeRows("Auto", "*", "Auto")
+    StackPanel 
     {
-      Grid.Row: 1
-      Margin: 10
-      Width: 64
-      Height: 64
-      ToolTip: "Reload"
-      Style: resource dyn "MahApps.Metro.Styles.MetroCircleButtonStyle"
-      Command: bind ReloadCommand
-      PackIconModern
+      Grid.Row: 0
+      HorizontalAlignment: Left
+      @CircleButton("DoorLeave")
       {
-        Kind: "Refresh"
-        Height: 32
-        Width: 32
+        Margin: "10,10,0,0"
+        ToolTip: "Logout"
+        Command: bind LogoutCommand
+      }
+      @CircleButton("Refresh")
+      {
+        Margin: "10,10,0,0"
+        ToolTip: "Reload"
+        Command: bind ReloadCommand
       }
     }
-    Button
+    StackPanel 
     {
       Grid.Row: 2
-      Margin: 10
-      Width: 64
-      Height: 64
-      ToolTip: "Logout"
-      Style: resource dyn "MahApps.Metro.Styles.MetroCircleButtonStyle"
-      Command: bind LogoutCommand
-      PackIconModern
+      HorizontalAlignment: Left
+      @CircleDropDown(resource dyn "AccentBaseColorBrush", bind ChangeAccentCommand)
       {
-        Kind: "DoorLeave"
-        Height: 32
-        Width: 32
+        Margin: "10,0,0,10"
+        ItemsSource: bind AccentColors
+      }
+      @CircleDropDown(resource dyn "BlackColorBrush", bind ChangeAccentCommand)
+      {
+        Margin: "10,0,0,10"
+        ItemsSource: bind AppThemes
       }
     }
   }

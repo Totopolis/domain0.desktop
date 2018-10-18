@@ -216,6 +216,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Themes\AvalonDockStyle.ammy" />
     <None Include="Views\CommonManageView.ammy" />
     <None Include="Views\Dialogs\LoginWithUrlDialog.ammy" />
     <None Include="Views\ManageApplicationsView.ammy" />
@@ -233,6 +234,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <DependentUpon>App.ammy</DependentUpon>
+    </Page>
+    <Page Include="Themes\AvalonDockStyle.g.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <DependentUpon>AvalonDockStyle.ammy</DependentUpon>
     </Page>
     <Page Include="Views\CommonManageView.g.xaml">
       <SubType>Designer</SubType>

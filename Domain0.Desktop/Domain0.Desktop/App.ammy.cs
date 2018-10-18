@@ -1,11 +1,11 @@
 ﻿using AmmySidekick;
 using Autofac;
+using Domain0.Desktop.Properties;
 using Domain0.Desktop.Services;
 using Domain0.Desktop.Views;
+using MahApps.Metro;
 using System;
 using System.Windows;
-using MahApps.Metro.Controls;
-using MahApps.Metro.Controls.Dialogs;
 using Ui.Wpf.Common;
 using Ui.Wpf.Common.ShowOptions;
 using Application = System.Windows.Application;
@@ -34,9 +34,13 @@ namespace Domain0.Desktop
                 new UiShowStartWindowOptions
                 {
                     Title = "Domain0.Desktop",
-                    ToolPaneWidth = 100
+                    ToolPaneWidth = 60
                 }
             );
+
+            ThemeManager.ChangeAppStyle(this,
+                ThemeManager.GetAccent(Settings.Default.AccentColor),
+                ThemeManager.GetAppTheme(Settings.Default.AppTheme));
 
             async void ShowLoadingDialog()
             {
