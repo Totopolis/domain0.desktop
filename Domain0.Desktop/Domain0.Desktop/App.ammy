@@ -6,6 +6,7 @@
       ResourceDictionary { Source: "pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" }
 
       ResourceDictionary { Source: "pack://application:,,,/Domain0.Desktop;component/Themes/AvalonDockStyle.g.xaml" }
+      ResourceDictionary { Source: "pack://application:,,,/Domain0.Desktop;component/Themes/Buttons.g.xaml" }
     ]
   }
 }

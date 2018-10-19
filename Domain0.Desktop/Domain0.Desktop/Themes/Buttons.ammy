@@ -1,0 +1,82 @@
+﻿using MahApps.Metro.Controls;
+using MahApps.Metro.Converters;
+
+mixin MetroToggleButtonStyleWithColor(
+  a1="{DynamicResource AccentColorBrush}",
+  a2="{DynamicResource AccentColorBrush2}",
+  a3="{DynamicResource AccentColorBrush3}",
+  pf="{DynamicResource FlatButtonPressedForegroundBrush}",
+  pb="{DynamicResource FlatButtonPressedBackgroundBrush}") for Style
+{
+  TargetType: ToggleButton
+  BasedOn: resource "MetroFlatToggleButton"
+  Triggers: [
+    Trigger {
+      Property: "IsChecked"
+      Value: "True"
+      Setter { Property: "Background",  Value: $a1 }
+      Setter { Property: "Foreground",  Value: $pf }
+    }
+    MultiTrigger {
+      Conditions: [
+        Condition { Property: "IsMouseOver",  Value: "True" }
+        Condition { Property: "IsChecked",  Value: "False" }
+      ]
+      Setter { Property: "Background",  Value: "DarkGray" }
+    }
+    MultiTrigger {
+      Conditions: [
+        Condition { Property: "IsMouseOver",  Value: "True" }
+        Condition { Property: "IsChecked",  Value: "True" }
+      ]
+      Setter { Property: "Background",  Value: $a2 }
+      Setter { Property: "Foreground",  Value: $pf }
+    }
+    MultiTrigger {
+      Conditions: [
+        Condition { Property: "IsPressed",  Value: "True" }
+        Condition { Property: "IsChecked",  Value: "False" }
+      ]
+      Setter { Property: "Background",  Value: $pb }
+      Setter { Property: "Foreground",  Value: $pf }
+    }
+    MultiTrigger {
+      Conditions: [
+        Condition { Property: "IsPressed",  Value: "True" }
+        Condition { Property: "IsChecked",  Value: "True" }
+      ]
+      Setter { Property: "Background",  Value: $a3 }
+      Setter { Property: "Foreground",  Value: $pf }
+    }
+    Trigger {
+      Property: "IsEnabled"
+      Value: "False"
+      Setter { Property: "Foreground",  Value: "{DynamicResource GrayBrush2}" }
+    }
+  ]
+}
+
+ResourceDictionary {
+  SolidColorBrush Key="RoleAccent1"{ Color: "#CCFA6800" }
+  SolidColorBrush Key="RoleAccent2"{ Color: "#99FA6800" }
+  SolidColorBrush Key="RoleAccent3"{ Color: "#66FA6800" }
+  SolidColorBrush Key="PermissionAccent1"{ Color: "#CCD80073" }
+  SolidColorBrush Key="PermissionAccent2"{ Color: "#99D80073" }
+  SolidColorBrush Key="PermissionAccent3"{ Color: "#66D80073" }
+  Style Key="MetroToggleButtonRole"
+  {
+    #MetroToggleButtonStyleWithColor(
+      resource "RoleAccent1",
+      resource "RoleAccent2",
+      resource "RoleAccent3"
+    )
+  }
+  Style Key="MetroToggleButtonPermission"
+  {
+    #MetroToggleButtonStyleWithColor(
+      resource "PermissionAccent1",
+      resource "PermissionAccent2",
+      resource "PermissionAccent3"
+    )
+  }
+}

@@ -218,6 +218,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="Themes\AvalonDockStyle.ammy" />
+    <None Include="Themes\Buttons.ammy" />
     <None Include="Views\CommonManageView.ammy" />
     <None Include="Views\Dialogs\LoginWithUrlDialog.ammy" />
     <None Include="Views\ManageApplicationsView.ammy" />
@@ -240,6 +241,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <DependentUpon>AvalonDockStyle.ammy</DependentUpon>
+    </Page>
+    <Page Include="Themes\Buttons.g.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <DependentUpon>Buttons.ammy</DependentUpon>
     </Page>
     <Page Include="Views\Dialogs\LoginWithUrlDialog.g.xaml">
       <SubType>Designer</SubType>

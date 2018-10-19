@@ -213,12 +213,12 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
                 TextBoxHelper.Watermark: "Search..."
                 ToolTip: "Roles filter"
                 TextBoxHelper.ButtonCommand: bind ForceCreateUserRolesFilterCommand set [ Mode: OneWay ]
-                TextBoxHelper.ButtonCommandParameter: Binding { ElementName: "RolesFilter", Path: "Text" }
+                TextBoxHelper.ButtonCommandParameter: bind Text from "RolesFilter"
                 InputBindings: [
                   KeyBinding {
                     Key: Return
                     Command: bind ForceCreateUserRolesFilterCommand set [ Mode: OneWay ]
-                    CommandParameter: Binding { ElementName: "RolesFilter", Path: "Text" }
+                    CommandParameter: bind Text from "RolesFilter"
                   }
                 ]
                 Style: Style {
@@ -251,7 +251,7 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
                   {
                     Content: bind Role.Name
                     IsChecked: bind IsSelected
-                    Style: resource dyn "MetroFlatToggleButton"
+                    Style: resource "MetroToggleButtonRole"
                   }
                 }
               }
