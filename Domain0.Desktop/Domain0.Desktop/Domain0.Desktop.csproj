@@ -152,6 +152,7 @@
     <Compile Include="ViewModels\Items\ForceCreateUserRoleViewModel.cs" />
     <Compile Include="ViewModels\Items\IItemViewModel.cs" />
     <Compile Include="ViewModels\Items\ISelectedItemViewModel.cs" />
+    <Compile Include="ViewModels\Items\SelectedItemViewModel.cs" />
     <Compile Include="ViewModels\Items\SelectedRolePermissionViewModel.cs" />
     <Compile Include="ViewModels\Items\SelectedUserPermissionViewModel.cs" />
     <Compile Include="ViewModels\Items\SelectedUserRoleViewModel.cs" />
@@ -218,7 +219,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="Themes\AvalonDockStyle.ammy" />
-    <None Include="Themes\Buttons.ammy" />
+    <None Include="Themes\Styles.ammy" />
     <None Include="Views\CommonManageView.ammy" />
     <None Include="Views\Dialogs\LoginWithUrlDialog.ammy" />
     <None Include="Views\ManageApplicationsView.ammy" />
@@ -242,10 +243,10 @@
       <Generator>MSBuild:Compile</Generator>
       <DependentUpon>AvalonDockStyle.ammy</DependentUpon>
     </Page>
-    <Page Include="Themes\Buttons.g.xaml">
+    <Page Include="Themes\Styles.g.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-      <DependentUpon>Buttons.ammy</DependentUpon>
+      <DependentUpon>Styles.ammy</DependentUpon>
     </Page>
     <Page Include="Views\Dialogs\LoginWithUrlDialog.g.xaml">
       <SubType>Designer</SubType>

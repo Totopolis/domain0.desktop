@@ -34,6 +34,9 @@ namespace Domain0.Desktop.ViewModels
             LockUsersCommand = ReactiveCommand.CreateFromTask<IList>(LockUsers,
                 this.WhenAny(x => x.SelectedItemsIds, x => x.Value != null && x.Value.Count > 0));
 
+            RoleCheckedCommand = ReactiveCommand.Create<SelectedUserRoleViewModel>(RoleChecked);
+            PermissionCheckedCommand = ReactiveCommand.Create<SelectedUserPermissionViewModel>(PermissionChecked);
+
             AddRoleCommand = ReactiveCommand.CreateFromTask<Role>(AddRole);
             RemoveRolesCommand = ReactiveCommand.CreateFromTask<IList>(RemoveRoles);
             AddPermissionCommand = ReactiveCommand.CreateFromTask<Permission>(AddPermission);
@@ -50,23 +53,31 @@ namespace Domain0.Desktop.ViewModels
             var permissionsDynamicFilter = this
                 .WhenAnyValue(x => x.SelectedItemsIds)
                 .Select(CreatePermissionsFilter);
-                //.ObserveOn(RxApp.MainThreadScheduler);
 
             _domain0.Model.UserPermissions
-                .Connect()
-                .Filter(permissionsDynamicFilter, ListFilterPolicy.ClearAndReplace)
+                .Connect(x => !x.RoleId.HasValue)
                 .GroupWithImmutableState(x => x.Id.Value)
                 .ToCollection()
                 .CombineLatest(
                     _domain0.Model.Permissions.Connect().QueryWhenChanged(items => items),
-                    (groups, permissions) => groups
-                        .Select(group => new SelectedUserPermissionViewModel
+                    this.WhenAnyValue(x => x.SelectedItemsIds),
+                    (groups, permissions, selectedIds) => groups
+                        .Select(g =>
                         {
-                            Id = group.Key,
-                            Permission = permissions.Lookup(group.Key).Value,
-                            Count = group.Items.Count(),
-                            Total = SelectedItemsIds?.Count ?? 0,
-                            ParentIds = group.Items.Select(x => x.UserId)
+                            var userIds = g.Items
+                                .Select(x => x.UserId)
+                                .Distinct();
+                            var groupSelectedIds = selectedIds?
+                                                       .Intersect(userIds)
+                                                       .ToList() ?? new List<int>();
+                            var count = groupSelectedIds.Count;
+                            var total = selectedIds?.Count ?? 0;
+                            return new SelectedUserPermissionViewModel(count == total, count, total)
+                            {
+                                Id = g.Key,
+                                Item = permissions.Lookup(g.Key).Value,
+                                ParentIds = groupSelectedIds
+                            };
                         })
                         .OrderByDescending(x => x.Count)
                 )
@@ -93,35 +104,30 @@ namespace Domain0.Desktop.ViewModels
                 .Subscribe()
                 .DisposeWith(Disposables);
 
-            var rolesDynamicFilter = this
-                .WhenAnyValue(x => x.SelectedItemsIds)
-                .Select(CreateRolesFilter);
-                //.ObserveOn(RxApp.MainThreadScheduler);
-
             _domain0.Model.UserPermissions
-                .Connect()
-                .Filter(rolesDynamicFilter, ListFilterPolicy.ClearAndReplace)
+                .Connect(x => x.RoleId.HasValue)
                 .GroupWithImmutableState(x => x.RoleId.Value)
                 .ToCollection()
                 .CombineLatest(
                     _domain0.Model.Roles.Connect().QueryWhenChanged(items => items),
-                    (groups, roles) => groups
+                    this.WhenAnyValue(x => x.SelectedItemsIds),
+                    (groups, roles, selectedIds) => groups
                         .Select(g =>
                         {
-                            var result = new SelectedUserRoleViewModel
+                            var userIds = g.Items
+                                .Select(x => x.UserId)
+                                .Distinct();
+                            var groupSelectedIds = selectedIds?
+                                                       .Intersect(userIds)
+                                                       .ToList() ?? new List<int>();
+                            var count = groupSelectedIds.Count;
+                            var total = selectedIds?.Count ?? 0;
+                            return new SelectedUserRoleViewModel(count == total, count, total)
                             {
                                 Id = g.Key,
-                                Role = roles.Lookup(g.Key).Value,
-                                Count = g.Items
-                                    .Select(x => x.UserId)
-                                    .Distinct()
-                                    .Count(),
-                                Total = SelectedItemsIds?.Count ?? 0,
-                                ParentIds = g.Items
-                                    .Select(x => x.UserId)
-                                    .Distinct()
+                                Item = roles.Lookup(g.Key).Value,
+                                ParentIds = groupSelectedIds
                             };
-                            return result;
                         })
                         .OrderByDescending(x => x.Count)
                 )
@@ -136,15 +142,6 @@ namespace Domain0.Desktop.ViewModels
 
             return permission => x.Contains(permission.UserId) &&
                                  !permission.RoleId.HasValue;
-        }
-
-        private Func<UserPermission, bool> CreateRolesFilter(ICollection<int> x)
-        {
-            if (x == null)
-                return permission => false;
-
-            return permission => x.Contains(permission.UserId) &&
-                                 permission.RoleId.HasValue;
         }
 
         private Func<Role, bool> CreateForceCreateUserRolesFilter(string x)
@@ -167,6 +164,9 @@ namespace Domain0.Desktop.ViewModels
 
         [Reactive] public IEnumerable<SelectedUserPermissionViewModel> SelectedUserPermissions { get; set; }
         [Reactive] public IEnumerable<SelectedUserRoleViewModel> SelectedUserRoles {get; set; }
+
+        public ReactiveCommand RoleCheckedCommand { get; set; }
+        public ReactiveCommand PermissionCheckedCommand { get; set; }
 
         public ReactiveCommand AddRoleCommand { get; set; }
         public ReactiveCommand RemoveRolesCommand { get; set; }
@@ -204,6 +204,32 @@ namespace Domain0.Desktop.ViewModels
         }
 
         // Manage Roles and Permissions
+
+        private void RoleChecked(SelectedUserRoleViewModel o)
+        {
+            if (!o.IsSelected)
+            {
+                if (o.IsChanged)
+                    o.Restore();
+                else
+                    o.MakeFull();
+            }
+            else
+                o.MakeEmpty();
+        }
+
+        private void PermissionChecked(SelectedUserPermissionViewModel o)
+        {
+            if (!o.IsSelected)
+            {
+                if (o.IsChanged)
+                    o.Restore();
+                else
+                    o.MakeFull();
+            }
+            else
+                o.MakeEmpty();
+        }
 
         private async Task AddRole(Role role)
         {

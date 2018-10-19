@@ -431,3 +431,37 @@ alias ManageItemsSubset(text, color,
     }
   }
 }
+
+alias FilterTextBox(name, command)
+{
+  TextBox
+  {
+    Name: $name
+    Style: resource "SearchTextBox"
+    TextBoxHelper.ClearTextButton: true
+    TextBoxHelper.Watermark: "Search..."
+    TextBoxHelper.ButtonCommand: $command
+    TextBoxHelper.ButtonCommandParameter: Binding { Path: "Text", ElementName: $name }
+    InputBindings: [
+      KeyBinding {
+        Key: Return
+        Command: $command
+        CommandParameter: Binding { Path: "Text", ElementName: $name }
+      }
+    ]  
+  }
+}
+
+alias NonFocusableListBox()
+{
+  ListBox 
+  {
+    Resources: [
+      Style {
+        TargetType: ListBoxItem
+        BasedOn: resource "{x:Type ListBoxItem}"
+        #Setter("Focusable", false)
+      }
+    ]
+  }
+}

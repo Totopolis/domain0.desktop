@@ -39,26 +39,31 @@ namespace Domain0.Desktop.ViewModels
                 .Subscribe()
                 .DisposeWith(Disposables);
 
-            var permissionsDynamicFilter = this
-                .WhenAnyValue(x => x.SelectedItemsIds)
-                .Select(CreatePermissionsFilter);
-                //.ObserveOn(RxApp.MainThreadScheduler);
-
             _domain0.Model.RolePermissions
                 .Connect()
-                .Filter(permissionsDynamicFilter, ListFilterPolicy.ClearAndReplace)
                 .GroupWithImmutableState(x => x.Id.Value)
                 .ToCollection()
                 .CombineLatest(
                     _domain0.Model.Permissions.Connect().QueryWhenChanged(items => items),
-                    (groups, permissions) => groups
-                        .Select(group => new SelectedRolePermissionViewModel
+                    this.WhenAnyValue(x => x.SelectedItemsIds),
+                    (groups, permissions, selectedIds) => groups
+                        .Select(g =>
                         {
-                            Id = group.Key,
-                            Permission = permissions.Lookup(group.Key).Value,
-                            Count = group.Items.Count(),
-                            Total = SelectedItemsIds.Count,
-                            ParentIds = group.Items.Select(x => x.RoleId)
+                            var roleIds = g.Items
+                                .Select(x => x.RoleId)
+                                .Distinct();
+                            var groupSelectedIds = selectedIds?
+                                                       .Intersect(roleIds)
+                                                       .ToList() ?? new List<int>();
+                            var count = groupSelectedIds.Count;
+                            var total = selectedIds?.Count ?? 0;
+
+                            return new SelectedRolePermissionViewModel(count == total, count, total)
+                            {
+                                Id = g.Key,
+                                Item = permissions.Lookup(g.Key).Value,
+                                ParentIds = g.Items.Select(x => x.RoleId)
+                            };
                         })
                         .OrderByDescending(x => x.Count)
                 )

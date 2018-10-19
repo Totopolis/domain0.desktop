@@ -57,26 +57,46 @@ mixin MetroToggleButtonStyleWithColor(
 }
 
 ResourceDictionary {
-  SolidColorBrush Key="RoleAccent1"{ Color: "#CCFA6800" }
-  SolidColorBrush Key="RoleAccent2"{ Color: "#99FA6800" }
-  SolidColorBrush Key="RoleAccent3"{ Color: "#66FA6800" }
-  SolidColorBrush Key="PermissionAccent1"{ Color: "#CCD80073" }
-  SolidColorBrush Key="PermissionAccent2"{ Color: "#99D80073" }
-  SolidColorBrush Key="PermissionAccent3"{ Color: "#66D80073" }
+  Color Key="RoleAccentColor1"{ "#CCFA6800" }
+  Color Key="RoleAccentColor2"{ "#99FA6800" }
+  Color Key="RoleAccentColor3"{ "#66FA6800" }
+  SolidColorBrush Key="RoleAccentBrush1"{ Color: resource "RoleAccentColor1" }
+  SolidColorBrush Key="RoleAccentBrush2"{ Color: resource "RoleAccentColor2" }
+  SolidColorBrush Key="RoleAccentBrush3"{ Color: resource "RoleAccentColor3" }
+  Color Key="PermissionAccentColor1"{ "#CCD80073" }
+  Color Key="PermissionAccentColor2"{ "#99D80073" }
+  Color Key="PermissionAccentColor3"{ "#66D80073" }
+  SolidColorBrush Key="PermissionAccentBrush1"{ Color: resource "PermissionAccentColor1" }
+  SolidColorBrush Key="PermissionAccentBrush2"{ Color: resource "PermissionAccentColor2" }
+  SolidColorBrush Key="PermissionAccentBrush3"{ Color: resource "PermissionAccentColor3" }
   Style Key="MetroToggleButtonRole"
   {
     #MetroToggleButtonStyleWithColor(
-      resource "RoleAccent1",
-      resource "RoleAccent2",
-      resource "RoleAccent3"
+      resource "RoleAccentBrush1",
+      resource "RoleAccentBrush2",
+      resource "RoleAccentBrush3"
     )
   }
   Style Key="MetroToggleButtonPermission"
   {
     #MetroToggleButtonStyleWithColor(
-      resource "PermissionAccent1",
-      resource "PermissionAccent2",
-      resource "PermissionAccent3"
+      resource "PermissionAccentBrush1",
+      resource "PermissionAccentBrush2",
+      resource "PermissionAccentBrush3"
     )
+  }
+  Style Key="SearchTextBox"
+  {
+    "xmlns:Controls": "http://metro.mahapps.com/winfx/xaml/controls"
+    BasedOn: resource "SearchMetroTextBox"
+    TargetType: TextBox
+    Triggers: [
+      Trigger {
+        Property: "Controls:TextBoxHelper.HasText"
+        Value: true
+        #Setter("Controls:TextBoxHelper.ButtonContent", "r")
+        #Setter("Controls:TextBoxHelper.ButtonContentTemplate", null)
+      }
+    ]
   }
 }

@@ -121,7 +121,7 @@ namespace Domain0.Desktop.ViewModels
             IsEditFlyoutOpen = false;
         }
 
-        protected static Dictionary<int, HashSet<int>> SelectedItemsToParents(IEnumerable<ISelectedItemViewModel> src)
+        protected static Dictionary<int, HashSet<int>> SelectedItemsToParents<T>(IEnumerable<SelectedItemViewModel<T>> src)
         {
             var dst = new Dictionary<int, HashSet<int>>();
             foreach (var x in src)
