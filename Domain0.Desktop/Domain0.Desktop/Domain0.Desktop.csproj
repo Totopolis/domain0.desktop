@@ -241,11 +241,6 @@
       <Generator>MSBuild:Compile</Generator>
       <DependentUpon>AvalonDockStyle.ammy</DependentUpon>
     </Page>
-    <Page Include="Views\CommonManageView.g.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-      <DependentUpon>CommonManageView.ammy</DependentUpon>
-    </Page>
     <Page Include="Views\Dialogs\LoginWithUrlDialog.g.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
