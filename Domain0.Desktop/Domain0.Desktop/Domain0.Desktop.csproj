@@ -156,6 +156,7 @@
     <Compile Include="ViewModels\Items\SelectedRolePermissionViewModel.cs" />
     <Compile Include="ViewModels\Items\SelectedUserPermissionViewModel.cs" />
     <Compile Include="ViewModels\Items\SelectedUserRoleViewModel.cs" />
+    <Compile Include="ViewModels\ManageMultipleItemsViewModel.cs" />
     <Compile Include="ViewModels\ManagePermissionsViewModel.cs" />
     <Compile Include="ViewModels\ManageRolesViewModel.cs" />
     <Compile Include="ViewModels\ManageToolsViewModel.cs" />
@@ -206,6 +207,7 @@
     <Compile Include="Views\ManageUsersView.ammy.cs">
       <DependentUpon>ManageUsersView.ammy</DependentUpon>
     </Compile>
+    <Compile Include="Views\ToggleButtonEx.cs" />
     <Compile Include="Views\ViewUserControl.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

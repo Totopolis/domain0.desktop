@@ -78,17 +78,28 @@ ViewUserControl "Domain0.Desktop.Views.ManageRolesView" {
         ]
       }
 
-        @ManageItemsSubset("Permissions", Colors.DarkRed,
-          bind Name, bind Permissions,
-          bind Data.AddPermissionCommand from $resource Proxy,
-          bind RemovePermissionsCommand,
-          "PermissionsList",
-          bind SelectedRolePermissions set [ Mode: OneWay ])
+      Grid 
+      {
+      #Cell(0, 1, 2, 1)
+        #ThreeRows("Auto", "Auto", "*")
+        TextBlock 
         {
-        #Cell(0, 1, 2, 1)
+          Grid.Row: 0
+          Margin: "0,10,0,0"
+          Text: "Permission"
         }
-        
-
+        @FilterTextBox("PermissionsFilter", bind PermissionsFilterCommand set [ Mode: OneWay ])
+        {
+          Grid.Row: 1
+          Margin: 5
+        }
+        @NonFocusableListBox()
+        {
+          Grid.Row: 2
+          ItemsSource: bind SelectedRolePermissions
+          ItemTemplate: @ManageItemDataTemplate(resource "MetroToggleButtonPermission") {}
+        }
+      }
     }
 
     FlyoutsControl

@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Domain0.Desktop.ViewModels
 {
-    public class ManageUsersViewModel : BaseManageItemsViewModel<UserProfileViewModel, UserProfile>
+    public class ManageUsersViewModel : ManageMultipleItemsViewModel<UserProfileViewModel, UserProfile>
     {
         public ManageUsersViewModel(IDomain0Service domain0, IMapper mapper)
             : base(domain0, mapper)
@@ -37,11 +37,6 @@ namespace Domain0.Desktop.ViewModels
             RoleCheckedCommand = ReactiveCommand.Create<SelectedUserRoleViewModel>(RoleChecked);
             PermissionCheckedCommand = ReactiveCommand.Create<SelectedUserPermissionViewModel>(PermissionChecked);
 
-            AddRoleCommand = ReactiveCommand.CreateFromTask<Role>(AddRole);
-            RemoveRolesCommand = ReactiveCommand.CreateFromTask<IList>(RemoveRoles);
-            AddPermissionCommand = ReactiveCommand.CreateFromTask<Permission>(AddPermission);
-            RemovePermissionsCommand = ReactiveCommand.CreateFromTask<IList>(RemovePermissions);
-
             // Permissions
 
             _domain0.Model.Permissions.Connect()
@@ -56,17 +51,17 @@ namespace Domain0.Desktop.ViewModels
 
             _domain0.Model.UserPermissions
                 .Connect(x => !x.RoleId.HasValue)
-                .GroupWithImmutableState(x => x.Id.Value)
                 .ToCollection()
                 .CombineLatest(
                     _domain0.Model.Permissions.Connect().QueryWhenChanged(items => items),
                     this.WhenAnyValue(x => x.SelectedItemsIds),
-                    (groups, permissions, selectedIds) => groups
-                        .Select(g =>
+                    (userPermissions, permissions, selectedIds) => Permissions
+                        .Select(p =>
                         {
-                            var userIds = g.Items
-                                .Select(x => x.UserId)
-                                .Distinct();
+                            var permissionId = p.Id.Value;
+                            var userIds = userPermissions
+                                .Where(x => x.Id.Value == permissionId)
+                                .Select(x => x.UserId);
                             var groupSelectedIds = selectedIds?
                                                        .Intersect(userIds)
                                                        .ToList() ?? new List<int>();
@@ -74,8 +69,7 @@ namespace Domain0.Desktop.ViewModels
                             var total = selectedIds?.Count ?? 0;
                             return new SelectedUserPermissionViewModel(count == total, count, total)
                             {
-                                Id = g.Key,
-                                Item = permissions.Lookup(g.Key).Value,
+                                Item = p,
                                 ParentIds = groupSelectedIds
                             };
                         })
@@ -106,15 +100,16 @@ namespace Domain0.Desktop.ViewModels
 
             _domain0.Model.UserPermissions
                 .Connect(x => x.RoleId.HasValue)
-                .GroupWithImmutableState(x => x.RoleId.Value)
                 .ToCollection()
                 .CombineLatest(
                     _domain0.Model.Roles.Connect().QueryWhenChanged(items => items),
                     this.WhenAnyValue(x => x.SelectedItemsIds),
-                    (groups, roles, selectedIds) => groups
-                        .Select(g =>
+                    (userPermissions, roles, selectedIds) => Roles
+                        .Select(r =>
                         {
-                            var userIds = g.Items
+                            var roleId = r.Id.Value;
+                            var userIds = userPermissions
+                                .Where(x => x.RoleId.Value == roleId)
                                 .Select(x => x.UserId)
                                 .Distinct();
                             var groupSelectedIds = selectedIds?
@@ -124,8 +119,7 @@ namespace Domain0.Desktop.ViewModels
                             var total = selectedIds?.Count ?? 0;
                             return new SelectedUserRoleViewModel(count == total, count, total)
                             {
-                                Id = g.Key,
-                                Item = roles.Lookup(g.Key).Value,
+                                Item = r,
                                 ParentIds = groupSelectedIds
                             };
                         })
@@ -167,11 +161,6 @@ namespace Domain0.Desktop.ViewModels
 
         public ReactiveCommand RoleCheckedCommand { get; set; }
         public ReactiveCommand PermissionCheckedCommand { get; set; }
-
-        public ReactiveCommand AddRoleCommand { get; set; }
-        public ReactiveCommand RemoveRolesCommand { get; set; }
-        public ReactiveCommand AddPermissionCommand { get; set; }
-        public ReactiveCommand RemovePermissionsCommand { get; set; }
 
         public ReactiveCommand LockUsersCommand { get; set; }
 
@@ -230,7 +219,7 @@ namespace Domain0.Desktop.ViewModels
             else
                 o.MakeEmpty();
         }
-
+        /*
         private async Task AddRole(Role role)
         {
             if (SelectedItemsIds == null || SelectedItemsIds.Count == 0)
@@ -319,7 +308,7 @@ namespace Domain0.Desktop.ViewModels
                 });
             }
         }
-
+        */
         // Lock
 
         private async Task LockUsers(IList list)

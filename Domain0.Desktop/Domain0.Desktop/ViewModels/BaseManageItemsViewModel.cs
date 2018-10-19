@@ -7,7 +7,6 @@ using DynamicData.Binding;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
@@ -40,20 +39,12 @@ namespace Domain0.Desktop.ViewModels
             {
                 IsCreateFlyoutOpen = false;
                 IsEditFlyoutOpen = true;
-            }, this.WhenAny(
-                x => x.IsEditFlyoutOpen,
-                x => x.SelectedItem,
-                x => x.SelectedItemsIds,
-                (e, item, items) => !e.Value && item.Value != null && (items.Value == null || items.Value.Count == 1)));
+            }, OpenEditFlyoutCommandObservable);
 
             EditSelectedCommand = ReactiveCommand.CreateFromTask(EditSelected);
             CreateCommand = ReactiveCommand.Create(Create);
 
-            DeleteSelectedCommand = ReactiveCommand.CreateFromTask(DeleteSelected,
-                this.WhenAny(
-                    x => x.SelectedItem,
-                    x => x.SelectedItemsIds,
-                    (item, items) => item.Value != null && (items.Value == null || items.Value.Count == 1)));
+            DeleteSelectedCommand = ReactiveCommand.CreateFromTask(DeleteSelected, DeleteSelectedCommandObservable);
 
             UpdateFilters = ReactiveCommand.Create<PropertyFilter>(UpdateFilter);
             ModelFilters = new SourceCache<ModelFilter, PropertyInfo>(x => x.Property);
@@ -83,6 +74,17 @@ namespace Domain0.Desktop.ViewModels
         {
 
         }
+
+        protected virtual IObservable<bool> OpenEditFlyoutCommandObservable =>
+            this.WhenAny(
+                x => x.IsEditFlyoutOpen,
+                x => x.SelectedItem,
+                (e, item) => !e.Value && item.Value != null);
+
+        protected virtual IObservable<bool> DeleteSelectedCommandObservable =>
+            this.WhenAny(
+                x => x.SelectedItem,
+                item => item.Value != null);
 
         private Func<TViewModel, bool> CreateFilter()
         {
@@ -121,20 +123,6 @@ namespace Domain0.Desktop.ViewModels
             IsEditFlyoutOpen = false;
         }
 
-        protected static Dictionary<int, HashSet<int>> SelectedItemsToParents<T>(IEnumerable<SelectedItemViewModel<T>> src)
-        {
-            var dst = new Dictionary<int, HashSet<int>>();
-            foreach (var x in src)
-            {
-                foreach (var id in x.ParentIds)
-                    if (dst.ContainsKey(id))
-                        dst[id].Add(x.Id);
-                    else
-                        dst[id] = new HashSet<int>(new[] { x.Id });
-            }
-            return dst;
-        }
-
         protected virtual TViewModel TransformToViewModel(TModel model)
         {
             return _mapper.Map<TViewModel>(model);
@@ -148,7 +136,7 @@ namespace Domain0.Desktop.ViewModels
         public ReadOnlyObservableCollection<TViewModel> Items => _items;
 
         [Reactive] public TViewModel SelectedItem { get; set; }
-        [Reactive] public ICollection<int> SelectedItemsIds { get; set; }
+
         public TViewModel CreateViewModel { get; set; } = new TViewModel();
         public TViewModel EditViewModel { get; set; } = new TViewModel();
         public TModel CreateModel => _mapper.Map<TModel>(CreateViewModel);

@@ -20,7 +20,6 @@ namespace Domain0.Desktop.ViewModels.Items
             Count = initCount;
         }
 
-        public int Id { get; set; }
         public T Item { get; set; }
 
         [Reactive] public bool IsSelected { get; set; }

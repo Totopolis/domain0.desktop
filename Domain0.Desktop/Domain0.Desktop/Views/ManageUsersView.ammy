@@ -91,42 +91,9 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
           {
             Grid.Row: 2
             ItemsSource: bind SelectedUserRoles
-            ItemTemplate: DataTemplate {
-              Grid 
-              {
-                TextBlock 
-                {
-                  VerticalAlignment: Top
-                  HorizontalAlignment: Right
-                  FontSize: 8
-                  Foreground: White
-                  Text: bind AmountString
-                }
-                ToggleButton
-                {
-                  Grid.Column: 1
-                  Content: bind Item.Name
-                  IsChecked: bind IsSelected set [ Mode: OneWay ]
-                  Command: bind Data.RoleCheckedCommand from $resource Proxy
-                  CommandParameter: bind
-                  Style: resource "MetroToggleButtonRole"
-                  Border.Opacity: bind Percent set [ Mode: OneWay ]
-                }
-              }
-            }
+            ItemTemplate: @ManageItemDataTemplate(resource "MetroToggleButtonRole") {}
           }
         }
-        /*
-        @ManageItemsSubset("Roles", Colors.DarkOrange,
-          bind Name, bind Roles,
-          bind Data.AddRoleCommand from $resource Proxy,
-          bind RemoveRolesCommand,
-          "RolesList",
-          bind SelectedUserRoles set [ Mode: OneWay ])
-        {
-          Grid.Row: 0
-        }
-        */
 
         Grid 
         {
@@ -147,43 +114,9 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
           {
             Grid.Row: 2
             ItemsSource: bind SelectedUserPermissions
-            ItemTemplate: DataTemplate {
-              Grid 
-              {
-                TextBlock 
-                {
-                  VerticalAlignment: Top
-                  HorizontalAlignment: Right
-                  FontSize: 8
-                  Foreground: White
-                  Text: bind AmountString
-                }
-              ToggleButton
-              {
-                Grid.Column: 1
-                Content: bind Item.Name
-                IsChecked: bind IsSelected set [ Mode: OneWay ]
-                Command: bind Data.PermissionCheckedCommand from $resource Proxy
-                CommandParameter: bind
-                Style: resource "MetroToggleButtonPermission"
-                Border.Opacity: bind Percent set [ Mode: OneWay ]
-              }  
-              }
-              
-            }
+            ItemTemplate: @ManageItemDataTemplate(resource "MetroToggleButtonPermission") {}
           }
         }
-        /*
-        @ManageItemsSubset("Permissions", Colors.DarkRed,
-          bind Name, bind Permissions,
-          bind Data.AddPermissionCommand from $resource Proxy,
-          bind RemovePermissionsCommand,
-          "PermissionsList",
-          bind SelectedUserPermissions set [ Mode: OneWay ])
-        {
-          Grid.Row: 1
-        }
-        */
 
       }
     }

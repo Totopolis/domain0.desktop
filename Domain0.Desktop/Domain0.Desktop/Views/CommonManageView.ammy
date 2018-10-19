@@ -454,7 +454,7 @@ alias FilterTextBox(name, command)
 
 alias NonFocusableListBox()
 {
-  ListBox 
+  ListBox
   {
     Resources: [
       Style {
@@ -463,5 +463,32 @@ alias NonFocusableListBox()
         #Setter("Focusable", false)
       }
     ]
+  }
+}
+
+alias ManageItemDataTemplate(toggleStyle)
+{
+  DataTemplate
+  {
+    Grid 
+    {
+      TextBlock 
+      {
+        VerticalAlignment: Top
+        HorizontalAlignment: Right
+        FontSize: 8
+        Foreground: White
+        Text: bind AmountString
+      }
+      ToggleButtonEx
+      {
+        Content: bind Item.Name
+        IsChecked: bind IsSelected set [ Mode: OneWay ]
+        Command: bind Data.RoleCheckedCommand from $resource Proxy
+        CommandParameter: bind
+        Opacity: bind Percent set [ Mode: OneWay ]
+        Style: $toggleStyle
+      }
+    }
   }
 }
