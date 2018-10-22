@@ -4,9 +4,11 @@ namespace Domain0.Desktop.ViewModels.Items
 {
     public class SelectedUserRoleViewModel : SelectedItemViewModel<Role>
     {
-        public SelectedUserRoleViewModel(bool initIsSelected, int initCount, int initTotal)
-            : base(initIsSelected, initCount, initTotal)
+        public SelectedUserRoleViewModel(int initCount, int initTotal)
+            : base(initCount, initTotal)
         {
         }
+
+        public override int Id => Item.Id.Value;
     }
 }

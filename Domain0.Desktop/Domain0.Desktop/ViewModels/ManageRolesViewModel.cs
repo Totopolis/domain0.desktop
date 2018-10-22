@@ -27,7 +27,6 @@ namespace Domain0.Desktop.ViewModels
 
             SubscribeToPermissions(
                     _domain0.Model.RolePermissions,
-                    null,
                     (permissionId, items) => items
                         .Where(x => x.Id.Value == permissionId)
                         .Select(x => x.RoleId))
@@ -43,13 +42,14 @@ namespace Domain0.Desktop.ViewModels
             var permissionsChanges = _permissionsCache.Connect();
             var rolePermissions = _domain0.Model.RolePermissions
                 .Connect()
-                .Filter(x => x.RoleId == vm.Id)
                 .ToCollection();
 
             var combined = Observable.CombineLatest(
                 rolePermissions,
                 permissionsChanges,
-                (rp, _) => rp.Select(x => _permissionsCache.Lookup(x.Id.Value).Value)
+                (rp, _) => rp
+                    .Where(x => x.RoleId == vm.Id)
+                    .Select(x => _permissionsCache.Lookup(x.Id.Value).Value)
             );
 
             combined
@@ -63,47 +63,38 @@ namespace Domain0.Desktop.ViewModels
             return vm;
         }
 
-        /*
-        private async Task AddPermission(Permission permission)
+        protected override async Task ApplyPermissions()
         {
-            var permissionId = permission.Id.Value;
-            var roleIds = SelectedItemsIds.ToList();
-            var vm = SelectedRolePermissions?.FirstOrDefault(x => x.Id == permissionId);
+            var (toAdd, toRemove) = GetItemsChanges(SelectedItemPermissions, SelectedItemsIds);
 
-            foreach (var roleId in roleIds)
+            foreach (var rKV in toRemove)
+                await _domain0.Client.RemoveRolePermissionsAsync(rKV.Key,
+                    new IdArrayRequest(rKV.Value.ToList()));
+
+            var rpToRemove = toRemove.SelectMany(x =>
             {
-                if (vm == null || !vm.ParentIds.Contains(roleId))
-                {
-                    await _domain0.Client.AddRolePermissionsAsync(roleId,
-                        new IdArrayRequest(new List<int> { permissionId }));
+                return _domain0.Model.RolePermissions.Items
+                    .Where(up => up.RoleId == x.Key && x.Value.Contains(up.Id.Value));
+            }).ToList();
 
-                    _domain0.Model.RolePermissions.Add(
-                        new RolePermission(permission.ApplicationId, permission.Description,
-                            permissionId, permission.Name, roleId));
-                }
-            }
-        }
-        */
-        /*
-        private async Task RemovePermissions(IList list)
-        {
-            var src = list.Cast<SelectedRolePermissionViewModel>();
-            var dst = SelectedItemsToParents(src);
-            foreach (var kv in dst)
+            foreach (var aKV in toAdd)
+                await _domain0.Client.AddRolePermissionsAsync(aKV.Key,
+                    new IdArrayRequest(aKV.Value.ToList()));
+
+            var rpToAdd = toAdd.SelectMany(x =>
             {
-                await _domain0.Client.RemoveRolePermissionsAsync(kv.Key, new IdArrayRequest(kv.Value.ToList()));
-                _domain0.Model.RolePermissions.Edit(innerList =>
-                {
-                    var toRemove = innerList.Where(x =>
-                        x.RoleId == kv.Key &&
-                        kv.Value.Contains(x.Id.Value)
-                    );
-                    innerList.RemoveMany(toRemove);
-                });
-            }
-        }
-        */
+                return _domain0.Model.Permissions.Items
+                    .Where(p => x.Value.Contains(p.Id.Value))
+                    .Select(p => new RolePermission(p.ApplicationId, p.Description, p.Id, p.Name, x.Key));
+            }).ToList();
 
+            _domain0.Model.RolePermissions.Edit(innerList =>
+            {
+                innerList.RemoveMany(rpToRemove);
+                innerList.AddRange(rpToAdd);
+            });
+        }
+        
         protected override async Task UpdateApi(Role m)
         {
             await _domain0.Client.UpdateRoleAsync(m);

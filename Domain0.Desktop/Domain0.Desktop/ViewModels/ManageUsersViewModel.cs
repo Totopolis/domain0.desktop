@@ -14,6 +14,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using UserPermission = Domain0.Api.Client.UserPermission;
 
 namespace Domain0.Desktop.ViewModels
 {
@@ -42,14 +43,14 @@ namespace Domain0.Desktop.ViewModels
 
             // Permissions
 
+            
             SubscribeToPermissions(
                     _domain0.Model.UserPermissions,
-                    x => !x.RoleId.HasValue,
                     (permissionId, items) => items
-                        .Where(x => x.Id.Value == permissionId)
+                        .Where(x => !x.RoleId.HasValue && x.Id.Value == permissionId)
                         .Select(x => x.UserId))
                 .DisposeWith(Disposables);
-
+                
             // Roles
 
             var dynamicForceCreateUserRolesFilter =
@@ -71,7 +72,7 @@ namespace Domain0.Desktop.ViewModels
                 .DisposeWith(Disposables);
 
             _domain0.Model.UserPermissions
-                .Connect(x => x.RoleId.HasValue)
+                .Connect()
                 .ToCollection()
                 .CombineLatest(
                     _domain0.Model.Roles.Connect().QueryWhenChanged(items => items),
@@ -86,7 +87,7 @@ namespace Domain0.Desktop.ViewModels
                             {
                                 var roleId = r.Id.Value;
                                 var userIds = userPermissions
-                                    .Where(x => x.RoleId.Value == roleId)
+                                    .Where(x => x.RoleId.HasValue && x.RoleId.Value == roleId)
                                     .Select(x => x.UserId)
                                     .Distinct();
                                 var groupSelectedIds = selectedIds
@@ -94,7 +95,7 @@ namespace Domain0.Desktop.ViewModels
                                     .ToList();
                                 var count = groupSelectedIds.Count;
                                 var total = selectedIds.Count;
-                                return new SelectedUserRoleViewModel(count == total, count, total)
+                                return new SelectedUserRoleViewModel(count, total)
                                 {
                                     Item = r,
                                     ParentIds = groupSelectedIds
@@ -179,12 +180,41 @@ namespace Domain0.Desktop.ViewModels
             IsChangedRoles = SelectedUserRoles.Any(x => x.IsChanged);
         }
 
-        private Task ApplyRoles()
+        private async Task ApplyRoles()
         {
-            foreach (var userRole in SelectedUserRoles)
-                userRole.Restore();
-            IsChangedRoles = false;
-            return Task.CompletedTask;
+            var (toAdd, toRemove) = GetItemsChanges(SelectedUserRoles, SelectedItemsIds);
+
+            foreach (var rKV in toRemove)
+                await _domain0.Client.RemoveUserRolesAsync(rKV.Key,
+                    new IdArrayRequest(rKV.Value.ToList()));
+
+            var upToRemove = toRemove.SelectMany(x =>
+            {
+                return _domain0.Model.UserPermissions.Items
+                    .Where(rp => rp.UserId == x.Key && rp.RoleId.HasValue && x.Value.Contains(rp.RoleId.Value));
+            }).ToList();
+
+            foreach (var aKV in toAdd)
+                await _domain0.Client.AddUserRolesAsync(aKV.Key,
+                    new IdArrayRequest(aKV.Value.ToList()));
+
+            var upToAdd = toAdd.SelectMany(x =>
+            {
+                return x.Value
+                    .SelectMany(v =>
+                    {
+                        return _domain0.Model.RolePermissions.Items
+                            .Where(rp => rp.RoleId == v)
+                            .Select(p =>
+                                new UserPermission(p.ApplicationId, p.Description, p.Id, p.Name, p.RoleId, x.Key));
+                    });
+            }).ToList();
+
+            _domain0.Model.UserPermissions.Edit(innerList =>
+            {
+                innerList.RemoveMany(upToRemove);
+                innerList.AddRange(upToAdd);
+            });
         }
 
         private Task ResetRoles()
@@ -195,96 +225,38 @@ namespace Domain0.Desktop.ViewModels
             return Task.CompletedTask;
         }
 
-        /*
-        private async Task AddRole(Role role)
+        protected override async Task ApplyPermissions()
         {
-            if (SelectedItemsIds == null || SelectedItemsIds.Count == 0)
-                return;
+            var (toAdd, toRemove) = GetItemsChanges(SelectedItemPermissions, SelectedItemsIds);
 
-            var roleId = role.Id.Value;
-            var userIds = SelectedItemsIds.ToList();
-            var vm = SelectedUserRoles?.FirstOrDefault(x => x.Id == roleId);
-            var permissions =
-                _domain0.Model.RolePermissions.Items
-                    .Where(x => x.RoleId == roleId)
-                    .ToList();
+            foreach (var rKV in toRemove)
+                await _domain0.Client.RemoveUserPermissionsAsync(rKV.Key,
+                    new IdArrayRequest(rKV.Value.ToList()));
 
-            foreach (var userId in userIds)
+            var upToRemove = toRemove.SelectMany(x =>
             {
-                if (vm == null || !vm.ParentIds.Contains(userId))
-                {
-                    await _domain0.Client.AddUserRolesAsync(userId,
-                        new IdArrayRequest(new List<int> {roleId}));
+                return _domain0.Model.UserPermissions.Items
+                    .Where(up => up.UserId == x.Key && !up.RoleId.HasValue && x.Value.Contains(up.Id.Value));
+            }).ToList();
 
-                    _domain0.Model.UserPermissions.AddRange(
-                        permissions.Select(p =>
-                            new UserPermission(p.ApplicationId, p.Description,
-                                p.Id.Value, p.Name, roleId, userId)));
-                }
-            }
+            foreach (var aKV in toAdd)
+                await _domain0.Client.AddUserPermissionsAsync(aKV.Key,
+                    new IdArrayRequest(aKV.Value.ToList()));
+
+            var upToAdd = toAdd.SelectMany(x =>
+            {
+                return _domain0.Model.Permissions.Items
+                    .Where(p => x.Value.Contains(p.Id.Value))
+                    .Select(p => new UserPermission(p.ApplicationId, p.Description, p.Id, p.Name, null, x.Key));
+            }).ToList();
+
+            _domain0.Model.UserPermissions.Edit(innerList =>
+            {
+                innerList.RemoveMany(upToRemove);
+                innerList.AddRange(upToAdd);
+            });
         }
 
-        private async Task RemoveRoles(IList list)
-        {
-            var src = list.Cast<SelectedUserRoleViewModel>();
-            var dst = SelectedItemsToParents(src);
-            foreach (var kv in dst)
-            {
-                await _domain0.Client.RemoveUserRolesAsync(kv.Key, new IdArrayRequest(kv.Value.ToList()));
-                _domain0.Model.UserPermissions.Edit(innerList =>
-                {
-                    var toRemove = innerList.Where(x =>
-                        x.UserId == kv.Key &&
-                        x.RoleId.HasValue &&
-                        kv.Value.Contains(x.RoleId.Value)
-                    ).ToList();
-                    innerList.RemoveMany(toRemove);
-                });
-            }
-        }
-
-        private async Task AddPermission(Permission permission)
-        {
-            if (SelectedItemsIds == null || SelectedItemsIds.Count == 0)
-                return;
-
-            var permissionId = permission.Id.Value;
-            var userIds = SelectedItemsIds.ToList();
-            var vm = SelectedUserPermissions?.FirstOrDefault(x => x.Id == permissionId);
-
-            foreach (var userId in userIds)
-            {
-                if (vm == null || !vm.ParentIds.Contains(userId))
-                {
-                    await _domain0.Client.AddUserPermissionsAsync(userId,
-                        new IdArrayRequest(new List<int> {permissionId}));
-
-                    _domain0.Model.UserPermissions.Add(
-                        new UserPermission(permission.ApplicationId, permission.Description,
-                            permissionId, permission.Name, null, userId));
-                }
-            }
-        }
-
-        private async Task RemovePermissions(IList list)
-        {
-            var src = list.Cast<SelectedUserPermissionViewModel>();
-            var dst = SelectedItemsToParents(src);
-            foreach (var kv in dst)
-            {
-                await _domain0.Client.RemoveUserPermissionsAsync(kv.Key, new IdArrayRequest(kv.Value.ToList()));
-                _domain0.Model.UserPermissions.Edit(innerList =>
-                {
-                    var toRemove = innerList.Where(x =>
-                        x.UserId == kv.Key &&
-                        !x.RoleId.HasValue &&
-                        kv.Value.Contains(x.Id.Value)
-                    );
-                    innerList.RemoveMany(toRemove);
-                });
-            }
-        }
-        */
         // Lock
 
         private async Task LockUsers(IList list)

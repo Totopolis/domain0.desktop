@@ -4,23 +4,21 @@ using ReactiveUI.Fody.Helpers;
 
 namespace Domain0.Desktop.ViewModels.Items
 {
-    public class SelectedItemViewModel<T> : ReactiveObject
+    public abstract class SelectedItemViewModel<T> : ReactiveObject
     {
-        private readonly bool _initIsSelected;
         private readonly int _initCount;
         private int _count;
 
-        public SelectedItemViewModel(bool initIsSelected, int initCount, int initTotal)
+        public SelectedItemViewModel(int initCount, int initTotal)
         {
-            _initIsSelected = initIsSelected;
             _initCount = initCount;
             Total = initTotal;
 
-            IsSelected = _initIsSelected;
             Count = initCount;
         }
 
         public T Item { get; set; }
+        public abstract int Id { get; }
 
         [Reactive] public bool IsSelected { get; set; }
 
@@ -31,8 +29,9 @@ namespace Domain0.Desktop.ViewModels.Items
             {
                 this.RaiseAndSetIfChanged(ref _count, value);
                 // update fields
-                Percent = Count == 0 ? 0.3 : ((double) Count / Total + 1) * 0.5;
-                AmountString = Count == Total || Count == 0 ? "" : $"{Count}/{Total}";
+                Percent = IsEmpty ? 0.3 : ((double) Count / Total + 1) * 0.5;
+                AmountString = IsFull || IsEmpty ? "" : $"{Count}/{Total}";
+                IsSelected = IsFull;
             }
         }
 
@@ -42,24 +41,22 @@ namespace Domain0.Desktop.ViewModels.Items
 
         public IEnumerable<int> ParentIds { get; set; }
 
-        public bool IsSelectedChanged => _initIsSelected != IsSelected;
-        public bool IsChanged => IsSelectedChanged || _initCount != Count;
+        public bool IsChanged => _initCount != Count;
+        public bool IsEmpty => Count == 0;
+        public bool IsFull => Count == Total;
 
         public void MakeFull()
         {
-            IsSelected = true;
             Count = Total;
         }
 
         public void MakeEmpty()
         {
-            IsSelected = false;
             Count = 0;
         }
 
         public void Restore()
         {
-            IsSelected = _initIsSelected;
             Count = _initCount;
         }
     }

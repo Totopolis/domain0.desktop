@@ -4,6 +4,7 @@ using Domain0.Desktop.Services;
 using Domain0.Desktop.ViewModels.Items;
 using ReactiveUI.Fody.Helpers;
 using System.Collections.Generic;
+using System.Linq;
 using ReactiveUI;
 
 namespace Domain0.Desktop.ViewModels
@@ -35,20 +36,33 @@ namespace Domain0.Desktop.ViewModels
                 x => x.SelectedItem,
                 x => x.SelectedItemsIds,
                 (item, items) => item.Value != null && (items.Value == null || items.Value.Count == 1));
-        /*
-        protected static Dictionary<int, HashSet<int>> SelectedItemsToParents<T>(IEnumerable<SelectedItemViewModel<T>> src)
+
+        protected static void ItemToParents(Dictionary<int, HashSet<int>> dst, int itemId, IEnumerable<int> parents)
         {
-            var dst = new Dictionary<int, HashSet<int>>();
-            foreach (var x in src)
-            {
-                foreach (var id in x.ParentIds)
-                    if (dst.ContainsKey(id))
-                        dst[id].Add(x.Id);
-                    else
-                        dst[id] = new HashSet<int>(new[] { x.Id });
-            }
-            return dst;
+            foreach (var id in parents)
+                if (dst.ContainsKey(id))
+                    dst[id].Add(itemId);
+                else
+                    dst[id] = new HashSet<int>(new[] { itemId });
         }
-        */
+
+        protected static ValueTuple<Dictionary<int, HashSet<int>>, Dictionary<int, HashSet<int>>> GetItemsChanges<T>(
+            IEnumerable<SelectedItemViewModel<T>> items, ICollection<int> selectedIds)
+        {
+            var toAdd = new Dictionary<int, HashSet<int>>();
+            var toRemove = new Dictionary<int, HashSet<int>>();
+            foreach (var item in items)
+            {
+                if (!item.IsChanged)
+                    continue;
+
+                if (item.IsEmpty)
+                    ItemToParents(toRemove, item.Id, item.ParentIds);
+                else if (item.IsFull)
+                    ItemToParents(toAdd, item.Id, selectedIds.Except(item.ParentIds));
+            }
+
+            return (toAdd, toRemove);
+        }
     }
 }

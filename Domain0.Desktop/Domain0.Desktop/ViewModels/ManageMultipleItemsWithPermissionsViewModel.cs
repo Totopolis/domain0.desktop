@@ -38,10 +38,10 @@ namespace Domain0.Desktop.ViewModels
                 .DisposeWith(Disposables);
         }
 
-        protected IDisposable SubscribeToPermissions<T>(SourceList<T> source, Func<T, bool> filter, Func<int, IEnumerable<T>, IEnumerable<int>> userIdsSelector)
+        protected IDisposable SubscribeToPermissions<T>(SourceList<T> source, Func<int, IEnumerable<T>, IEnumerable<int>> userIdsSelector)
         {
             return source
-                .Connect(filter)
+                .Connect()
                 .ToCollection()
                 .CombineLatest(
                     _domain0.Model.Permissions.Connect().QueryWhenChanged(items => items),
@@ -60,7 +60,7 @@ namespace Domain0.Desktop.ViewModels
                                     .ToList();
                                 var count = groupSelectedIds.Count;
                                 var total = selectedIds.Count;
-                                return new SelectedItemPermissionViewModel(count == total, count, total)
+                                return new SelectedItemPermissionViewModel(count, total)
                                 {
                                     Item = p,
                                     ParentIds = groupSelectedIds
@@ -102,13 +102,7 @@ namespace Domain0.Desktop.ViewModels
             IsChangedPermissions = SelectedItemPermissions.Any(x => x.IsChanged);
         }
 
-        private Task ApplyPermissions()
-        {
-            foreach (var itemPermission in SelectedItemPermissions)
-                itemPermission.Restore();
-            IsChangedPermissions = false;
-            return Task.CompletedTask;
-        }
+        protected abstract Task ApplyPermissions();
 
         private Task ResetPermissions()
         {
