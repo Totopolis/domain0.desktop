@@ -394,3 +394,37 @@ alias ManageItemDataTemplate(commandBinding, toggleStyle)
     }
   }
 }
+
+alias ManageSidePanelHeader(name, itemsChanged, applyCmd, resetCmd)
+{
+  Grid 
+  {
+    #TwoColumns("*", "Auto")
+    TextBlock 
+    {
+      Grid.Column: 0
+      Margin: "5,0,0,0"
+      VerticalAlignment: Center
+      Text: $name
+      FontSize: 20
+    }
+    @StackPanelHorizontal() 
+    {
+      Grid.Column: 1
+      @CircleButton("Check") 
+      {
+        Margin: "0,0,5,0"
+        Command: $applyCmd
+      }
+      @CircleButton("RefreshClockwiseUp") 
+      {
+        Margin: "0,0,5,0"
+        Command: $resetCmd
+      }
+      Style: Style {
+        TargetType: StackPanel
+        #Fade_OnBinding($itemsChanged, true)
+      }
+    }
+  }
+}

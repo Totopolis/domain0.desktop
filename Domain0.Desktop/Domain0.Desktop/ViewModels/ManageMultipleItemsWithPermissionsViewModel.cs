@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using Domain0.Api.Client;
 using Domain0.Desktop.Services;
@@ -26,6 +27,9 @@ namespace Domain0.Desktop.ViewModels
             base.Initialize();
 
             PermissionCheckedCommand = ReactiveCommand.Create<SelectedItemPermissionViewModel>(PermissionChecked);
+            var permissionsChangedObservable = this.WhenAnyValue(x => x.IsChangedPermissions);
+            ApplyPermissionsCommand = ReactiveCommand.CreateFromTask(ApplyPermissions, permissionsChangedObservable);
+            ResetPermissionsCommand = ReactiveCommand.CreateFromTask(ResetPermissions, permissionsChangedObservable);
 
             _domain0.Model.Permissions.Connect()
                 .Sort(SortExpressionComparer<Permission>.Ascending(x => x.Id))
@@ -62,13 +66,21 @@ namespace Domain0.Desktop.ViewModels
                                     ParentIds = groupSelectedIds
                                 };
                             })
-                            .OrderByDescending(x => x.Count);
+                            .OrderByDescending(x => x.Count)
+                            .ToList();
                     })
-                .Subscribe(x => SelectedItemPermissions = x);
+                .Subscribe(x =>
+                {
+                    SelectedItemPermissions = x;
+                    IsChangedPermissions = false;
+                });
         }
 
 
         public ReactiveCommand PermissionCheckedCommand { get; set; }
+        public ReactiveCommand ApplyPermissionsCommand { get; set; }
+        public ReactiveCommand ResetPermissionsCommand { get; set; }
+        [Reactive] public bool IsChangedPermissions { get; set; }
 
         private ReadOnlyObservableCollection<Permission> _permissions;
         public ReadOnlyObservableCollection<Permission> Permissions => _permissions;
@@ -86,6 +98,24 @@ namespace Domain0.Desktop.ViewModels
             }
             else
                 o.MakeEmpty();
+
+            IsChangedPermissions = SelectedItemPermissions.Any(x => x.IsChanged);
+        }
+
+        private Task ApplyPermissions()
+        {
+            foreach (var itemPermission in SelectedItemPermissions)
+                itemPermission.Restore();
+            IsChangedPermissions = false;
+            return Task.CompletedTask;
+        }
+
+        private Task ResetPermissions()
+        {
+            foreach (var itemPermission in SelectedItemPermissions)
+                itemPermission.Restore();
+            IsChangedPermissions = false;
+            return Task.CompletedTask;
         }
     }
 }

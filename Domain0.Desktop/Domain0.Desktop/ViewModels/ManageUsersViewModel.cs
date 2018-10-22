@@ -35,6 +35,10 @@ namespace Domain0.Desktop.ViewModels
                 this.WhenAny(x => x.SelectedItemsIds, x => x.Value != null && x.Value.Count > 0));
 
             RoleCheckedCommand = ReactiveCommand.Create<SelectedUserRoleViewModel>(RoleChecked);
+            var rolesChangedObservable = this.WhenAnyValue(x => x.IsChangedRoles);
+            ApplyRolesCommand = ReactiveCommand.CreateFromTask(ApplyRoles, rolesChangedObservable);
+            ResetRolesCommand = ReactiveCommand.CreateFromTask(ResetRoles, rolesChangedObservable);
+            
 
             // Permissions
 
@@ -96,9 +100,14 @@ namespace Domain0.Desktop.ViewModels
                                     ParentIds = groupSelectedIds
                                 };
                             })
-                            .OrderByDescending(x => x.Count);
+                            .OrderByDescending(x => x.Count)
+                            .ToList();
                     })
-                .Subscribe(x => SelectedUserRoles = x)
+                .Subscribe(x =>
+                {
+                    SelectedUserRoles = x;
+                    IsChangedRoles = false;
+                })
                 .DisposeWith(Disposables);
         }
 
@@ -119,6 +128,9 @@ namespace Domain0.Desktop.ViewModels
 
         [Reactive] public IEnumerable<SelectedUserRoleViewModel> SelectedUserRoles {get; set; }
         public ReactiveCommand RoleCheckedCommand { get; set; }
+        public ReactiveCommand ApplyRolesCommand { get; set; }
+        public ReactiveCommand ResetRolesCommand { get; set; }
+        [Reactive] public bool IsChangedRoles { get; set; }
 
         public ReactiveCommand LockUsersCommand { get; set; }
 
@@ -163,6 +175,24 @@ namespace Domain0.Desktop.ViewModels
             }
             else
                 o.MakeEmpty();
+
+            IsChangedRoles = SelectedUserRoles.Any(x => x.IsChanged);
+        }
+
+        private Task ApplyRoles()
+        {
+            foreach (var userRole in SelectedUserRoles)
+                userRole.Restore();
+            IsChangedRoles = false;
+            return Task.CompletedTask;
+        }
+
+        private Task ResetRoles()
+        {
+            foreach (var userRole in SelectedUserRoles)
+                userRole.Restore();
+            IsChangedRoles = false;
+            return Task.CompletedTask;
         }
 
         /*

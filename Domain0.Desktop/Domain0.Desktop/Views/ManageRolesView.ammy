@@ -81,12 +81,10 @@ ViewUserControl "Domain0.Desktop.Views.ManageRolesView" {
       Grid 
       {
         #Cell(0, 1, 2, 1)
-        #ThreeRows("Auto", "Auto", "*")
-        TextBlock 
+        #ThreeRows("35", "Auto", "*")
+        @ManageSidePanelHeader("Permissions", bind IsChangedPermissions, bind ApplyPermissionsCommand, bind ResetPermissionsCommand) 
         {
           Grid.Row: 0
-          Margin: "0,10,0,0"
-          Text: "Permission"
         }
         @FilterTextBox("PermissionsFilter", bind PermissionsFilterCommand set [ Mode: OneWay ])
         {

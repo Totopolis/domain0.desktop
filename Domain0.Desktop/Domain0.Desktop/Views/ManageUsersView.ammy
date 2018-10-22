@@ -76,11 +76,10 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
         Grid 
         {
           Grid.Row:0
-          #ThreeRows("Auto", "Auto", "*")
-          TextBlock 
+          #ThreeRows("35", "Auto", "*")
+          @ManageSidePanelHeader("Roles", bind IsChangedRoles, bind ApplyRolesCommand, bind ResetRolesCommand) 
           {
             Grid.Row: 0
-            Text: "Roles"
           }
           @FilterTextBox("RolesFilter", bind RolesFilterCommand set [ Mode: OneWay ])
           {
@@ -98,12 +97,11 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
         Grid 
         {
           Grid.Row:1
-          #ThreeRows("Auto", "Auto", "*")
-          TextBlock 
+          #ThreeRows("35", "Auto", "*")
+          Margin: "0,5,0,0"
+          @ManageSidePanelHeader("Permissions", bind IsChangedPermissions, bind ApplyPermissionsCommand, bind ResetPermissionsCommand) 
           {
             Grid.Row: 0
-            Margin: "0,10,0,0"
-            Text: "Permission"
           }
           @FilterTextBox("PermissionsFilter", bind PermissionsFilterCommand set [ Mode: OneWay ])
           {
