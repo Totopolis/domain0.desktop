@@ -64,6 +64,44 @@ ViewUserControl "Domain0.Desktop.Views.ManageToolsView"
         Command: bind ReloadCommand
       }
     }
+
+    StackPanel 
+    {
+      Grid.Row: 1
+      HorizontalAlignment: Left
+      VerticalAlignment: Center
+      @CircleButton("User")
+      {
+        Margin: "10,10,0,0"
+        ToolTip: "Users"
+        Command: bind OpenUsersCommand
+      }
+      @CircleButton("ClothesShirt")
+      {
+        Margin: "10,10,0,0"
+        ToolTip: "Roles"
+        Command: bind OpenRolesCommand
+      }
+      @CircleButton("SocialUservoice")
+      {
+        Margin: "10,10,0,0"
+        ToolTip: "Permissions"
+        Command: bind OpenPermissionsCommand
+      }
+      @CircleButton("App")
+      {
+        Margin: "10,10,0,0"
+        ToolTip: "Applications"
+        Command: bind OpenApplicationsCommand
+      }
+      @CircleButton("Email")
+      {
+        Margin: "10,10,0,0"
+        ToolTip: "Messages"
+        Command: bind OpenMessagesCommand
+      }
+    }
+
     StackPanel 
     {
       Grid.Row: 2

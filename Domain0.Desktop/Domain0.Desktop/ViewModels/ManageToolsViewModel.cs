@@ -1,4 +1,5 @@
-﻿using Domain0.Desktop.Properties;
+﻿using Domain0.Desktop.Extensions;
+using Domain0.Desktop.Properties;
 using Domain0.Desktop.Services;
 using MahApps.Metro;
 using ReactiveUI;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using Ui.Wpf.Common;
 using Ui.Wpf.Common.ViewModels;
 
 namespace Domain0.Desktop.ViewModels
@@ -17,13 +19,19 @@ namespace Domain0.Desktop.ViewModels
         private readonly IDomain0Service _domain0;
         private readonly ILoginService _loginService;
 
-        public ManageToolsViewModel(IDomain0Service domain0, ILoginService loginService)
+        public ManageToolsViewModel(IDomain0Service domain0, ILoginService loginService, IShell shell)
         {
             _domain0 = domain0;
             _loginService = loginService;
 
             LogoutCommand = ReactiveCommand.Create(Logout);
             ReloadCommand = ReactiveCommand.CreateFromTask(Reload);
+
+            OpenUsersCommand = ReactiveCommand.Create(shell.ShowUsers);
+            OpenRolesCommand = ReactiveCommand.Create(shell.ShowRoles);
+            OpenPermissionsCommand = ReactiveCommand.Create(shell.ShowPermissions);
+            OpenApplicationsCommand = ReactiveCommand.Create(shell.ShowApplications);
+            OpenMessagesCommand = ReactiveCommand.Create(shell.ShowMessages);
 
             AccentColors = ThemeManager.Accents
                 .Select(a => new AccentColorData { Name = a.Name, ColorBrush = a.Resources["AccentBaseColorBrush"] as Brush })
@@ -40,6 +48,13 @@ namespace Domain0.Desktop.ViewModels
 
         public ReactiveCommand LogoutCommand { get; set; }
         public ReactiveCommand ReloadCommand { get; set; }
+
+        public ReactiveCommand OpenUsersCommand { get; set; }
+        public ReactiveCommand OpenRolesCommand { get; set; }
+        public ReactiveCommand OpenPermissionsCommand { get; set; }
+        public ReactiveCommand OpenApplicationsCommand { get; set; }
+        public ReactiveCommand OpenMessagesCommand { get; set; }
+
 
         private void Logout()
         {

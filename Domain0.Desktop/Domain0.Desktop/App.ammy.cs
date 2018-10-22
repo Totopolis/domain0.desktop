@@ -1,5 +1,6 @@
 ﻿using AmmySidekick;
 using Autofac;
+using Domain0.Desktop.Extensions;
 using Domain0.Desktop.Properties;
 using Domain0.Desktop.Services;
 using Domain0.Desktop.Views;
@@ -54,11 +55,7 @@ namespace Domain0.Desktop
             {
                 shell.ShowTool<ManageToolsView>(new ViewRequest("manage-tools"), new UiShowOptions {Title = "Tools"});
 
-                shell.ShowView<ManageUsersView>(new ViewRequest("manage-users"), new UiShowOptions {Title = "Users"});
-                shell.ShowView<ManageRolesView>(new ViewRequest("manage-roles"), new UiShowOptions { Title = "Roles" });
-                shell.ShowView<ManagePermissionsView>(new ViewRequest("manage-permissions"), new UiShowOptions { Title = "Permissions" });
-                shell.ShowView<ManageApplicationsView>(new ViewRequest("manage-applications"), new UiShowOptions { Title = "Applications" });
-                shell.ShowView<ManageMessagesView>(new ViewRequest("manage-messages"), new UiShowOptions {Title = "Messages"});
+                shell.ShowUsers();
             }
 
             var loginService = shell.Container.Resolve<ILoginService>();
