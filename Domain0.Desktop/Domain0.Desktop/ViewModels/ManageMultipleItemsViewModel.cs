@@ -15,6 +15,12 @@ namespace Domain0.Desktop.ViewModels
         {
         }
 
+        protected override void Initialize()
+        {
+            base.Initialize();
+            SelectedItemsIds = new HashSet<int>();
+        }
+
         [Reactive] public ICollection<int> SelectedItemsIds { get; set; }
 
         protected override IObservable<bool> OpenEditFlyoutCommandObservable =>

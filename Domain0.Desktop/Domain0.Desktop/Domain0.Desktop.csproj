@@ -154,9 +154,10 @@
     <Compile Include="ViewModels\Items\ISelectedItemViewModel.cs" />
     <Compile Include="ViewModels\Items\SelectedItemViewModel.cs" />
     <Compile Include="ViewModels\Items\SelectedRolePermissionViewModel.cs" />
-    <Compile Include="ViewModels\Items\SelectedUserPermissionViewModel.cs" />
+    <Compile Include="ViewModels\Items\SelectedItemPermissionViewModel.cs" />
     <Compile Include="ViewModels\Items\SelectedUserRoleViewModel.cs" />
     <Compile Include="ViewModels\ManageMultipleItemsViewModel.cs" />
+    <Compile Include="ViewModels\ManageMultipleItemsWithPermissionsViewModel.cs" />
     <Compile Include="ViewModels\ManagePermissionsViewModel.cs" />
     <Compile Include="ViewModels\ManageRolesViewModel.cs" />
     <Compile Include="ViewModels\ManageToolsViewModel.cs" />

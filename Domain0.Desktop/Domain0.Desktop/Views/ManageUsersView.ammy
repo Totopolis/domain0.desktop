@@ -91,7 +91,7 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
           {
             Grid.Row: 2
             ItemsSource: bind SelectedUserRoles
-            ItemTemplate: @ManageItemDataTemplate(resource "MetroToggleButtonRole") {}
+            ItemTemplate: @ManageItemDataTemplate(bind Data.RoleCheckedCommand from $resource Proxy, resource "MetroToggleButtonRole") {}
           }
         }
 
@@ -113,8 +113,8 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
           @NonFocusableListBox()
           {
             Grid.Row: 2
-            ItemsSource: bind SelectedUserPermissions
-            ItemTemplate: @ManageItemDataTemplate(resource "MetroToggleButtonPermission") {}
+            ItemsSource: bind SelectedItemPermissions
+            ItemTemplate: @ManageItemDataTemplate(bind Data.PermissionCheckedCommand from $resource Proxy, resource "MetroToggleButtonPermission") {}
           }
         }
 

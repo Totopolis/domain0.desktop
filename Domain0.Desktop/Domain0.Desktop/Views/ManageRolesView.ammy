@@ -80,7 +80,7 @@ ViewUserControl "Domain0.Desktop.Views.ManageRolesView" {
 
       Grid 
       {
-      #Cell(0, 1, 2, 1)
+        #Cell(0, 1, 2, 1)
         #ThreeRows("Auto", "Auto", "*")
         TextBlock 
         {
@@ -96,8 +96,8 @@ ViewUserControl "Domain0.Desktop.Views.ManageRolesView" {
         @NonFocusableListBox()
         {
           Grid.Row: 2
-          ItemsSource: bind SelectedRolePermissions
-          ItemTemplate: @ManageItemDataTemplate(resource "MetroToggleButtonPermission") {}
+          ItemsSource: bind SelectedItemPermissions
+          ItemTemplate: @ManageItemDataTemplate(bind Data.PermissionCheckedCommand from $resource Proxy, resource "MetroToggleButtonPermission") {}
         }
       }
     }
