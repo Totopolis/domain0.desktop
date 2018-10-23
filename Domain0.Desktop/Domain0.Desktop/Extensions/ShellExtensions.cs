@@ -2,6 +2,7 @@
 using Domain0.Desktop.Views;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Ui.Wpf.Common;
@@ -37,12 +38,25 @@ namespace Domain0.Desktop.Extensions
             shell.ShowView<ManageMessagesView>(new ViewRequest("manage-messages"), new UiShowOptions { Title = "Messages" });
         }
 
+        public static void ShowException(this IShell shell, Exception ex, string title = "Error")
+        {
+            var window = shell.GetWindow();
+            window.Invoke(() => window.ShowMessageAsync(title, ex.Message));
+        }
+
         internal static async Task<LoadingProgress> ShowProgress(this IShell shell, string title, string message)
         {
-            var controller = await (shell.Container.Resolve<IDockWindow>() as MetroWindow)
-                .ShowProgressAsync(title, message, false, new MetroDialogSettings{ AnimateShow = false });
+            var window = shell.GetWindow();
+            var controller = await window.Invoke(() =>
+                window.ShowProgressAsync(title, message, false, new MetroDialogSettings {AnimateShow = false}));
 
             return new LoadingProgress(controller);
+        }
+
+        private static MetroWindow GetWindow(this IShell shell)
+        {
+            return shell.Container.Resolve<IDockWindow>() as MetroWindow;
+            //return Application.Current.MainWindow as MetroWindow;
         }
     }
 

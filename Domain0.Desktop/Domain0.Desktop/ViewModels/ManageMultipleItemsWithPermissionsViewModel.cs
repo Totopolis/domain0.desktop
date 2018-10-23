@@ -7,18 +7,20 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Domain0.Api.Client;
+using Domain0.Desktop.Extensions;
 using Domain0.Desktop.Services;
 using Domain0.Desktop.ViewModels.Items;
 using DynamicData;
 using DynamicData.Binding;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+using Ui.Wpf.Common;
 
 namespace Domain0.Desktop.ViewModels
 {
     public abstract class ManageMultipleItemsWithPermissionsViewModel<TViewModel, TModel> : ManageMultipleItemsViewModel<TViewModel, TModel> where TViewModel : IItemViewModel, new()
     {
-        protected ManageMultipleItemsWithPermissionsViewModel(IDomain0Service domain0, IMapper mapper) : base(domain0, mapper)
+        protected ManageMultipleItemsWithPermissionsViewModel(IShell shell, IDomain0Service domain0, IMapper mapper) : base(shell, domain0, mapper)
         {
         }
 
@@ -33,7 +35,7 @@ namespace Domain0.Desktop.ViewModels
             });
             PermissionCheckedCommand = ReactiveCommand.Create<SelectedItemPermissionViewModel>(PermissionChecked);
             var permissionsChangedObservable = this.WhenAnyValue(x => x.IsChangedPermissions);
-            ApplyPermissionsCommand = ReactiveCommand.CreateFromTask(ApplyPermissions, permissionsChangedObservable);
+            ApplyPermissionsCommand = ReactiveCommand.CreateFromTask(ApplyPermissionsWrapped, permissionsChangedObservable);
             ResetPermissionsCommand = ReactiveCommand.CreateFromTask(ResetPermissions, permissionsChangedObservable);
 
             _domain0.Model.Permissions.Connect()
@@ -134,7 +136,21 @@ namespace Domain0.Desktop.ViewModels
             IsChangedPermissions = SelectedItemPermissions.Any(x => x.IsChanged);
         }
 
+        private Task ApplyPermissionsWrapped()
+        {
+            try
+            {
+                return ApplyPermissions();
+            }
+            catch (Exception e)
+            {
+                _shell.ShowException(e, "Failed to Apply Permissions");
+                return Task.CompletedTask;
+            }
+        }
+
         protected abstract Task ApplyPermissions();
+        
 
         private Task ResetPermissions()
         {

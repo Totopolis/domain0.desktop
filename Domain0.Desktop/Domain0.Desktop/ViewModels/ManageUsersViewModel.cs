@@ -14,14 +14,16 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Domain0.Desktop.Extensions;
+using Ui.Wpf.Common;
 using UserPermission = Domain0.Api.Client.UserPermission;
 
 namespace Domain0.Desktop.ViewModels
 {
     public class ManageUsersViewModel : ManageMultipleItemsWithPermissionsViewModel<UserProfileViewModel, UserProfile>
     {
-        public ManageUsersViewModel(IDomain0Service domain0, IMapper mapper)
-            : base(domain0, mapper)
+        public ManageUsersViewModel(IShell shell, IDomain0Service domain0, IMapper mapper)
+            : base(shell, domain0, mapper)
         {
         }
 
@@ -157,9 +159,9 @@ namespace Domain0.Desktop.ViewModels
 
         protected override ISourceCache<UserProfile, int> Models => _domain0.Model.UserProfiles;
 
-        protected override async Task UpdateApi(UserProfile m)
+        protected override Task UpdateApi(UserProfile m)
         {
-            await _domain0.Client.UpdateUserAsync(m.Id, m);
+            return _domain0.Client.UpdateUserAsync(m.Id, m);
         }
 
         protected override Task<int> CreateApi(UserProfile m)
@@ -167,9 +169,9 @@ namespace Domain0.Desktop.ViewModels
             throw new NotImplementedException();
         }
 
-        protected override async Task RemoveApi(int id)
+        protected override Task RemoveApi(int id)
         {
-            await _domain0.Client.DeleteUserAsync(id);
+            return _domain0.Client.DeleteUserAsync(id);
         }
 
         protected override void AfterDeletedSelected(int id)
@@ -202,39 +204,46 @@ namespace Domain0.Desktop.ViewModels
 
         private async Task ApplyRoles()
         {
-            var (toAdd, toRemove) = GetItemsChanges(SelectedUserRoles, SelectedItemsIds);
-
-            foreach (var rKV in toRemove)
-                await _domain0.Client.RemoveUserRolesAsync(rKV.Key,
-                    new IdArrayRequest(rKV.Value.ToList()));
-
-            var upToRemove = toRemove.SelectMany(x =>
+            try
             {
-                return _domain0.Model.UserPermissions.Items
-                    .Where(rp => rp.UserId == x.Key && rp.RoleId.HasValue && x.Value.Contains(rp.RoleId.Value));
-            }).ToList();
+                var (toAdd, toRemove) = GetItemsChanges(SelectedUserRoles, SelectedItemsIds);
 
-            foreach (var aKV in toAdd)
-                await _domain0.Client.AddUserRolesAsync(aKV.Key,
-                    new IdArrayRequest(aKV.Value.ToList()));
+                foreach (var rKV in toRemove)
+                    await _domain0.Client.RemoveUserRolesAsync(rKV.Key,
+                        new IdArrayRequest(rKV.Value.ToList()));
 
-            var upToAdd = toAdd.SelectMany(x =>
+                var upToRemove = toRemove.SelectMany(x =>
+                {
+                    return _domain0.Model.UserPermissions.Items
+                        .Where(rp => rp.UserId == x.Key && rp.RoleId.HasValue && x.Value.Contains(rp.RoleId.Value));
+                }).ToList();
+
+                foreach (var aKV in toAdd)
+                    await _domain0.Client.AddUserRolesAsync(aKV.Key,
+                        new IdArrayRequest(aKV.Value.ToList()));
+
+                var upToAdd = toAdd.SelectMany(x =>
+                {
+                    return x.Value
+                        .SelectMany(v =>
+                        {
+                            return _domain0.Model.RolePermissions.Items
+                                .Where(rp => rp.RoleId == v)
+                                .Select(p =>
+                                    new UserPermission(p.ApplicationId, p.Description, p.Id, p.Name, p.RoleId, x.Key));
+                        });
+                }).ToList();
+
+                _domain0.Model.UserPermissions.Edit(innerList =>
+                {
+                    innerList.RemoveMany(upToRemove);
+                    innerList.AddRange(upToAdd);
+                });
+            }
+            catch (Exception e)
             {
-                return x.Value
-                    .SelectMany(v =>
-                    {
-                        return _domain0.Model.RolePermissions.Items
-                            .Where(rp => rp.RoleId == v)
-                            .Select(p =>
-                                new UserPermission(p.ApplicationId, p.Description, p.Id, p.Name, p.RoleId, x.Key));
-                    });
-            }).ToList();
-
-            _domain0.Model.UserPermissions.Edit(innerList =>
-            {
-                innerList.RemoveMany(upToRemove);
-                innerList.AddRange(upToAdd);
-            });
+                _shell.ShowException(e, "Failed to Apply Roles");
+            }
         }
 
         private Task ResetRoles()
@@ -281,20 +290,27 @@ namespace Domain0.Desktop.ViewModels
 
         private async Task LockUsers(IList list)
         {
-            var users = list.Cast<UserProfileViewModel>();
-
-            var toLock = users.Any(x => !x.IsLocked);
-            foreach (var user in users)
+            try
             {
-                if (toLock != user.IsLocked)
-                {
-                    if (toLock)
-                        await _domain0.Client.LockUserAsync(user.Id.Value);
-                    else
-                        await _domain0.Client.UnlockUserAsync(user.Id.Value);
+                var users = list.Cast<UserProfileViewModel>().ToList();
 
-                    user.IsLocked = toLock;
+                var toLock = users.Any(x => !x.IsLocked);
+                foreach (var user in users)
+                {
+                    if (toLock != user.IsLocked)
+                    {
+                        if (toLock)
+                            await _domain0.Client.LockUserAsync(user.Id.Value);
+                        else
+                            await _domain0.Client.UnlockUserAsync(user.Id.Value);
+
+                        user.IsLocked = toLock;
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                _shell.ShowException(e, "Failed to Lock User");
             }
         }
 
@@ -325,8 +341,7 @@ namespace Domain0.Desktop.ViewModels
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                //throw;
+                _shell.ShowException(e, "Failed to create User");
             }
             finally
             {
@@ -334,7 +349,7 @@ namespace Domain0.Desktop.ViewModels
             }
         }
 
-        private async Task<UserProfile> ForceCreateUserApi()
+        private Task<UserProfile> ForceCreateUserApi()
         {
             var roles = ForceCreateUserRoles
                 .Where(x => x.IsSelected)
@@ -349,7 +364,7 @@ namespace Domain0.Desktop.ViewModels
                         BlockSmsSend, CustomSmsTemplate,
                         Name, phone,
                         roles);
-                    return await _domain0.Client.ForceCreateUserAsync(requestByPhone);
+                    return _domain0.Client.ForceCreateUserAsync(requestByPhone);
                 case ForceCreateUserModeEnum.Email:
                     var requestByEmail = new ForceCreateEmailUserRequest(
                         BlockEmailSend,
@@ -357,7 +372,7 @@ namespace Domain0.Desktop.ViewModels
                         CustomEmailTemplate,
                         Email, Name,
                         roles);
-                    return await _domain0.Client.ForceCreateUser2Async(requestByEmail);
+                    return _domain0.Client.ForceCreateUser2Async(requestByEmail);
                 default:
                     throw new ArgumentException();
             }

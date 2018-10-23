@@ -39,6 +39,9 @@ namespace Domain0.Desktop
                 }
             );
 
+            AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+                Console.WriteLine(args.ExceptionObject);
+
             ThemeManager.ChangeAppStyle(this,
                 ThemeManager.GetAccent(Settings.Default.AccentColor),
                 ThemeManager.GetAppTheme(Settings.Default.AppTheme));

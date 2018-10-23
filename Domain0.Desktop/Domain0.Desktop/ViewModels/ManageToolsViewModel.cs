@@ -69,9 +69,9 @@ namespace Domain0.Desktop.ViewModels
             _loginService.ShowLogin(false);
         }
 
-        private async Task Reload()
+        private Task Reload()
         {
-            await _domain0.LoadModel();
+            return _domain0.LoadModel();
         }
     }
 

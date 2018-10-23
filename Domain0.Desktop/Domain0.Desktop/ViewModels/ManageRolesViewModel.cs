@@ -8,12 +8,14 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Domain0.Desktop.Extensions;
+using Ui.Wpf.Common;
 
 namespace Domain0.Desktop.ViewModels
 {
     public class ManageRolesViewModel : ManageMultipleItemsWithPermissionsViewModel<RoleViewModel, Role>
     {
-        public ManageRolesViewModel(IDomain0Service domain0, IMapper mapper) : base(domain0, mapper)
+        public ManageRolesViewModel(IShell shell, IDomain0Service domain0, IMapper mapper) : base(shell, domain0, mapper)
         {
         }
 
@@ -95,19 +97,19 @@ namespace Domain0.Desktop.ViewModels
             });
         }
         
-        protected override async Task UpdateApi(Role m)
+        protected override Task UpdateApi(Role m)
         {
-            await _domain0.Client.UpdateRoleAsync(m);
+            return _domain0.Client.UpdateRoleAsync(m);
         }
 
-        protected override async Task<int> CreateApi(Role m)
+        protected override Task<int> CreateApi(Role m)
         {
-            return await _domain0.Client.CreateRoleAsync(m);
+            return _domain0.Client.CreateRoleAsync(m);
         }
 
-        protected override async Task RemoveApi(int id)
+        protected override Task RemoveApi(int id)
         {
-            await _domain0.Client.RemoveRoleAsync(id);
+            return _domain0.Client.RemoveRoleAsync(id);
         }
 
         protected override void AfterDeletedSelected(int id)

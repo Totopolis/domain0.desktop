@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Domain0.Desktop.Extensions;
 using Domain0.Desktop.Services;
 using Domain0.Desktop.ViewModels.Items;
 using Domain0.Desktop.Views.Converters;
@@ -12,17 +13,20 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Ui.Wpf.Common;
 using Ui.Wpf.Common.ViewModels;
 
 namespace Domain0.Desktop.ViewModels
 {
     public abstract class BaseManageItemsViewModel<TViewModel, TModel> : ViewModelBase where TViewModel : IItemViewModel, new()
     {
+        protected readonly IShell _shell;
         protected readonly IDomain0Service _domain0;
         protected readonly IMapper _mapper;
 
-        protected BaseManageItemsViewModel(IDomain0Service domain0, IMapper mapper)
+        protected BaseManageItemsViewModel(IShell shell, IDomain0Service domain0, IMapper mapper)
         {
+            _shell = shell;
             _domain0 = domain0;
             _mapper = mapper;
 
@@ -154,18 +158,31 @@ namespace Domain0.Desktop.ViewModels
 
         private async Task EditSelected()
         {
-            var request = EditModel;
-            await UpdateApi(request);
-            Models.AddOrUpdate(request);
-
-            IsEditFlyoutOpen = false;
+            try
+            {
+                var request = EditModel;
+                await UpdateApi(request);
+                Models.AddOrUpdate(request);
+                IsEditFlyoutOpen = false;
+            }
+            catch (Exception e)
+            {
+                _shell.ShowException(e, "Failed to Edit selected");
+            }
         }
 
         private async Task DeleteSelected()
         {
-            var id = EditViewModel.Id.Value;
-            await RemoveApi(id);
-            AfterDeletedSelected(id);
+            try
+            {
+                var id = EditViewModel.Id.Value;
+                await RemoveApi(id);
+                AfterDeletedSelected(id);
+            }
+            catch (Exception e)
+            {
+                _shell.ShowException(e, "Failed to Delete selected");
+            }
         }
 
         protected virtual void AfterDeletedSelected(int id)
@@ -175,10 +192,16 @@ namespace Domain0.Desktop.ViewModels
 
         private async Task Create()
         {
-            CreateViewModel.Id = await CreateApi(CreateModel);
-            Models.AddOrUpdate(CreateModel);
-
-            IsCreateFlyoutOpen = false;
+            try
+            {
+                CreateViewModel.Id = await CreateApi(CreateModel);
+                Models.AddOrUpdate(CreateModel);
+                IsCreateFlyoutOpen = false;
+            }
+            catch (Exception e)
+            {
+                _shell.ShowException(e, "Failed to Create");
+            }
         }
 
         protected abstract Task UpdateApi(TModel m);

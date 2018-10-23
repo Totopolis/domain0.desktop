@@ -6,13 +6,14 @@ using ReactiveUI.Fody.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 using ReactiveUI;
+using Ui.Wpf.Common;
 
 namespace Domain0.Desktop.ViewModels
 {
     public abstract class ManageMultipleItemsViewModel<TViewModel, TModel> : BaseManageItemsViewModel<TViewModel, TModel> where TViewModel : IItemViewModel, new()
     {
-        protected ManageMultipleItemsViewModel(IDomain0Service domain0, IMapper mapper)
-            : base(domain0, mapper)
+        protected ManageMultipleItemsViewModel(IShell shell, IDomain0Service domain0, IMapper mapper)
+            : base(shell, domain0, mapper)
         {
         }
 
