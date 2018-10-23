@@ -13,19 +13,17 @@ namespace Domain0.Desktop.Services
 {
     public class LoginService : ILoginService
     {
-        private readonly IDomain0Service _domain0;
-        
-        public LoginService(IDomain0Service domain0)
-        {
-            _domain0 = domain0;
+        private readonly IDomain0AuthenticationContext _domain0Context;
 
-            _domain0.HostUrl = Settings.Default.HostUrl;
+        public LoginService(
+            IDomain0AuthenticationContext domain0AuthenticationContext)
+        {
+            _domain0Context = domain0AuthenticationContext;
+            _domain0Context.HostUrl = Settings.Default.HostUrl;
         }
 
-        public bool LoadPreviousToken()
-        {
-            return _domain0.LoadToken();
-        }
+        public bool IsLoggedIn => _domain0Context.IsLoggedIn;
+       
 
         public void ShowLogin(bool canChangeUrl, Action onSuccess = null)
         {
@@ -43,7 +41,7 @@ namespace Domain0.Desktop.Services
                         NegativeButtonVisibility = Visibility.Visible,
                         UrlWatermark = "Url",
                         ShouldHideUrl = !canChangeUrl,
-                        InitialUrl = _domain0.HostUrl,
+                        InitialUrl = _domain0Context.HostUrl,
                         EmailWatermark = "email@gmail.com",
                         PhoneWatermark = "79998887766",
                         PasswordWatermark = "Password",
@@ -66,28 +64,21 @@ namespace Domain0.Desktop.Services
                     {
                         Settings.Default.HostUrl = x.Url;
                         Settings.Default.Save();
-                        _domain0.HostUrl = x.Url;
+                        _domain0Context.HostUrl = x.Url;
+                        _domain0Context.ShouldRemember = x.ShouldRemember;
 
-                        AccessTokenResponse token;
+
                         switch (x.LoginMode)
                         {
                             case LoginMode.Phone:
-                                token = await _domain0.Client.LoginAsync(new SmsLoginRequest(x.Password, x.Phone));
-                                break;
+                                return await _domain0Context.LoginByPhone(long.Parse(x.Phone), x.Password);
+
                             case LoginMode.Email:
-                                token = await _domain0.Client.LoginByEmailAsync(new EmailLoginRequest(x.Email, x.Password));
-                                break;
+                                return await _domain0Context.LoginByEmail(x.Email, x.Password);
+
                             default:
                                 throw new ArgumentException("Unknown login mode");
                         }
-
-                        if (token != null)
-                        {
-                            _domain0.UpdateAccessToken(token, x.ShouldRemember);
-                            return true;
-                        }
-                        else
-                            return false;
                     }
                     catch (Exception e)
                     {

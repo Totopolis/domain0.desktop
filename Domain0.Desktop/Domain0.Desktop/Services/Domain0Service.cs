@@ -1,89 +1,26 @@
 ﻿using Domain0.Api.Client;
 using Domain0.Desktop.Models;
-using Domain0.Desktop.Properties;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using DynamicData;
 
 namespace Domain0.Desktop.Services
 {
     public class Domain0Service : IDomain0Service
     {
-        private readonly HttpClient _httpClient;
-        private readonly Domain0Client _client;
+        private readonly IDomain0AuthenticationContext authContext;
 
-        public Domain0Service()
+        public Domain0Service(IDomain0AuthenticationContext domain0AuthenticationContext)
         {
-            _httpClient = new HttpClient();
-            _client = new Domain0Client(null, _httpClient);
+            authContext = domain0AuthenticationContext;
 
             Model = new Domain0Model();
         }
 
-        public string HostUrl
-        {
-            get => _client.BaseUrl;
-            set => _client.BaseUrl = value;
-        }
+        public IDomain0Client Client => authContext.Client;
 
-        public bool LoadToken()
-        {
-            var savedToken = Settings.Default.AccessToken;
-
-            if (string.IsNullOrEmpty(savedToken))
-                return false;
-
-            try
-            {
-                var token = AccessTokenResponse.FromJson(savedToken);
-                AccessToken = token;
-                return true;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                return false;
-            }
-        }
-
-        public void ResetAccessToken()
-        {
-            Settings.Default.AccessToken = string.Empty;
-            Settings.Default.Save();
-
-            AccessToken = null;
-        }
-
-        public void UpdateAccessToken(AccessTokenResponse token, bool shouldRemember)
-        {
-            if (shouldRemember)
-            {
-                Settings.Default.AccessToken = token.ToJson();
-                Settings.Default.Save();
-            }
-            else
-            {
-                Settings.Default.AccessToken = string.Empty;
-                Settings.Default.Save();
-            }
-
-            AccessToken = token;
-        }
-
-        private AccessTokenResponse AccessToken
-        {
-            set => _httpClient.DefaultRequestHeaders.Authorization =
-                value != null ? new AuthenticationHeaderValue("Bearer", value.AccessToken) : null;
-        }
-
-
-        public IDomain0Client Client => _client;
         public Domain0Model Model { get; }
 
         public async Task LoadModel()
@@ -93,7 +30,7 @@ namespace Domain0.Desktop.Services
 
 
             controller.SetMessage("Load User Profiles...");
-            var userProfiles = await _client.GetUserByFilterAsync(new UserProfileFilter(new List<int>()));
+            var userProfiles = await authContext.Client.GetUserByFilterAsync(new UserProfileFilter(new List<int>()));
             Model.UserProfiles.Edit(innerCache =>
             {
                 innerCache.Clear();
@@ -101,7 +38,7 @@ namespace Domain0.Desktop.Services
             });
 
             controller.SetMessage("Load Permissions...");
-            var permissions = await _client.LoadPermissionsByFilterAsync(new PermissionFilter(new List<int>()));
+            var permissions = await authContext.Client.LoadPermissionsByFilterAsync(new PermissionFilter(new List<int>()));
             Model.Permissions.Edit(innerCache =>
             {
                 innerCache.Clear();
@@ -109,7 +46,7 @@ namespace Domain0.Desktop.Services
             });
 
             controller.SetMessage("Load Roles...");
-            var roles = await _client.LoadRolesByFilterAsync(new RoleFilter(new List<int>()));
+            var roles = await authContext.Client.LoadRolesByFilterAsync(new RoleFilter(new List<int>()));
             Model.Roles.Edit(innerCache =>
             {
                 innerCache.Clear();
@@ -117,7 +54,7 @@ namespace Domain0.Desktop.Services
             });
 
             controller.SetMessage("Load Appliations...");
-            var applications = await _client.LoadApplicationsByFilterAsync(new ApplicationFilter(new List<int>()));
+            var applications = await authContext.Client.LoadApplicationsByFilterAsync(new ApplicationFilter(new List<int>()));
             Model.Applications.Edit(innerCache =>
             {
                 innerCache.Clear();
@@ -126,7 +63,7 @@ namespace Domain0.Desktop.Services
 
 
             controller.SetMessage("Load MessageTemplates...");
-            var messageTemplates = await _client.LoadMessageTemplatesByFilterAsync(new MessageTemplateFilter(new List<int>()));
+            var messageTemplates = await authContext.Client.LoadMessageTemplatesByFilterAsync(new MessageTemplateFilter(new List<int>()));
             Model.MessageTemplates.Edit(innerCache =>
             {
                 innerCache.Clear();
@@ -135,7 +72,7 @@ namespace Domain0.Desktop.Services
 
             controller.SetMessage("Load Role's Permissions...");
             var roleIds = roles.Select(x => x.Id.Value).ToList();
-            var rolePermissions = await _client.LoadPermissionsByRoleFilterAsync(new RolePermissionFilter(roleIds));
+            var rolePermissions = await authContext.Client.LoadPermissionsByRoleFilterAsync(new RolePermissionFilter(roleIds));
             Model.RolePermissions.Edit(innerList =>
             {
                 innerList.Clear();
@@ -144,7 +81,7 @@ namespace Domain0.Desktop.Services
 
             controller.SetMessage("Load User's Permissions...");
             var userIds = userProfiles.Select(x => x.Id).ToList();
-            var userPermissions = await _client.LoadPermissionsByUserFilterAsync(new UserPermissionFilter(userIds));
+            var userPermissions = await authContext.Client.LoadPermissionsByUserFilterAsync(new UserPermissionFilter(userIds));
             Model.UserPermissions.Edit(innerList =>
             {
                 innerList.Clear();

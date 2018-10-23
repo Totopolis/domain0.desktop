@@ -18,6 +18,8 @@ namespace Domain0.Desktop
             builder.RegisterType<Shell>().As<IShell>().SingleInstance();
             builder.RegisterType<MainWindow>().As<IDockWindow>().SingleInstance();
 
+            builder.RegisterType<Domain0AuthenticationContext>().As<IDomain0AuthenticationContext>().SingleInstance();
+
             builder.RegisterType<Domain0Service>().As<IDomain0Service>().SingleInstance();
             builder.RegisterType<LoginService>().As<ILoginService>();
 
