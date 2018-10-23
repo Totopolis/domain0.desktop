@@ -63,10 +63,10 @@ namespace Domain0.Desktop
 
             var loginService = shell.Container.Resolve<ILoginService>();
 
-            if (!loginService.LoadPreviousToken())
-                loginService.ShowLogin(true, ShowLoadingDialog);
-            else
+            if (loginService.IsLoggedIn)
                 ShowLoadingDialog();
+            else
+                loginService.ShowLogin(true, ShowLoadingDialog);
         }
     }
 }

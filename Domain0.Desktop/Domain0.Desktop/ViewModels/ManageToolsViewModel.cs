@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using Ui.Wpf.Common.ViewModels;
+using IDomain0AuthenticationContext = Domain0.Api.Client.IDomain0AuthenticationContext;
 
 namespace Domain0.Desktop.ViewModels
 {
@@ -16,11 +17,16 @@ namespace Domain0.Desktop.ViewModels
     {
         private readonly IDomain0Service _domain0;
         private readonly ILoginService _loginService;
+        private readonly IDomain0AuthenticationContext _authContext;
 
-        public ManageToolsViewModel(IDomain0Service domain0, ILoginService loginService)
+        public ManageToolsViewModel(
+            IDomain0Service domain0, 
+            ILoginService loginService,
+            IDomain0AuthenticationContext domain0AuthenticationContext)
         {
             _domain0 = domain0;
             _loginService = loginService;
+            _authContext = domain0AuthenticationContext;
 
             LogoutCommand = ReactiveCommand.Create(Logout);
             ReloadCommand = ReactiveCommand.CreateFromTask(Reload);
@@ -43,7 +49,7 @@ namespace Domain0.Desktop.ViewModels
 
         private void Logout()
         {
-            _domain0.ResetAccessToken();
+            _authContext.Logout();
             _loginService.ShowLogin(false);
         }
 

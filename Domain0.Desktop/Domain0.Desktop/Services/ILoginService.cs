@@ -15,6 +15,6 @@ namespace Domain0.Desktop.Services
         /// Try to load previously saved token
         /// </summary>
         /// <returns>True if token was loaded successfully</returns>
-        bool LoadPreviousToken();
+        bool IsLoggedIn { get; }
     }
 }
