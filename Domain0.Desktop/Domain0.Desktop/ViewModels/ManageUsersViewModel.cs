@@ -35,6 +35,11 @@ namespace Domain0.Desktop.ViewModels
             LockUsersCommand = ReactiveCommand.CreateFromTask<IList>(LockUsers,
                 this.WhenAny(x => x.SelectedItemsIds, x => x.Value != null && x.Value.Count > 0));
 
+            RolesFilterCommand = ReactiveCommand.Create<string>(filter =>
+            {
+                RolesFilter = filter;
+                UpdateSelectedUserRoles();
+            });
             RoleCheckedCommand = ReactiveCommand.Create<SelectedUserRoleViewModel>(RoleChecked);
             var rolesChangedObservable = this.WhenAnyValue(x => x.IsChangedRoles);
             ApplyRolesCommand = ReactiveCommand.CreateFromTask(ApplyRoles, rolesChangedObservable);
@@ -106,7 +111,8 @@ namespace Domain0.Desktop.ViewModels
                     })
                 .Subscribe(x =>
                 {
-                    SelectedUserRoles = x;
+                    SelectedUserRolesRaw = x;
+                    UpdateSelectedUserRoles();
                     IsChangedRoles = false;
                 })
                 .DisposeWith(Disposables);
@@ -127,7 +133,19 @@ namespace Domain0.Desktop.ViewModels
         private ReadOnlyObservableCollection<ForceCreateUserRoleViewModel> _forceCreateUserRoles;
         public ReadOnlyObservableCollection<ForceCreateUserRoleViewModel> ForceCreateUserRoles => _forceCreateUserRoles;
 
+        private void UpdateSelectedUserRoles()
+        {
+            SelectedUserRoles =
+                SelectedUserRolesRaw?
+                    .Where(item => string.IsNullOrEmpty(RolesFilter) ||
+                                   !string.IsNullOrEmpty(item.Item.Name) &&
+                                   item.Item.Name.Contains(RolesFilter));
+        }
+
         [Reactive] public IEnumerable<SelectedUserRoleViewModel> SelectedUserRoles {get; set; }
+        public IEnumerable<SelectedUserRoleViewModel> SelectedUserRolesRaw {get; set; }
+        [Reactive] public string RolesFilter { get; set; }
+        public ReactiveCommand RolesFilterCommand { get; set; }
         public ReactiveCommand RoleCheckedCommand { get; set; }
         public ReactiveCommand ApplyRolesCommand { get; set; }
         public ReactiveCommand ResetRolesCommand { get; set; }

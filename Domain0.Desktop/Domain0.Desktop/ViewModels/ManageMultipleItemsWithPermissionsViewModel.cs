@@ -26,6 +26,11 @@ namespace Domain0.Desktop.ViewModels
         {
             base.Initialize();
 
+            PermissionsFilterCommand = ReactiveCommand.Create<string>(filter =>
+            {
+                PermissionsFilter = filter;
+                UpdateSelectedItemPermissions();
+            });
             PermissionCheckedCommand = ReactiveCommand.Create<SelectedItemPermissionViewModel>(PermissionChecked);
             var permissionsChangedObservable = this.WhenAnyValue(x => x.IsChangedPermissions);
             ApplyPermissionsCommand = ReactiveCommand.CreateFromTask(ApplyPermissions, permissionsChangedObservable);
@@ -71,12 +76,23 @@ namespace Domain0.Desktop.ViewModels
                     })
                 .Subscribe(x =>
                 {
-                    SelectedItemPermissions = x;
+                    SelectedItemPermissionsRaw = x;
+                    UpdateSelectedItemPermissions();
                     IsChangedPermissions = false;
                 });
         }
 
+        private void UpdateSelectedItemPermissions()
+        {
+            SelectedItemPermissions =
+                SelectedItemPermissionsRaw?
+                    .Where(item => string.IsNullOrEmpty(PermissionsFilter) ||
+                                   !string.IsNullOrEmpty(item.Item.Name) &&
+                                   item.Item.Name.Contains(PermissionsFilter));
+        }
 
+        [Reactive] public string PermissionsFilter { get; set; }
+        public ReactiveCommand PermissionsFilterCommand { get; set; }
         public ReactiveCommand PermissionCheckedCommand { get; set; }
         public ReactiveCommand ApplyPermissionsCommand { get; set; }
         public ReactiveCommand ResetPermissionsCommand { get; set; }
@@ -86,6 +102,7 @@ namespace Domain0.Desktop.ViewModels
         public ReadOnlyObservableCollection<Permission> Permissions => _permissions;
 
         [Reactive] public IEnumerable<SelectedItemPermissionViewModel> SelectedItemPermissions { get; set; }
+        public IEnumerable<SelectedItemPermissionViewModel> SelectedItemPermissionsRaw { get; set; }
 
         private void PermissionChecked(SelectedItemPermissionViewModel o)
         {
