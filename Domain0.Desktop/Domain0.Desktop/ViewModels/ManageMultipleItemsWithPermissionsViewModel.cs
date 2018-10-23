@@ -38,6 +38,7 @@ namespace Domain0.Desktop.ViewModels
 
             _domain0.Model.Permissions.Connect()
                 .Sort(SortExpressionComparer<Permission>.Ascending(x => x.Id))
+                .ObserveOnDispatcher()
                 .Bind(out _permissions)
                 .Subscribe()
                 .DisposeWith(Disposables);
@@ -45,18 +46,24 @@ namespace Domain0.Desktop.ViewModels
 
         protected IDisposable SubscribeToPermissions<T>(SourceList<T> source, Func<int, IEnumerable<T>, IEnumerable<int>> userIdsSelector)
         {
+            var locker = new object();
             return source
                 .Connect()
                 .ToCollection()
+                .Synchronize(locker)
                 .CombineLatest(
-                    _domain0.Model.Permissions.Connect().QueryWhenChanged(items => items),
-                    this.WhenAnyValue(x => x.SelectedItemsIds),
+                    _domain0.Model.Permissions
+                        .Connect()
+                        .QueryWhenChanged(items => items)
+                        .Synchronize(locker),
+                    this.WhenAnyValue(x => x.SelectedItemsIds)
+                        .Synchronize(locker),
                     (itemPermissions, permissions, selectedIds) =>
                     {
                         if (selectedIds.Count == 0)
                             return null;
 
-                        return Permissions
+                        return permissions.Items
                             .Select(p =>
                             {
                                 var userIds = userIdsSelector(p.Id.Value, itemPermissions);
@@ -72,6 +79,8 @@ namespace Domain0.Desktop.ViewModels
                                 };
                             })
                             .OrderByDescending(x => x.Count)
+                            .ThenBy(x => x.Item.Name)
+                            .ThenBy(x => x.Id)
                             .ToList();
                     })
                 .Subscribe(x =>

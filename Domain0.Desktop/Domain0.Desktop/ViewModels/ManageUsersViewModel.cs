@@ -45,10 +45,8 @@ namespace Domain0.Desktop.ViewModels
             ApplyRolesCommand = ReactiveCommand.CreateFromTask(ApplyRoles, rolesChangedObservable);
             ResetRolesCommand = ReactiveCommand.CreateFromTask(ResetRoles, rolesChangedObservable);
             
-
             // Permissions
 
-            
             SubscribeToPermissions(
                     _domain0.Model.UserPermissions,
                     (permissionId, items) => items
@@ -66,28 +64,29 @@ namespace Domain0.Desktop.ViewModels
                 .Filter(dynamicForceCreateUserRolesFilter)
                 .Transform(x => new ForceCreateUserRoleViewModel { Role = x })
                 .Sort(SortExpressionComparer<ForceCreateUserRoleViewModel>.Ascending(x => x.Role.Id))
+                .ObserveOnDispatcher()
                 .Bind(out _forceCreateUserRoles)
                 .Subscribe()
                 .DisposeWith(Disposables);
 
-            _domain0.Model.Roles.Connect()
-                .Sort(SortExpressionComparer<Role>.Ascending(x => x.Id))
-                .Bind(out _roles)
-                .Subscribe()
-                .DisposeWith(Disposables);
-
+            var locker = new object();
             _domain0.Model.UserPermissions
                 .Connect()
                 .ToCollection()
+                .Synchronize(locker)
                 .CombineLatest(
-                    _domain0.Model.Roles.Connect().QueryWhenChanged(items => items),
-                    this.WhenAnyValue(x => x.SelectedItemsIds),
+                    _domain0.Model.Roles
+                        .Connect()
+                        .QueryWhenChanged(items => items)
+                        .Synchronize(locker),
+                    this.WhenAnyValue(x => x.SelectedItemsIds)
+                        .Synchronize(locker),
                     (userPermissions, roles, selectedIds) =>
                     {
                         if (selectedIds.Count == 0)
                             return null;
 
-                        return Roles
+                        return roles.Items
                             .Select(r =>
                             {
                                 var roleId = r.Id.Value;
@@ -107,6 +106,8 @@ namespace Domain0.Desktop.ViewModels
                                 };
                             })
                             .OrderByDescending(x => x.Count)
+                            .ThenBy(x => x.Item.Name)
+                            .ThenBy(x => x.Id)
                             .ToList();
                     })
                 .Subscribe(x =>
@@ -126,9 +127,6 @@ namespace Domain0.Desktop.ViewModels
             return role => !string.IsNullOrEmpty(role.Name) &&
                            role.Name.Contains(x);
         }
-
-        private ReadOnlyObservableCollection<Role> _roles;
-        public ReadOnlyObservableCollection<Role> Roles => _roles;
 
         private ReadOnlyObservableCollection<ForceCreateUserRoleViewModel> _forceCreateUserRoles;
         public ReadOnlyObservableCollection<ForceCreateUserRoleViewModel> ForceCreateUserRoles => _forceCreateUserRoles;
