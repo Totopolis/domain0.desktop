@@ -70,46 +70,50 @@ namespace Domain0.Desktop.ViewModels
                 .DisposeWith(Disposables);
 
             var locker = new object();
-            _domain0.Model.UserPermissions
+            var sourceUserPermissions = _domain0.Model.UserPermissions
                 .Connect()
                 .ToCollection()
-                .Synchronize(locker)
-                .CombineLatest(
-                    _domain0.Model.Roles
-                        .Connect()
-                        .QueryWhenChanged(items => items)
-                        .Synchronize(locker),
-                    this.WhenAnyValue(x => x.SelectedItemsIds)
-                        .Synchronize(locker),
-                    (userPermissions, roles, selectedIds) =>
-                    {
-                        if (selectedIds.Count == 0)
-                            return null;
+                .Synchronize(locker);
+            var sourceRoles = _domain0.Model.Roles
+                .Connect()
+                .QueryWhenChanged(items => items)
+                .Synchronize(locker);
+            var sourceSelected = this
+                .WhenAnyValue(x => x.SelectedItemsIds)
+                .Synchronize(locker);
 
-                        return roles.Items
-                            .Select(r =>
-                            {
-                                var roleId = r.Id.Value;
-                                var userIds = userPermissions
-                                    .Where(x => x.RoleId.HasValue && x.RoleId.Value == roleId)
-                                    .Select(x => x.UserId)
-                                    .Distinct();
-                                var groupSelectedIds = selectedIds
-                                    .Intersect(userIds)
-                                    .ToList();
-                                var count = groupSelectedIds.Count;
-                                var total = selectedIds.Count;
-                                return new SelectedUserRoleViewModel(count, total)
-                                {
-                                    Item = r,
-                                    ParentIds = groupSelectedIds
-                                };
-                            })
-                            .OrderByDescending(x => x.Count)
-                            .ThenBy(x => x.Item.Name)
-                            .ThenBy(x => x.Id)
+            Observable.CombineLatest(
+                    sourceUserPermissions,
+                    sourceRoles,
+                    sourceSelected,
+                    (userPermissions, roles, selectedIds) => selectedIds.Count > 0
+                        ? new {userPermissions, roles = roles.Items, selectedIds}
+                        : null)
+                .Throttle(TimeSpan.FromSeconds(.1))
+                .Select(o => o?.roles
+                    .Select(r =>
+                    {
+                        var roleId = r.Id.Value;
+                        var userIds = o.userPermissions
+                            .Where(x => x.RoleId.HasValue && x.RoleId.Value == roleId)
+                            .Select(x => x.UserId)
+                            .Distinct();
+                        var groupSelectedIds = o.selectedIds
+                            .Intersect(userIds)
                             .ToList();
+                        var count = groupSelectedIds.Count;
+                        var total = o.selectedIds.Count;
+                        return new SelectedUserRoleViewModel(count, total)
+                        {
+                            Item = r,
+                            ParentIds = groupSelectedIds
+                        };
                     })
+                    .OrderByDescending(x => x.Count)
+                    .ThenBy(x => x.Item.Name)
+                    .ThenBy(x => x.Id)
+                    .ToList())
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x =>
                 {
                     SelectedUserRolesRaw = x;

@@ -44,45 +44,51 @@ namespace Domain0.Desktop.ViewModels
                 .DisposeWith(Disposables);
         }
 
-        protected IDisposable SubscribeToPermissions<T>(SourceList<T> source, Func<int, IEnumerable<T>, IEnumerable<int>> userIdsSelector)
+        protected IDisposable SubscribeToPermissions<T>(SourceList<T> source,
+            Func<int, IEnumerable<T>, IEnumerable<int>> userIdsSelector)
         {
             var locker = new object();
-            return source
+
+            var sourceList = source
                 .Connect()
                 .ToCollection()
-                .Synchronize(locker)
-                .CombineLatest(
-                    _domain0.Model.Permissions
-                        .Connect()
-                        .QueryWhenChanged(items => items)
-                        .Synchronize(locker),
-                    this.WhenAnyValue(x => x.SelectedItemsIds)
-                        .Synchronize(locker),
-                    (itemPermissions, permissions, selectedIds) =>
-                    {
-                        if (selectedIds.Count == 0)
-                            return null;
+                .Synchronize(locker);
+            var sourcePermissions = _domain0.Model.Permissions
+                .Connect()
+                .QueryWhenChanged(items => items)
+                .Synchronize(locker);
+            var sourceSelected = this
+                .WhenAnyValue(x => x.SelectedItemsIds)
+                .Synchronize(locker);
 
-                        return permissions.Items
-                            .Select(p =>
-                            {
-                                var userIds = userIdsSelector(p.Id.Value, itemPermissions);
-                                var groupSelectedIds = selectedIds
-                                    .Intersect(userIds)
-                                    .ToList();
-                                var count = groupSelectedIds.Count;
-                                var total = selectedIds.Count;
-                                return new SelectedItemPermissionViewModel(count, total)
-                                {
-                                    Item = p,
-                                    ParentIds = groupSelectedIds
-                                };
-                            })
-                            .OrderByDescending(x => x.Count)
-                            .ThenBy(x => x.Item.Name)
-                            .ThenBy(x => x.Id)
+            return Observable.CombineLatest(
+                    sourceList,
+                    sourcePermissions,
+                    sourceSelected,
+                    (itemPermissions, permissions, selectedIds) => selectedIds.Count > 0
+                        ? new {itemPermissions, permissions = permissions.Items, selectedIds}
+                        : null)
+                .Throttle(TimeSpan.FromSeconds(.1))
+                .Select(o => o?.permissions
+                    .Select(p =>
+                    {
+                        var userIds = userIdsSelector(p.Id.Value, o.itemPermissions);
+                        var groupSelectedIds = o.selectedIds
+                            .Intersect(userIds)
                             .ToList();
+                        var count = groupSelectedIds.Count;
+                        var total = o.selectedIds.Count;
+                        return new SelectedItemPermissionViewModel(count, total)
+                        {
+                            Item = p,
+                            ParentIds = groupSelectedIds
+                        };
                     })
+                    .OrderByDescending(x => x.Count)
+                    .ThenBy(x => x.Item.Name)
+                    .ThenBy(x => x.Id)
+                    .ToList())
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x =>
                 {
                     SelectedItemPermissionsRaw = x;
