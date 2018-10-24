@@ -2,6 +2,7 @@
 using Domain0.Desktop.Views;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
+using Monik.Common;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -40,6 +41,9 @@ namespace Domain0.Desktop.Extensions
 
         public static Task HandleException(this IShell shell, Exception ex, string title = "Error")
         {
+            var monik = shell.Container.Resolve<IMonik>();
+            monik.ApplicationWarning($"{title}: {ex}");
+
             var window = shell.GetWindow();
             return window.Invoke(() => window.ShowMessageAsync(title, ex.Message));
         }

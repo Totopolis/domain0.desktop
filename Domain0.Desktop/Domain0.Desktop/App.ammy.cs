@@ -5,7 +5,9 @@ using Domain0.Desktop.Properties;
 using Domain0.Desktop.Services;
 using Domain0.Desktop.Views;
 using MahApps.Metro;
+using Monik.Common;
 using System;
+using System.Diagnostics;
 using System.Windows;
 using Ui.Wpf.Common;
 using Ui.Wpf.Common.ShowOptions;
@@ -39,8 +41,17 @@ namespace Domain0.Desktop
                 }
             );
 
+            // log trace to monik
+            var monik = shell.Container.Resolve<IMonik>();
+            Trace.Listeners.Add(new MonikTraceListener(monik));
+            // catch unhanlded exceptions
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
-                Console.WriteLine(args.ExceptionObject);
+            {
+                if (args.IsTerminating)
+                    monik.ApplicationFatal("Unhandled fatal exception: {1}", args.ExceptionObject);
+                else
+                    monik.ApplicationError("Unhandled exception: {1}", args.ExceptionObject);
+            };
 
             ThemeManager.ChangeAppStyle(this,
                 ThemeManager.GetAccent(Settings.Default.AccentColor),

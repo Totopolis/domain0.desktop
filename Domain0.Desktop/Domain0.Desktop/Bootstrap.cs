@@ -1,10 +1,13 @@
 ﻿using Autofac;
 using AutoMapper;
 using Domain0.Api.Client;
+using Domain0.Desktop.Properties;
 using Domain0.Desktop.Services;
 using Domain0.Desktop.ViewModels;
 using Domain0.Desktop.ViewModels.Items;
 using Domain0.Desktop.Views;
+using Monik.Client;
+using Monik.Common;
 using Ui.Wpf.Common;
 
 namespace Domain0.Desktop
@@ -42,6 +45,19 @@ namespace Domain0.Desktop
             builder.RegisterType<ManagePermissionsViewModel>();
 
             builder.RegisterInstance(CreateMapper()).As<IMapper>();
+
+
+            builder.RegisterInstance(new AzureSender(
+                    Settings.Default.MonikConnectionString,
+                    Settings.Default.MonikQueueName))
+                .As<IMonikSender>();
+            builder.RegisterInstance(new ClientSettings()
+            {
+                SourceName = Settings.Default.MonikSourceName,
+                InstanceName = Settings.Default.MonikInstanceName,
+                AutoKeepAliveEnable = true
+            }).As<IMonikSettings>();
+            builder.RegisterType<MonikClient>().As<IMonik>().SingleInstance();
 
             var container = builder.Build();
 
