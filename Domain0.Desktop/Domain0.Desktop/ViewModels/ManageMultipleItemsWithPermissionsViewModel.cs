@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Domain0.Api.Client;
 using Domain0.Desktop.Extensions;
 using Domain0.Desktop.Services;
@@ -14,6 +7,13 @@ using DynamicData;
 using DynamicData.Binding;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Ui.Wpf.Common;
 
 namespace Domain0.Desktop.ViewModels
@@ -49,19 +49,14 @@ namespace Domain0.Desktop.ViewModels
         protected IDisposable SubscribeToPermissions<T>(SourceList<T> source,
             Func<int, IEnumerable<T>, IEnumerable<int>> userIdsSelector)
         {
-            var locker = new object();
-
             var sourceList = source
                 .Connect()
-                .ToCollection()
-                .Synchronize(locker);
+                .ToCollection();
             var sourcePermissions = _domain0.Model.Permissions
                 .Connect()
-                .QueryWhenChanged(items => items)
-                .Synchronize(locker);
+                .QueryWhenChanged(items => items);
             var sourceSelected = this
-                .WhenAnyValue(x => x.SelectedItemsIds)
-                .Synchronize(locker);
+                .WhenAnyValue(x => x.SelectedItemsIds);
 
             return Observable.CombineLatest(
                     sourceList,
@@ -71,6 +66,7 @@ namespace Domain0.Desktop.ViewModels
                         ? new {itemPermissions, permissions = permissions.Items, selectedIds}
                         : null)
                 .Throttle(TimeSpan.FromSeconds(.1))
+                .Synchronize()
                 .Select(o => o?.permissions
                     .Select(p =>
                     {

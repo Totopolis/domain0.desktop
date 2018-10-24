@@ -11,6 +11,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -71,18 +72,14 @@ namespace Domain0.Desktop.ViewModels
                 .Subscribe()
                 .DisposeWith(Disposables);
 
-            var locker = new object();
             var sourceUserPermissions = _domain0.Model.UserPermissions
                 .Connect()
-                .ToCollection()
-                .Synchronize(locker);
+                .ToCollection();
             var sourceRoles = _domain0.Model.Roles
                 .Connect()
-                .QueryWhenChanged(items => items)
-                .Synchronize(locker);
+                .QueryWhenChanged(items => items);
             var sourceSelected = this
-                .WhenAnyValue(x => x.SelectedItemsIds)
-                .Synchronize(locker);
+                .WhenAnyValue(x => x.SelectedItemsIds);
 
             Observable.CombineLatest(
                     sourceUserPermissions,
@@ -92,6 +89,7 @@ namespace Domain0.Desktop.ViewModels
                         ? new {userPermissions, roles = roles.Items, selectedIds}
                         : null)
                 .Throttle(TimeSpan.FromSeconds(.1))
+                .Synchronize()
                 .Select(o => o?.roles
                     .Select(r =>
                     {
@@ -239,6 +237,8 @@ namespace Domain0.Desktop.ViewModels
                     innerList.RemoveMany(upToRemove);
                     innerList.AddRange(upToAdd);
                 });
+
+                TraceApplied("Apply Roles to Users:", toAdd, toRemove);
             }
             catch (Exception e)
             {
@@ -284,6 +284,8 @@ namespace Domain0.Desktop.ViewModels
                 innerList.RemoveMany(upToRemove);
                 innerList.AddRange(upToAdd);
             });
+
+            TraceApplied("Apply Permissions to Users:", toAdd, toRemove);
         }
 
         // Lock
@@ -295,6 +297,9 @@ namespace Domain0.Desktop.ViewModels
                 var users = list.Cast<UserProfileViewModel>().ToList();
 
                 var toLock = users.Any(x => !x.IsLocked);
+
+                Trace.TraceInformation("{0} users: {1}", toLock ? "Lock" : "Unlock", string.Join(", ", users.Where(x => x.IsLocked != toLock).Select(x => x.Id.Value)));
+
                 foreach (var user in users)
                 {
                     if (toLock != user.IsLocked)
@@ -354,6 +359,7 @@ namespace Domain0.Desktop.ViewModels
                 Models.AddOrUpdate(userProfile);
 
                 IsCreateFlyoutOpen = false;
+                Trace.TraceInformation("Created {0}: {1} with roles [{2}]", typeof(UserProfile).Name, userProfile.Id, string.Join(", ", roles.Select(x => x.Name)));
             }
             catch (Exception e)
             {

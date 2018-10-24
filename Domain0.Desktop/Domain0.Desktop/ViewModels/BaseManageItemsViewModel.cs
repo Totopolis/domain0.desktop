@@ -8,7 +8,10 @@ using DynamicData.Binding;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reflection;
@@ -160,6 +163,7 @@ namespace Domain0.Desktop.ViewModels
         {
             try
             {
+                Trace.TraceInformation("Edit {0}: {1}", typeof(TModel).Name, EditViewModel.Id);
                 var request = EditModel;
                 await UpdateApi(request);
                 Models.AddOrUpdate(request);
@@ -175,6 +179,7 @@ namespace Domain0.Desktop.ViewModels
         {
             try
             {
+                Trace.TraceInformation("Delete {0}: {1}", typeof(TModel).Name, EditViewModel.Id);
                 var id = EditViewModel.Id.Value;
                 await RemoveApi(id);
                 AfterDeletedSelected(id);
@@ -197,6 +202,7 @@ namespace Domain0.Desktop.ViewModels
                 CreateViewModel.Id = await CreateApi(CreateModel);
                 Models.AddOrUpdate(CreateModel);
                 IsCreateFlyoutOpen = false;
+                Trace.TraceInformation("Created {0}: {1}", typeof(TModel).Name, CreateViewModel.Id);
             }
             catch (Exception e)
             {
@@ -209,6 +215,17 @@ namespace Domain0.Desktop.ViewModels
         protected abstract Task RemoveApi(int id);
 
         protected abstract ISourceCache<TModel, int> Models { get; }
+
+
+        protected static void TraceApplied(string title, Dictionary<int, HashSet<int>> toAdd, Dictionary<int, HashSet<int>> toRemove)
+        {
+            var added = string.Join(",", toAdd.Select(x => $"[{x.Key}:{string.Join(",", x.Value)}]"));
+            var removed = string.Join(",", toRemove.Select(x => $"[{x.Key}:{string.Join(",", x.Value)}]"));
+            Trace.TraceInformation($"{title}" + 
+                                   (!string.IsNullOrEmpty(added) ? $" ++{added}" : "") +
+                                   (!string.IsNullOrEmpty(removed) ? $" --{removed}" : ""));
+        }
+
     }
 
     internal class ModelFilter

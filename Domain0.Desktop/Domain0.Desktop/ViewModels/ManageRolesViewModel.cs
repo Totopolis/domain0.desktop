@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Domain0.Desktop.Extensions;
 using Ui.Wpf.Common;
 
 namespace Domain0.Desktop.ViewModels
@@ -95,6 +94,8 @@ namespace Domain0.Desktop.ViewModels
                 innerList.RemoveMany(rpToRemove);
                 innerList.AddRange(rpToAdd);
             });
+
+            TraceApplied("Apply Permissions to Roles:", toAdd, toRemove);
         }
         
         protected override Task UpdateApi(Role m)
