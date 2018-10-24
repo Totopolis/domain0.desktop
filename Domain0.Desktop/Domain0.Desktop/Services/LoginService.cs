@@ -6,6 +6,7 @@ using System;
 using System.Threading.Tasks;
 using System.Windows;
 using Domain0.Api.Client;
+using Domain0.Desktop.Extensions;
 using Ui.Wpf.Common;
 using Application = System.Windows.Application;
 
@@ -13,19 +14,32 @@ namespace Domain0.Desktop.Services
 {
     public class LoginService : ILoginService
     {
+        private readonly IShell _shell;
         private readonly IDomain0AuthenticationContext _domain0Context;
 
         public LoginService(
+            IShell shell,
             IDomain0AuthenticationContext domain0AuthenticationContext)
         {
+            _shell = shell;
             _domain0Context = domain0AuthenticationContext;
             _domain0Context.HostUrl = Settings.Default.HostUrl;
         }
 
-        public bool IsLoggedIn => _domain0Context.IsLoggedIn;
-       
+        public void ShowLogin(Action onSuccess = null)
+        {
+            ShowLoginInternal(true, onSuccess);
+        }
 
-        public void ShowLogin(bool canChangeUrl, Action onSuccess = null)
+        public void Logout(Action onRelogin = null)
+        {
+            _domain0Context.Logout();
+            ShowLoginInternal(false, onRelogin);
+        }
+
+        public bool IsLoggedIn => _domain0Context.IsLoggedIn;
+
+        private void ShowLoginInternal(bool canChangeUrl, Action onSuccess = null)
         {
             AuthProcess.Start(
                 getAuthenticationData: async () =>
@@ -82,7 +96,7 @@ namespace Domain0.Desktop.Services
                     }
                     catch (Exception e)
                     {
-                        await (Application.Current.MainWindow as MainWindow).ShowMessageAsync("Login failed", $"Failed to login\n({e.Message})");
+                        await _shell.HandleException(e, "Login failed");
                         return false;
                     }
                 },

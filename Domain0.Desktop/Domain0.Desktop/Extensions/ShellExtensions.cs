@@ -38,10 +38,10 @@ namespace Domain0.Desktop.Extensions
             shell.ShowView<ManageMessagesView>(new ViewRequest("manage-messages"), new UiShowOptions { Title = "Messages" });
         }
 
-        public static void ShowException(this IShell shell, Exception ex, string title = "Error")
+        public static Task HandleException(this IShell shell, Exception ex, string title = "Error")
         {
             var window = shell.GetWindow();
-            window.Invoke(() => window.ShowMessageAsync(title, ex.Message));
+            return window.Invoke(() => window.ShowMessageAsync(title, ex.Message));
         }
 
         internal static async Task<LoadingProgress> ShowProgress(this IShell shell, string title, string message)
@@ -73,16 +73,25 @@ namespace Domain0.Desktop.Extensions
 
         public LoadingProgress Wait(Task task, string s)
         {
-            task = task.ContinueWith(_ => _ctrl.SetMessage($"Loaded - {s}"));
+            var setMessageTask = task
+                .ContinueWith(_ => _ctrl.SetMessage(s), TaskContinuationOptions.OnlyOnRanToCompletion);
+
             _tasks.Add(task);
+            _tasks.Add(setMessageTask);
             return this;
         }
 
         public async Task WaitAll()
         {
-            await Task.WhenAll(_tasks);
-            await _ctrl.CloseAsync();
-            _tasks.Clear();
+            try
+            {
+                await Task.WhenAll(_tasks);
+            }
+            finally
+            {
+                await _ctrl.CloseAsync();
+                _tasks.Clear();
+            }
         }
     }
 }

@@ -45,28 +45,17 @@ namespace Domain0.Desktop
             ThemeManager.ChangeAppStyle(this,
                 ThemeManager.GetAccent(Settings.Default.AccentColor),
                 ThemeManager.GetAppTheme(Settings.Default.AppTheme));
+            
+            shell.ShowTool<ManageToolsView>(new ViewRequest("manage-tools"), new UiShowOptions { Title = "Tools" });
+            shell.ShowUsers();
 
-            async void ShowLoadingDialog()
-            {
-                var domain0 = shell.Container.Resolve<IDomain0Service>();
-                await domain0.LoadModel().ConfigureAwait(true);
-
-                ShowInitializedScreen();
-            }
-
-            void ShowInitializedScreen()
-            {
-                shell.ShowTool<ManageToolsView>(new ViewRequest("manage-tools"), new UiShowOptions {Title = "Tools"});
-
-                shell.ShowUsers();
-            }
-
+            var domain0 = shell.Container.Resolve<IDomain0Service>();
             var loginService = shell.Container.Resolve<ILoginService>();
 
             if (loginService.IsLoggedIn)
-                ShowLoadingDialog();
+                domain0.LoadModel();
             else
-                loginService.ShowLogin(true, ShowLoadingDialog);
+                loginService.ShowLogin(() => domain0.LoadModel());
         }
     }
 }

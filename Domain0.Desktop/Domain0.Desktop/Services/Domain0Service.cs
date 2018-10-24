@@ -1,6 +1,7 @@
 ﻿using Domain0.Api.Client;
 using Domain0.Desktop.Extensions;
 using Domain0.Desktop.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,11 +12,13 @@ namespace Domain0.Desktop.Services
     public class Domain0Service : IDomain0Service
     {
         private readonly IShell _shell;
+        private readonly ILoginService _login;
         private readonly IDomain0AuthenticationContext _authContext;
 
-        public Domain0Service(IShell shell, IDomain0AuthenticationContext domain0AuthenticationContext)
+        public Domain0Service(IShell shell, ILoginService login, IDomain0AuthenticationContext domain0AuthenticationContext)
         {
             _shell = shell;
+            _login = login;
             _authContext = domain0AuthenticationContext;
 
             Model = new Domain0Model();
@@ -27,8 +30,23 @@ namespace Domain0.Desktop.Services
 
         public async Task LoadModel()
         {
+            try
+            {
+                await LoadModelInternal();
+            }
+            catch (Exception ex)
+            {
+                await _shell.HandleException(ex, "Failed to Load model");
+                if (ex is Domain0ClientException clientException && clientException.StatusCode == 403)
+                    _login.Logout(async () => await LoadModel());
+            }
+        }
+
+        private async Task LoadModelInternal()
+        {
             var userProfilesTask = _authContext.Client
-                .GetUserByFilterAsync(new UserProfileFilter(new List<int>()))
+                .GetUserByFilterAsync(new UserProfileFilter(new List<int>()));
+            var initUserProfilesTask = userProfilesTask
                 .ContinueWith(task =>
                 {
                     Model.UserProfiles.Edit(innerCache =>
@@ -37,10 +55,11 @@ namespace Domain0.Desktop.Services
                         innerCache.AddOrUpdate(task.Result);
                     });
                     return task.Result;
-                });
+                }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
             var rolesTask = _authContext.Client
-                .LoadRolesByFilterAsync(new RoleFilter(new List<int>()))
+                .LoadRolesByFilterAsync(new RoleFilter(new List<int>()));
+            var initRolesTask = rolesTask
                 .ContinueWith(task =>
                 {
                     Model.Roles.Edit(innerCache =>
@@ -49,10 +68,11 @@ namespace Domain0.Desktop.Services
                         innerCache.AddOrUpdate(task.Result);
                     });
                     return task.Result;
-                });
+                }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
             var permissionsTask = _authContext.Client
-                .LoadPermissionsByFilterAsync(new PermissionFilter(new List<int>()))
+                .LoadPermissionsByFilterAsync(new PermissionFilter(new List<int>()));
+            var initPermissionsTask = permissionsTask
                 .ContinueWith(task =>
                 {
                     Model.Permissions.Edit(innerCache =>
@@ -61,10 +81,11 @@ namespace Domain0.Desktop.Services
                         innerCache.AddOrUpdate(task.Result);
                     });
                     return task.Result;
-                });
+                }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
             var applicationsTask = _authContext.Client
-                .LoadApplicationsByFilterAsync(new ApplicationFilter(new List<int>()))
+                .LoadApplicationsByFilterAsync(new ApplicationFilter(new List<int>()));
+            var initApplicationsTask = applicationsTask
                 .ContinueWith(task =>
                 {
                     Model.Applications.Edit(innerCache =>
@@ -73,10 +94,11 @@ namespace Domain0.Desktop.Services
                         innerCache.AddOrUpdate(task.Result);
                     });
                     return task.Result;
-                });
+                }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
             var messageTemplatesTask = _authContext.Client
-                .LoadMessageTemplatesByFilterAsync(new MessageTemplateFilter(new List<int>()))
+                .LoadMessageTemplatesByFilterAsync(new MessageTemplateFilter(new List<int>()));
+            var initMessageTemplatesTask = messageTemplatesTask
                 .ContinueWith(task =>
                 {
                     Model.MessageTemplates.Edit(innerCache =>
@@ -85,14 +107,15 @@ namespace Domain0.Desktop.Services
                         innerCache.AddOrUpdate(task.Result);
                     });
                     return task.Result;
-                });
+                }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
             var userPermissionsTask = userProfilesTask
                 .ContinueWith(task =>
                 {
                     var userIds = task.Result.Select(x => x.Id).ToList();
-                    return _authContext.Client
-                        .LoadPermissionsByUserFilterAsync(new UserPermissionFilter(userIds))
+                    var loadTask = _authContext.Client
+                        .LoadPermissionsByUserFilterAsync(new UserPermissionFilter(userIds));
+                    var initTask = loadTask
                         .ContinueWith(innerTask =>
                         {
                             Model.UserPermissions.Edit(innerList =>
@@ -100,16 +123,17 @@ namespace Domain0.Desktop.Services
                                 innerList.Clear();
                                 innerList.AddRange(innerTask.Result);
                             });
-                            return innerTask.Result;
-                        });
-                });
+                        }, TaskContinuationOptions.OnlyOnRanToCompletion);
+                    return Task.WhenAll(loadTask, initTask);
+                }, TaskContinuationOptions.OnlyOnRanToCompletion).Unwrap();
 
             var rolePermissionsTask = rolesTask
                 .ContinueWith(task =>
                 {
                     var roleIds = task.Result.Select(x => x.Id.Value).ToList();
-                    return _authContext.Client
-                        .LoadPermissionsByRoleFilterAsync(new RolePermissionFilter(roleIds))
+                    var loadTask = _authContext.Client
+                        .LoadPermissionsByRoleFilterAsync(new RolePermissionFilter(roleIds));
+                    var initTask = loadTask
                         .ContinueWith(innerTask =>
                         {
                             Model.RolePermissions.Edit(innerList =>
@@ -117,19 +141,29 @@ namespace Domain0.Desktop.Services
                                 innerList.Clear();
                                 innerList.AddRange(innerTask.Result);
                             });
-                            return innerTask.Result;
-                        });
-                });
+                        }, TaskContinuationOptions.OnlyOnRanToCompletion);
+                    return Task.WhenAll(loadTask, initTask);
+                }, TaskContinuationOptions.OnlyOnRanToCompletion).Unwrap();
 
             var progress = await _shell.ShowProgress("Loading data...", "Load everything");
             await progress
-                .Wait(userProfilesTask, "Users")
-                .Wait(rolesTask, "Roles")
-                .Wait(permissionsTask, "Permissions")
-                .Wait(applicationsTask, "Applications")
-                .Wait(messageTemplatesTask, "Message Templates")
-                .Wait(userPermissionsTask, "User's Permissions")
-                .Wait(rolePermissionsTask, "Role's Permissions")
+                .Wait(userProfilesTask, "Users - Loaded")
+                .Wait(initUserProfilesTask, "Users - Initialized")
+
+                .Wait(rolesTask, "Roles - Loaded")
+                .Wait(initRolesTask, "Roles - Initialized")
+
+                .Wait(permissionsTask, "Permissions - Loaded")
+                .Wait(initPermissionsTask, "Permissions - Initialized")
+
+                .Wait(applicationsTask, "Applications - Loaded")
+                .Wait(initApplicationsTask, "Applications - Initialized")
+
+                .Wait(messageTemplatesTask, "Message Templates - Loaded")
+                .Wait(initMessageTemplatesTask, "Message Templates - Initialized")
+
+                .Wait(userPermissionsTask, "User's Permissions - Loaded")
+                .Wait(rolePermissionsTask, "Role's Permissions - Loaded")
                 .WaitAll();
         }
 

@@ -167,7 +167,7 @@ namespace Domain0.Desktop.ViewModels
             }
             catch (Exception e)
             {
-                _shell.ShowException(e, "Failed to Edit selected");
+                await _shell.HandleException(e, "Failed to Edit selected");
             }
         }
 
@@ -181,7 +181,7 @@ namespace Domain0.Desktop.ViewModels
             }
             catch (Exception e)
             {
-                _shell.ShowException(e, "Failed to Delete selected");
+                await _shell.HandleException(e, "Failed to Delete selected");
             }
         }
 
@@ -200,7 +200,7 @@ namespace Domain0.Desktop.ViewModels
             }
             catch (Exception e)
             {
-                _shell.ShowException(e, "Failed to Create");
+                await _shell.HandleException(e, "Failed to Create");
             }
         }
 

@@ -144,8 +144,7 @@ namespace Domain0.Desktop.ViewModels
             }
             catch (Exception e)
             {
-                _shell.ShowException(e, "Failed to Apply Permissions");
-                return Task.CompletedTask;
+                return _shell.HandleException(e, "Failed to Apply Permissions");
             }
         }
 

@@ -242,7 +242,7 @@ namespace Domain0.Desktop.ViewModels
             }
             catch (Exception e)
             {
-                _shell.ShowException(e, "Failed to Apply Roles");
+                await _shell.HandleException(e, "Failed to Apply Roles");
             }
         }
 
@@ -310,7 +310,7 @@ namespace Domain0.Desktop.ViewModels
             }
             catch (Exception e)
             {
-                _shell.ShowException(e, "Failed to Lock User");
+                await _shell.HandleException(e, "Failed to Lock User");
             }
         }
 
@@ -341,7 +341,7 @@ namespace Domain0.Desktop.ViewModels
             }
             catch (Exception e)
             {
-                _shell.ShowException(e, "Failed to create User");
+                await _shell.HandleException(e, "Failed to create User");
             }
             finally
             {
