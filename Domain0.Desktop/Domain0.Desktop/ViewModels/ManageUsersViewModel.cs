@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Domain0.Api.Client;
+using Domain0.Desktop.Extensions;
 using Domain0.Desktop.Services;
 using Domain0.Desktop.ViewModels.Items;
 using DynamicData;
@@ -14,7 +15,6 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Domain0.Desktop.Extensions;
 using Ui.Wpf.Common;
 using UserPermission = Domain0.Api.Client.UserPermission;
 
@@ -335,8 +335,24 @@ namespace Domain0.Desktop.ViewModels
             IsBusy = true;
             try
             {
-                var userProfile = await ForceCreateUserApi();
+                var roles = ForceCreateUserRoles
+                    .Where(x => x.IsSelected)
+                    .Select(x => x.Role)
+                    .ToList();
+
+                var userProfile = await ForceCreateUserApi(roles);
+
+                var rolesIds = roles
+                    .Select(x => x.Id.Value)
+                    .ToList();
+                var userPermissions =
+                    from rp in _domain0.Model.RolePermissions.Items
+                    where rolesIds.Contains(rp.RoleId)
+                    join p in _domain0.Model.Permissions.Items on rp.Id equals p.Id.Value
+                    select new UserPermission(p.ApplicationId, p.Description, p.Id, p.Name, rp.RoleId, userProfile.Id);
+                _domain0.Model.UserPermissions.AddRange(userPermissions);
                 Models.AddOrUpdate(userProfile);
+
                 IsCreateFlyoutOpen = false;
             }
             catch (Exception e)
@@ -349,11 +365,10 @@ namespace Domain0.Desktop.ViewModels
             }
         }
 
-        private Task<UserProfile> ForceCreateUserApi()
+        private Task<UserProfile> ForceCreateUserApi(IEnumerable<Role> roles)
         {
-            var roles = ForceCreateUserRoles
-                .Where(x => x.IsSelected)
-                .Select(x => x.Role.Name)
+            var rolesNames = roles
+                .Select(x => x.Name)
                 .ToList();
 
             switch ((ForceCreateUserModeEnum)ForceCreateUserMode)
@@ -363,7 +378,7 @@ namespace Domain0.Desktop.ViewModels
                     var requestByPhone = new ForceCreateUserRequest(
                         BlockSmsSend, CustomSmsTemplate,
                         Name, phone,
-                        roles);
+                        rolesNames);
                     return _domain0.Client.ForceCreateUserAsync(requestByPhone);
                 case ForceCreateUserModeEnum.Email:
                     var requestByEmail = new ForceCreateEmailUserRequest(
@@ -371,7 +386,7 @@ namespace Domain0.Desktop.ViewModels
                         CustomEmailSubjectTemplate,
                         CustomEmailTemplate,
                         Email, Name,
-                        roles);
+                        rolesNames);
                     return _domain0.Client.ForceCreateUser2Async(requestByEmail);
                 default:
                     throw new ArgumentException();

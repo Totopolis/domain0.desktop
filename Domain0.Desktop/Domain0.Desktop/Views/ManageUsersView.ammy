@@ -51,7 +51,7 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
           DataGridTextColumn
           {
             Header: "Phone"
-            Binding: bind Phone
+            Binding: bind Phone set [ StringFormat: "#" ]
             Width: Auto
           }
           DataGridTextColumn
@@ -264,7 +264,7 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
           }
           @EditTextBox("Phone")
           {
-            Text: bind EditViewModel.Phone
+            Text: bind EditViewModel.Phone set [ StringFormat: "#" ]
           }
           @EditTextBox("Email")
           {
