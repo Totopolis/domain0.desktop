@@ -17,15 +17,12 @@ namespace Domain0.Desktop.ViewModels
     public class ManageToolsViewModel : ViewModelBase
     {
         private readonly IDomain0Service _domain0;
-        private readonly ILoginService _loginService;
 
         public ManageToolsViewModel(
             IShell shell,
-            IDomain0Service domain0,
-            ILoginService loginService)
+            IDomain0Service domain0)
         {
             _domain0 = domain0;
-            _loginService = loginService;
             
             LogoutCommand = ReactiveCommand.Create(Logout);
             ReloadCommand = ReactiveCommand.CreateFromTask(Reload);
@@ -42,7 +39,7 @@ namespace Domain0.Desktop.ViewModels
             AppThemes = ThemeManager.AppThemes
                 .GroupBy(x => x.Resources)
                 .Select(x => x.First())
-                .Select(a => new AppThemeData() { Name = a.Name, BorderColorBrush = a.Resources["BlackColorBrush"] as Brush, ColorBrush = a.Resources["WhiteColorBrush"] as Brush })
+                .Select(a => new AppThemeData { Name = a.Name, BorderColorBrush = a.Resources["BlackColorBrush"] as Brush, ColorBrush = a.Resources["WhiteColorBrush"] as Brush })
                 .ToList();
         }
 
