@@ -5,6 +5,7 @@ using Domain0.Desktop.Views.Dialogs;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using System;
+using System.Threading.Tasks;
 using System.Windows;
 using Ui.Wpf.Common;
 using Application = System.Windows.Application;
@@ -80,18 +81,15 @@ namespace Domain0.Desktop.Services
                         _domain0Context.HostUrl = x.Url;
                         _domain0Context.ShouldRemember = x.ShouldRemember;
 
+                        var progress = await _shell.ShowProgress("Login", "Trying to login...");
 
-                        switch (x.LoginMode)
-                        {
-                            case LoginMode.Phone:
-                                return await _domain0Context.LoginByPhone(long.Parse(x.Phone), x.Password);
+                        var loginTask = GetLoginTask(x);
 
-                            case LoginMode.Email:
-                                return await _domain0Context.LoginByEmail(x.Email, x.Password);
+                        await progress
+                            .Wait(loginTask, "Received login data")
+                            .WaitAll();
 
-                            default:
-                                throw new ArgumentException("Unknown login mode");
-                        }
+                        return loginTask.Result;
                     }
                     catch (Exception e)
                     {
@@ -102,6 +100,21 @@ namespace Domain0.Desktop.Services
                 authenticationSuccess: () => onSuccess?.Invoke(),
                 authenticationFail: () => Application.Current.MainWindow?.Close()
             );
+        }
+
+        private Task<bool> GetLoginTask(LoginWithUrlDialogData x)
+        {
+            switch (x.LoginMode)
+            {
+                case LoginMode.Phone:
+                    return _domain0Context.LoginByPhone(long.Parse(x.Phone), x.Password);
+
+                case LoginMode.Email:
+                    return _domain0Context.LoginByEmail(x.Email, x.Password);
+
+                default:
+                    throw new ArgumentException("Unknown login mode");
+            }
         }
     }
 }
