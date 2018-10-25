@@ -149,8 +149,7 @@ namespace Domain0.Desktop.Services
                     return Task.WhenAll(loadTask, initTask);
                 }, TaskContinuationOptions.OnlyOnRanToCompletion).Unwrap();
 
-            var progress = await _shell.ShowProgress("Loading data...", "Load everything");
-            await progress
+            await _shell.ShowProgress("Loading data...", "Load everything", false)
                 .Wait(userProfilesTask, "Users - Loaded")
                 .Wait(initUserProfilesTask, "Users - Initialized")
 

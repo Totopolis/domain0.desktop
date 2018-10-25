@@ -48,13 +48,19 @@ namespace Domain0.Desktop.Extensions
             return window.Invoke(() => window.ShowMessageAsync(title, ex.Message));
         }
 
-        internal static async Task<LoadingProgress> ShowProgress(this IShell shell, string title, string message)
+        internal static LoadingProgress ShowProgress(this IShell shell, string title, string message,
+            bool animatedShow = true, bool animatedHide = true)
         {
             var window = shell.GetWindow();
-            var controller = await window.Invoke(() =>
-                window.ShowProgressAsync(title, message, false, new MetroDialogSettings {AnimateShow = false}));
+            var controllerTask = window.Invoke(() =>
+                window.ShowProgressAsync(title, message, false,
+                    new MetroDialogSettings
+                    {
+                        AnimateShow = animatedShow,
+                        AnimateHide = animatedHide
+                    }));
 
-            return new LoadingProgress(controller);
+            return new LoadingProgress(controllerTask);
         }
 
         private static MetroWindow GetWindow(this IShell shell)
@@ -66,23 +72,58 @@ namespace Domain0.Desktop.Extensions
 
     internal class LoadingProgress
     {
-        private readonly ProgressDialogController _ctrl;
+        private readonly Task<ProgressDialogController> _ctrl;
         private readonly List<Task> _tasks;
 
-        public LoadingProgress(ProgressDialogController ctrl)
+        public LoadingProgress(Task<ProgressDialogController> ctrl)
         {
             _ctrl = ctrl;
+            _ctrl.ContinueWith(t =>
+            {
+                if (t.Result.IsOpen)
+                    t.Result.SetIndeterminate();
+            });
             _tasks = new List<Task>();
         }
 
-        public LoadingProgress Wait(Task task, string s)
+        public LoadingProgress Wait(Task task, string s = null)
         {
-            var setMessageTask = task
-                .ContinueWith(_ => _ctrl.SetMessage(s), TaskContinuationOptions.OnlyOnRanToCompletion);
-
             _tasks.Add(task);
-            _tasks.Add(setMessageTask);
+
+            if (!string.IsNullOrEmpty(s))
+            {
+                task.ContinueWith(_ =>
+                {
+                    if (_ctrl.IsCompleted && _ctrl.Result.IsOpen)
+                        _ctrl.Result.SetMessage(s);
+                }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            }
+
             return this;
+        }
+
+        public async Task WaitOnly(Task task)
+        {
+            try
+            {
+                await task;
+            }
+            finally
+            {
+                await Close();
+            }
+        }
+
+        public async Task<TResult> WaitOnly<TResult>(Task<TResult> task)
+        {
+            try
+            {
+                return await task;
+            }
+            finally
+            {
+                await Close();
+            }
         }
 
         public async Task WaitAll()
@@ -93,9 +134,14 @@ namespace Domain0.Desktop.Extensions
             }
             finally
             {
-                await _ctrl.CloseAsync();
                 _tasks.Clear();
+                await Close();
             }
+        }
+
+        private async Task Close()
+        {
+            await _ctrl.ContinueWith(t => t.Result.CloseAsync()).Unwrap();
         }
     }
 }

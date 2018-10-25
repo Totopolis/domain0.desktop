@@ -81,15 +81,10 @@ namespace Domain0.Desktop.Services
                         _domain0Context.HostUrl = x.Url;
                         _domain0Context.ShouldRemember = x.ShouldRemember;
 
-                        var progress = await _shell.ShowProgress("Login", "Trying to login...");
-
                         var loginTask = GetLoginTask(x);
 
-                        await progress
-                            .Wait(loginTask, "Received login data")
-                            .WaitAll();
-
-                        return loginTask.Result;
+                        return await _shell.ShowProgress("Login", "Trying to login...")
+                            .WaitOnly(loginTask);
                     }
                     catch (Exception e)
                     {
