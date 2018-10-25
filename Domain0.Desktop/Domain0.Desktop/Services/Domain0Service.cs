@@ -28,6 +28,11 @@ namespace Domain0.Desktop.Services
 
         public Domain0Model Model { get; }
 
+        public void Reconnect()
+        {
+            _login.Logout(async () => await LoadModel());
+        }
+
         public async Task LoadModel()
         {
             try
@@ -37,8 +42,7 @@ namespace Domain0.Desktop.Services
             catch (Exception ex)
             {
                 await _shell.HandleException(ex, "Failed to Load model");
-                if (ex is Domain0ClientException clientException && clientException.StatusCode == 403)
-                    _login.Logout(async () => await LoadModel());
+                Reconnect();
             }
         }
 

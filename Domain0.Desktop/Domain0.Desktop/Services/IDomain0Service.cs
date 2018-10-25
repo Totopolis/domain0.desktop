@@ -8,6 +8,7 @@ namespace Domain0.Desktop.Services
     {
         IDomain0Client Client { get; }
         Task LoadModel();
+        void Reconnect();
         Domain0Model Model { get; }
     }
 }

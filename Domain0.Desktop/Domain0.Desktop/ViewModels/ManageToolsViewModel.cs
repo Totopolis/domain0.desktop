@@ -61,7 +61,7 @@ namespace Domain0.Desktop.ViewModels
 
         private void Logout()
         {
-            _loginService.Logout(() => Reload());
+            _domain0.Reconnect();
         }
 
         private Task Reload()
