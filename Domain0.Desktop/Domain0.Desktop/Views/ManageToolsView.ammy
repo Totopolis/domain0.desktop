@@ -68,8 +68,9 @@ ViewUserControl "Domain0.Desktop.Views.ManageToolsView"
     StackPanel 
     {
       Grid.Row: 1
+      Margin: "0,40,0,0"
       HorizontalAlignment: Left
-      VerticalAlignment: Center
+      VerticalAlignment: Top
       @CircleButton("User")
       {
         Margin: "10,10,0,0"

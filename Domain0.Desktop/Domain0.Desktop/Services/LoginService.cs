@@ -1,12 +1,11 @@
-﻿using Domain0.Desktop.Properties;
+﻿using Domain0.Api.Client;
+using Domain0.Desktop.Extensions;
+using Domain0.Desktop.Properties;
 using Domain0.Desktop.Views.Dialogs;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using System;
-using System.Threading.Tasks;
 using System.Windows;
-using Domain0.Api.Client;
-using Domain0.Desktop.Extensions;
 using Ui.Wpf.Common;
 using Application = System.Windows.Application;
 
@@ -34,7 +33,7 @@ namespace Domain0.Desktop.Services
         public void Logout(Action onRelogin = null)
         {
             _domain0Context.Logout();
-            ShowLoginInternal(false, onRelogin);
+            ShowLoginInternal(true, onRelogin);
         }
 
         public bool IsLoggedIn => _domain0Context.IsLoggedIn;
@@ -103,39 +102,6 @@ namespace Domain0.Desktop.Services
                 authenticationSuccess: () => onSuccess?.Invoke(),
                 authenticationFail: () => Application.Current.MainWindow?.Close()
             );
-        }
-    }
-
-
-    internal class AuthProcess
-    {
-        private const int LoginTryCount = 3;
-
-        public static async void Start<T>(
-            Func<Task<T>> getAuthenticationData,
-            Func<T, Task<bool>> authentication,
-            Action authenticationSuccess,
-            Action authenticationFail)
-        {
-            var trysLeft = LoginTryCount;
-            while (trysLeft-- > 0)
-            {
-                var loginData = await getAuthenticationData().ConfigureAwait(true);
-                if (loginData == null)
-                {
-                    authenticationFail();
-                    return;
-                }
-
-                var authentcationResult = await authentication(loginData).ConfigureAwait(true);
-                if (authentcationResult)
-                {
-                    authenticationSuccess();
-                    return;
-                }
-            }
-
-            authenticationFail();
         }
     }
 }
