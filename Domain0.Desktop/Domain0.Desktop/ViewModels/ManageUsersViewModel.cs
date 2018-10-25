@@ -17,7 +17,6 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Ui.Wpf.Common;
-using UserPermission = Domain0.Api.Client.UserPermission;
 
 namespace Domain0.Desktop.ViewModels
 {
@@ -38,11 +37,7 @@ namespace Domain0.Desktop.ViewModels
             LockUsersCommand = ReactiveCommand.CreateFromTask<IList>(LockUsers,
                 this.WhenAny(x => x.SelectedItemsIds, x => x.Value != null && x.Value.Count > 0));
 
-            RolesFilterCommand = ReactiveCommand.Create<string>(filter =>
-            {
-                RolesFilter = filter;
-                UpdateSelectedUserRoles();
-            });
+            RolesFilterCommand = ReactiveCommand.Create<string>(filter => RolesFilter = filter);
             RoleCheckedCommand = ReactiveCommand.Create<SelectedUserRoleViewModel>(RoleChecked);
             var rolesChangedObservable = this.WhenAnyValue(x => x.IsChangedRoles);
             ApplyRolesCommand = ReactiveCommand.CreateFromTask(ApplyRoles, rolesChangedObservable);
@@ -59,9 +54,9 @@ namespace Domain0.Desktop.ViewModels
                 
             // Roles
 
-            var dynamicForceCreateUserRolesFilter =
-                this.WhenAnyValue(x => x.ForceCreateUserRolesFilter)
-                    .Select(CreateForceCreateUserRolesFilter);
+            var dynamicForceCreateUserRolesFilter = this
+                .WhenAnyValue(x => x.ForceCreateUserRolesFilter)
+                .Select(Filters.CreateRolesPredicate);
 
             _domain0.Model.Roles.Connect()
                 .Filter(dynamicForceCreateUserRolesFilter)
@@ -72,12 +67,17 @@ namespace Domain0.Desktop.ViewModels
                 .Subscribe()
                 .DisposeWith(Disposables);
 
+            var dynamicRolesFilter = this
+                .WhenAnyValue(x => x.RolesFilter)
+                .Select(Filters.CreateRolesPredicate);
+
             var sourceUserPermissions = _domain0.Model.UserPermissions
                 .Connect()
                 .ToCollection();
             var sourceRoles = _domain0.Model.Roles
                 .Connect()
-                .QueryWhenChanged(items => items);
+                .Filter(dynamicRolesFilter)
+                .ToCollection();
             var sourceSelected = this
                 .WhenAnyValue(x => x.SelectedItemsIds);
 
@@ -86,7 +86,7 @@ namespace Domain0.Desktop.ViewModels
                     sourceRoles,
                     sourceSelected,
                     (userPermissions, roles, selectedIds) => selectedIds.Count > 0
-                        ? new {userPermissions, roles = roles.Items, selectedIds}
+                        ? new {userPermissions, roles, selectedIds}
                         : null)
                 .Throttle(TimeSpan.FromSeconds(.1))
                 .Synchronize()
@@ -116,36 +116,16 @@ namespace Domain0.Desktop.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x =>
                 {
-                    SelectedUserRolesRaw = x;
-                    UpdateSelectedUserRoles();
+                    SelectedUserRoles = x;
                     IsChangedRoles = false;
                 })
                 .DisposeWith(Disposables);
         }
 
-        private Func<Role, bool> CreateForceCreateUserRolesFilter(string x)
-        {
-            if (string.IsNullOrEmpty(x))
-                return role => true;
-
-            return role => !string.IsNullOrEmpty(role.Name) &&
-                           role.Name.Contains(x);
-        }
-
         private ReadOnlyObservableCollection<ForceCreateUserRoleViewModel> _forceCreateUserRoles;
         public ReadOnlyObservableCollection<ForceCreateUserRoleViewModel> ForceCreateUserRoles => _forceCreateUserRoles;
 
-        private void UpdateSelectedUserRoles()
-        {
-            SelectedUserRoles =
-                SelectedUserRolesRaw?
-                    .Where(item => string.IsNullOrEmpty(RolesFilter) ||
-                                   !string.IsNullOrEmpty(item.Item.Name) &&
-                                   item.Item.Name.Contains(RolesFilter));
-        }
-
         [Reactive] public IEnumerable<SelectedUserRoleViewModel> SelectedUserRoles {get; set; }
-        public IEnumerable<SelectedUserRoleViewModel> SelectedUserRolesRaw {get; set; }
         [Reactive] public string RolesFilter { get; set; }
         public ReactiveCommand RolesFilterCommand { get; set; }
         public ReactiveCommand RoleCheckedCommand { get; set; }

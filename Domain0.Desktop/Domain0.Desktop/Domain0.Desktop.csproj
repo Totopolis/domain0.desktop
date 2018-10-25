@@ -180,6 +180,7 @@
     <Compile Include="Extensions\MonikTraceListener.cs" />
     <Compile Include="Extensions\ShellExtensions.cs" />
     <Compile Include="Models\Domain0Model.cs" />
+    <Compile Include="ViewModels\Filters.cs" />
     <Compile Include="ViewModels\Items\ApplicationViewModel.cs" />
     <Compile Include="ViewModels\BaseManageItemsViewModel.cs" />
     <Compile Include="ViewModels\Items\ForceCreateUserRoleViewModel.cs" />

@@ -56,8 +56,8 @@ namespace Domain0.Desktop.ViewModels
             ModelFilters = new SourceCache<ModelFilter, PropertyInfo>(x => x.Property);
             var dynamicFilter = ModelFilters.Connect()
                 .StartWithEmpty()
-                .Bind(out _modelFilters)
-                .Select(_ => CreateFilter());
+                .ToCollection()
+                .Select(Filters.CreateModelFilter<TViewModel>);
 
             Initialize();
 
@@ -92,24 +92,6 @@ namespace Domain0.Desktop.ViewModels
                 x => x.SelectedItem,
                 item => item.Value != null);
 
-        private Func<TViewModel, bool> CreateFilter()
-        {
-            return model =>
-            {
-                foreach (var filter in _modelFilters)
-                {
-                    if (string.IsNullOrEmpty(filter.Filter))
-                        continue;
-
-                    var value = filter.Property.GetValue(model)?.ToString();
-                    if (string.IsNullOrEmpty(value) || !value.Contains(filter.Filter))
-                        return false;
-                }
-
-                return true;
-            };
-        }
-
         private void UpdateFilter(PropertyFilter filter)
         {
             if (filter == null)
@@ -136,7 +118,6 @@ namespace Domain0.Desktop.ViewModels
 
         public ReactiveCommand UpdateFilters { get; set; }
         private SourceCache<ModelFilter, PropertyInfo> ModelFilters { get; }
-        private readonly ReadOnlyObservableCollection<ModelFilter> _modelFilters;
 
         private readonly ReadOnlyObservableCollection<TViewModel> _items;
         public ReadOnlyObservableCollection<TViewModel> Items => _items;
@@ -226,11 +207,5 @@ namespace Domain0.Desktop.ViewModels
                                    (!string.IsNullOrEmpty(removed) ? $" --{removed}" : ""));
         }
 
-    }
-
-    internal class ModelFilter
-    {
-        public PropertyInfo Property { get; set; }
-        public string Filter { get; set; }
     }
 }
