@@ -33,27 +33,40 @@ namespace Domain0.Desktop.ViewModels
             _domain0 = domain0;
             _mapper = mapper;
 
-            OpenCreateFlyoutCommand = ReactiveCommand.Create(() =>
-            {
-                IsCreateFlyoutOpen = true;
-                IsEditFlyoutOpen = false;
-            }, this.WhenAny(
-                x => x.IsCreateFlyoutOpen,
-                x => !x.Value));
+            OpenCreateFlyoutCommand = ReactiveCommand
+                .Create(() =>
+                {
+                    IsCreateFlyoutOpen = !IsCreateFlyoutOpen;
+                    IsEditFlyoutOpen = false;
+                }, OpenCreateFlyoutCommandObservable)
+                .DisposeWith(Disposables);
 
-            OpenEditFlyoutCommand = ReactiveCommand.Create(() =>
-            {
-                IsCreateFlyoutOpen = false;
-                IsEditFlyoutOpen = true;
-            }, OpenEditFlyoutCommandObservable);
+            OpenEditFlyoutCommand = ReactiveCommand
+                .Create(() =>
+                {
+                    IsCreateFlyoutOpen = false;
+                    IsEditFlyoutOpen = !IsEditFlyoutOpen;
+                }, OpenEditFlyoutCommandObservable)
+                .DisposeWith(Disposables);
 
-            EditSelectedCommand = ReactiveCommand.CreateFromTask(EditSelected);
-            CreateCommand = ReactiveCommand.Create(Create);
+            EditSelectedCommand = ReactiveCommand
+                .CreateFromTask(EditSelected)
+                .DisposeWith(Disposables);
+            CreateCommand = ReactiveCommand
+                .Create(Create)
+                .DisposeWith(Disposables);
 
-            DeleteSelectedCommand = ReactiveCommand.CreateFromTask(DeleteSelected, DeleteSelectedCommandObservable);
+            DeleteSelectedCommand = ReactiveCommand
+                .CreateFromTask(DeleteSelected, DeleteSelectedCommandObservable)
+                .DisposeWith(Disposables);
 
-            UpdateFilters = ReactiveCommand.Create<PropertyFilter>(UpdateFilter);
-            ModelFilters = new SourceCache<ModelFilter, PropertyInfo>(x => x.Property);
+            UpdateFilters = ReactiveCommand
+                .Create<PropertyFilter>(UpdateFilter)
+                .DisposeWith(Disposables);
+
+            ModelFilters = new SourceCache<ModelFilter, PropertyInfo>(x => x.Property)
+                .DisposeWith(Disposables);
+
             var dynamicFilter = ModelFilters.Connect()
                 .StartWithEmpty()
                 .ToCollection()
@@ -81,11 +94,10 @@ namespace Domain0.Desktop.ViewModels
 
         }
 
+        protected virtual IObservable<bool> OpenCreateFlyoutCommandObservable => null;
+
         protected virtual IObservable<bool> OpenEditFlyoutCommandObservable =>
-            this.WhenAny(
-                x => x.IsEditFlyoutOpen,
-                x => x.SelectedItem,
-                (e, item) => !e.Value && item.Value != null);
+            this.WhenAny(x => x.SelectedItem, x => x.Value != null);
 
         protected virtual IObservable<bool> DeleteSelectedCommandObservable =>
             this.WhenAny(

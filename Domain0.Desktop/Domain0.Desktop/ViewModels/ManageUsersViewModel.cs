@@ -31,17 +31,34 @@ namespace Domain0.Desktop.ViewModels
         {
             base.Initialize();
 
-            ForceCreateUserRolesFilterCommand = ReactiveCommand.Create<string>(x => ForceCreateUserRolesFilter = x);
-            ForceCreateUserCommand = ReactiveCommand.Create(ForceCreateUser);
-            
-            LockUsersCommand = ReactiveCommand.CreateFromTask<IList>(LockUsers,
-                this.WhenAny(x => x.SelectedItemsIds, x => x.Value != null && x.Value.Count > 0));
+            ForceCreateUserRolesFilterCommand = ReactiveCommand
+                .Create<string>(x => ForceCreateUserRolesFilter = x)
+                .DisposeWith(Disposables);
+            ForceCreateUserCommand = ReactiveCommand
+                .Create(ForceCreateUser)
+                .DisposeWith(Disposables);
 
-            RolesFilterCommand = ReactiveCommand.Create<string>(filter => RolesFilter = filter);
-            RoleCheckedCommand = ReactiveCommand.Create<SelectedUserRoleViewModel>(RoleChecked);
+            LockUsersCommand = ReactiveCommand
+                .CreateFromTask<IList>(LockUsers,
+                    this.WhenAny(
+                        x => x.SelectedItemsIds,
+                        x => x.Value != null && x.Value.Count > 0))
+                .DisposeWith(Disposables);
+
+            RolesFilterCommand = ReactiveCommand
+                .Create<string>(filter => RolesFilter = filter)
+                .DisposeWith(Disposables);
+            RoleCheckedCommand = ReactiveCommand
+                .Create<SelectedUserRoleViewModel>(RoleChecked)
+                .DisposeWith(Disposables);
+
             var rolesChangedObservable = this.WhenAnyValue(x => x.IsChangedRoles);
-            ApplyRolesCommand = ReactiveCommand.CreateFromTask(ApplyRoles, rolesChangedObservable);
-            ResetRolesCommand = ReactiveCommand.CreateFromTask(ResetRoles, rolesChangedObservable);
+            ApplyRolesCommand = ReactiveCommand
+                .CreateFromTask(ApplyRoles, rolesChangedObservable)
+                .DisposeWith(Disposables);
+            ResetRolesCommand = ReactiveCommand
+                .CreateFromTask(ResetRoles, rolesChangedObservable)
+                .DisposeWith(Disposables);
             
             // Permissions
 

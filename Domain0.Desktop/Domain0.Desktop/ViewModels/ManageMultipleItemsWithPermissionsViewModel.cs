@@ -8,6 +8,7 @@ using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Ui.Wpf.Common;
@@ -24,11 +25,20 @@ namespace Domain0.Desktop.ViewModels
         {
             base.Initialize();
 
-            PermissionsFilterCommand = ReactiveCommand.Create<string>(filter => PermissionsFilter = filter);
-            PermissionCheckedCommand = ReactiveCommand.Create<SelectedItemPermissionViewModel>(PermissionChecked);
+            PermissionsFilterCommand = ReactiveCommand
+                .Create<string>(filter => PermissionsFilter = filter)
+                .DisposeWith(Disposables);
+            PermissionCheckedCommand = ReactiveCommand
+                .Create<SelectedItemPermissionViewModel>(PermissionChecked)
+                .DisposeWith(Disposables);
+
             var permissionsChangedObservable = this.WhenAnyValue(x => x.IsChangedPermissions);
-            ApplyPermissionsCommand = ReactiveCommand.CreateFromTask(ApplyPermissionsWrapped, permissionsChangedObservable);
-            ResetPermissionsCommand = ReactiveCommand.CreateFromTask(ResetPermissions, permissionsChangedObservable);
+            ApplyPermissionsCommand = ReactiveCommand
+                .CreateFromTask(ApplyPermissionsWrapped, permissionsChangedObservable)
+                .DisposeWith(Disposables);
+            ResetPermissionsCommand = ReactiveCommand
+                .CreateFromTask(ResetPermissions, permissionsChangedObservable)
+                .DisposeWith(Disposables);
         }
 
         protected IDisposable SubscribeToPermissions<T>(SourceList<T> source,

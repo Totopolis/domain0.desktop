@@ -27,10 +27,9 @@ namespace Domain0.Desktop.ViewModels
 
         protected override IObservable<bool> OpenEditFlyoutCommandObservable =>
             this.WhenAny(
-                x => x.IsEditFlyoutOpen,
                 x => x.SelectedItem,
                 x => x.SelectedItemsIds,
-                (e, item, items) => !e.Value && item.Value != null && (items.Value == null || items.Value.Count == 1));
+                (item, items) => item.Value != null && (items.Value == null || items.Value.Count == 1));
 
         protected override IObservable<bool> DeleteSelectedCommandObservable =>
             this.WhenAny(

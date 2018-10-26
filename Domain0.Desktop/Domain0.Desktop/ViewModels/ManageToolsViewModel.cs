@@ -6,6 +6,7 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -24,14 +25,28 @@ namespace Domain0.Desktop.ViewModels
         {
             _domain0 = domain0;
             
-            LogoutCommand = ReactiveCommand.Create(Logout);
-            ReloadCommand = ReactiveCommand.CreateFromTask(Reload);
+            LogoutCommand = ReactiveCommand
+                .Create(Logout)
+                .DisposeWith(Disposables);
+            ReloadCommand = ReactiveCommand
+                .CreateFromTask(Reload)
+                .DisposeWith(Disposables);
 
-            OpenUsersCommand = ReactiveCommand.Create(shell.ShowUsers);
-            OpenRolesCommand = ReactiveCommand.Create(shell.ShowRoles);
-            OpenPermissionsCommand = ReactiveCommand.Create(shell.ShowPermissions);
-            OpenApplicationsCommand = ReactiveCommand.Create(shell.ShowApplications);
-            OpenMessagesCommand = ReactiveCommand.Create(shell.ShowMessages);
+            OpenUsersCommand = ReactiveCommand
+                .Create(shell.ShowUsers)
+                .DisposeWith(Disposables);
+            OpenRolesCommand = ReactiveCommand
+                .Create(shell.ShowRoles)
+                .DisposeWith(Disposables);
+            OpenPermissionsCommand = ReactiveCommand
+                .Create(shell.ShowPermissions)
+                .DisposeWith(Disposables);
+            OpenApplicationsCommand = ReactiveCommand
+                .Create(shell.ShowApplications)
+                .DisposeWith(Disposables);
+            OpenMessagesCommand = ReactiveCommand
+                .Create(shell.ShowMessages)
+                .DisposeWith(Disposables);
 
             AccentColors = ThemeManager.Accents
                 .Select(a => new AccentColorData { Name = a.Name, ColorBrush = a.Resources["AccentBaseColorBrush"] as Brush })

@@ -207,20 +207,40 @@ alias ManageRoundButton(kind, tt)
   }
 }
 
+alias ManageRoundToggleButton(kind, tt)
+{
+  ToggleButtonEx
+  {
+    Margin: 5
+    Width: 32
+    Height: 32
+    ToolTip: $tt
+    Style: resource dyn "MahApps.Metro.Styles.MetroCircleToggleButtonStyle"
+    PackIconModern
+    {
+      Kind: $kind
+      Height: 16
+      Width: 16
+    }
+  }
+}
+
 alias ManageButtons()
 {
   Grid
   {
     #ThreeColumns("Auto", "Auto", "Auto")
-    @ManageRoundButton("Add", "Add new")
+    @ManageRoundToggleButton("Add", "Add new")
     {
       Grid.Column: 0
       Command: bind OpenCreateFlyoutCommand
+      IsChecked: bind IsCreateFlyoutOpen
     }
-    @ManageRoundButton("Edit", "Edit selected")
+    @ManageRoundToggleButton("Edit", "Edit selected")
     {
       Grid.Column: 1
       Command: bind OpenEditFlyoutCommand
+      IsChecked: bind IsEditFlyoutOpen
     }
     @ManageRoundButton("Delete", "Remove selected")
     {
