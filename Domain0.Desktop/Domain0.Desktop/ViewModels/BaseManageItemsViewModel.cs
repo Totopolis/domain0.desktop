@@ -10,8 +10,10 @@ using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reflection;
@@ -55,6 +57,8 @@ namespace Domain0.Desktop.ViewModels
             CreateCommand = ReactiveCommand
                 .Create(Create)
                 .DisposeWith(Disposables);
+
+            CreatedItemInList = new Interaction<TViewModel, Unit>();
 
             DeleteSelectedCommand = ReactiveCommand
                 .CreateFromTask(DeleteSelected, DeleteSelectedCommandObservable)
@@ -151,6 +155,31 @@ namespace Domain0.Desktop.ViewModels
         public ReactiveCommand DeleteSelectedCommand { get; set; }
         public ReactiveCommand CreateCommand { get; set; }
 
+        public Interaction<TViewModel, Unit> CreatedItemInList { get; set; }
+
+        protected IDisposable HandleInteractionOnCreatedItemInList(int id)
+        {
+            return Observable.FromEventPattern<NotifyCollectionChangedEventHandler, NotifyCollectionChangedEventArgs>(
+                    h => ((INotifyCollectionChanged) Items).CollectionChanged += h,
+                    h => ((INotifyCollectionChanged) Items).CollectionChanged -= h)
+                .Select(x =>
+                    x.EventArgs.NewItems
+                        .Cast<TViewModel>()
+                        .FirstOrDefault(newItem => newItem.Id.Value == id))
+                .Where(x => x != null)
+                .Take(1)
+                .Subscribe(async x =>
+                {
+                    try
+                    {
+                        await CreatedItemInList.Handle(x);
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+                });
+        }
 
         private async Task EditSelected()
         {
@@ -188,17 +217,23 @@ namespace Domain0.Desktop.ViewModels
             Models.Remove(id);
         }
 
-        private async Task Create()
+        protected virtual async Task Create()
         {
+            var createdItemSubscription = Disposable.Empty;
             try
             {
-                CreateViewModel.Id = await CreateApi(CreateModel);
+                var id = await CreateApi(CreateModel);
+                CreateViewModel.Id = id;
+                createdItemSubscription = HandleInteractionOnCreatedItemInList(id);
                 Models.AddOrUpdate(CreateModel);
-                IsCreateFlyoutOpen = false;
+
                 Trace.TraceInformation("Created {0}: {1}", typeof(TModel).Name, CreateViewModel.Id);
+
+                IsCreateFlyoutOpen = false;
             }
             catch (Exception e)
             {
+                createdItemSubscription.Dispose();
                 await _shell.HandleException(e, "Failed to Create");
             }
         }

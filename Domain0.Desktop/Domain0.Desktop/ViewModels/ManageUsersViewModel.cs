@@ -34,9 +34,6 @@ namespace Domain0.Desktop.ViewModels
             ForceCreateUserRolesFilterCommand = ReactiveCommand
                 .Create<string>(x => ForceCreateUserRolesFilter = x)
                 .DisposeWith(Disposables);
-            ForceCreateUserCommand = ReactiveCommand
-                .Create(ForceCreateUser)
-                .DisposeWith(Disposables);
 
             LockUsersCommand = ReactiveCommand
                 .CreateFromTask<IList>(LockUsers,
@@ -320,7 +317,6 @@ namespace Domain0.Desktop.ViewModels
 
         [Reactive] public string ForceCreateUserRolesFilter { get; set; }
         public ReactiveCommand ForceCreateUserRolesFilterCommand { get; set; }
-        public ReactiveCommand ForceCreateUserCommand { get; set; }
         
         public int ForceCreateUserMode { get; set; }
         public string Phone { get; set; }
@@ -331,10 +327,10 @@ namespace Domain0.Desktop.ViewModels
         public string CustomEmailTemplate { get; set; }
         public bool BlockSmsSend { get; set; }
         public bool BlockEmailSend { get; set; }
-        
-        private async void ForceCreateUser()
+
+        protected override async Task Create()
         {
-            IsBusy = true;
+            var createdItemSubscription = Disposable.Empty;
             try
             {
                 var roles = ForceCreateUserRoles
@@ -344,6 +340,8 @@ namespace Domain0.Desktop.ViewModels
 
                 var userProfile = await ForceCreateUserApi(roles);
 
+                createdItemSubscription = HandleInteractionOnCreatedItemInList(userProfile.Id);
+                
                 var rolesIds = roles
                     .Select(x => x.Id.Value)
                     .ToList();
@@ -355,16 +353,14 @@ namespace Domain0.Desktop.ViewModels
                 _domain0.Model.UserPermissions.AddRange(userPermissions);
                 Models.AddOrUpdate(userProfile);
 
-                IsCreateFlyoutOpen = false;
                 Trace.TraceInformation("Created {0}: {1} with roles [{2}]", typeof(UserProfile).Name, userProfile.Id, string.Join(", ", roles.Select(x => x.Name)));
+
+                IsCreateFlyoutOpen = false;
             }
             catch (Exception e)
             {
+                createdItemSubscription.Dispose();
                 await _shell.HandleException(e, "Failed to create User");
-            }
-            finally
-            {
-                IsBusy = false;
             }
         }
 

@@ -247,7 +247,7 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
             }
           }
 
-          @CreateButton(bind ForceCreateUserCommand)
+          @CreateButton()
           {
             Grid.Row: 2
           }
