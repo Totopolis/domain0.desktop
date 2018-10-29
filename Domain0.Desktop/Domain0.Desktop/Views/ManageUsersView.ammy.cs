@@ -15,8 +15,8 @@ namespace Domain0.Desktop.Views
 
             vm.CreatedItemInList.RegisterHandler(interaction =>
             {
-                ManageUsersDataGrid.ScrollIntoView(interaction.Input);
-                ManageUsersDataGrid.SelectedItem = interaction.Input;
+                ManageDataGrid.ScrollIntoView(interaction.Input);
+                ManageDataGrid.SelectedItem = interaction.Input;
                 interaction.SetOutput(Unit.Default);
             });
         }

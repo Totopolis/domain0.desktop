@@ -2,6 +2,7 @@
 using Domain0.Desktop.ViewModels.Items;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Windows.Controls;
 
 namespace Domain0.Desktop.Views
@@ -11,6 +12,13 @@ namespace Domain0.Desktop.Views
         public ManageRolesView(ManageRolesViewModel vm) : base(vm)
         {
             InitializeComponent();
+
+            vm.CreatedItemInList.RegisterHandler(interaction =>
+            {
+                ManageDataGrid.ScrollIntoView(interaction.Input);
+                ManageDataGrid.SelectedItem = interaction.Input;
+                interaction.SetOutput(Unit.Default);
+            });
         }
 
         private void OnRolesSelectionChanged(object sender, SelectionChangedEventArgs e)

@@ -24,7 +24,7 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
           Margin: "30,0,0,0"
           Command: bind LockUsersCommand
           CommandParameter: Binding {
-            ElementName: "ManageUsersDataGrid"
+            ElementName: "ManageDataGrid"
             Path: "SelectedItems"
           }
         }
@@ -32,7 +32,6 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
       @ManageDataGrid("Extended")
       {
         Grid.Row: 1
-        Name: "ManageUsersDataGrid"
         SelectionChanged: "OnUsersSelectionChanged"
         combine Columns: [
           DataGridTextColumn
