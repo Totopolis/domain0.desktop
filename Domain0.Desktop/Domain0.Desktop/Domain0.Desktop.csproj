@@ -51,8 +51,8 @@
     <Reference Include="Domain0.Api.Client">
       <HintPath>..\..\..\domain0\prj\Domain0.Api.Client\bin\Debug\Domain0.Api.Client.dll</HintPath>
     </Reference>
-    <Reference Include="DynamicData, Version=6.6.0.2492, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamicData.6.6.0.2492\lib\net46\DynamicData.dll</HintPath>
+    <Reference Include="DynamicData, Version=6.6.1.2507, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DynamicData.6.6.1.2507\lib\net46\DynamicData.dll</HintPath>
     </Reference>
     <Reference Include="FluentValidation, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7de548da2fbae0f0, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentValidation.8.0.100\lib\net45\FluentValidation.dll</HintPath>
