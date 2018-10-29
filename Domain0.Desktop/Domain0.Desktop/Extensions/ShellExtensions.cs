@@ -63,6 +63,17 @@ namespace Domain0.Desktop.Extensions
             }
         }
 
+        internal static Task<string> ShowInput(this IShell shell, string title, string message, string defaultText)
+        {
+            var window = shell.GetWindow();
+            return window.Invoke(() =>
+                window.ShowInputAsync(title, message,
+                    new MetroDialogSettings
+                    {
+                        DefaultText = defaultText
+                    }));
+        }
+
         internal static LoadingProgress ShowProgress(this IShell shell, string title, string message,
             bool animatedShow = true, bool animatedHide = true)
         {

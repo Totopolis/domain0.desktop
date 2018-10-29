@@ -27,21 +27,6 @@ alias CircleDropDown(fill, command) {
   }
 }
 
-alias CircleButton(icon) {
-  Button
-  {
-    Width: 32
-    Height: 32
-    Style: resource dyn "MahApps.Metro.Styles.MetroCircleButtonStyle"
-    PackIconModern
-    {
-      Kind: $icon
-      Height: 16
-      Width: 16
-    }
-  }
-}
-
 ViewUserControl "Domain0.Desktop.Views.ManageToolsView"
 {
   Grid

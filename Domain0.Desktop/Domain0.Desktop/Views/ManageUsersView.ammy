@@ -261,13 +261,37 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
           {
             Text: bind EditViewModel.Name
           }
-          @EditTextBox("Phone")
+          Grid 
           {
-            Text: bind EditViewModel.Phone set [ StringFormat: "#" ]
+            #TwoColumns("*", "Auto")
+            @EditTextBox("Phone", false)
+            {
+              Grid.Column: 0
+              IsReadOnly: true
+              Text: bind EditViewModel.Phone set [ StringFormat: "#" ]
+            }
+            @CircleButtonMini("Edit") 
+            {
+              Grid.Column: 1
+              Margin: "0,5,5,0"
+              Command: bind ForceChangePhoneCommand
+            }
           }
-          @EditTextBox("Email")
+          Grid 
           {
-            Text: bind EditViewModel.Email
+            #TwoColumns("*", "Auto")
+            @EditTextBox("Email", false)
+            {
+              Grid.Column: 0
+              IsReadOnly: true
+              Text: bind EditViewModel.Email
+            }
+            @CircleButtonMini("Edit") 
+            {
+              Grid.Column: 1
+              Margin: "0,5,5,0"
+              Command: bind ForceChangeEmailCommand
+            }
           }
           @EditTextBoxWrap("Description")
           {

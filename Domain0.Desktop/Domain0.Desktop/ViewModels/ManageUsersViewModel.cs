@@ -56,6 +56,13 @@ namespace Domain0.Desktop.ViewModels
             ResetRolesCommand = ReactiveCommand
                 .CreateFromTask(ResetRoles, rolesChangedObservable)
                 .DisposeWith(Disposables);
+
+            ForceChangePhoneCommand = ReactiveCommand
+                .CreateFromTask(ForceChangePhone)
+                .DisposeWith(Disposables);
+            ForceChangeEmailCommand = ReactiveCommand
+                .CreateFromTask(ForceChangeEmail)
+                .DisposeWith(Disposables);
             
             // Permissions
 
@@ -146,6 +153,9 @@ namespace Domain0.Desktop.ViewModels
         public ReactiveCommand ApplyRolesCommand { get; set; }
         public ReactiveCommand ResetRolesCommand { get; set; }
         [Reactive] public bool IsChangedRoles { get; set; }
+
+        public ReactiveCommand ForceChangePhoneCommand { get; set; }
+        public ReactiveCommand ForceChangeEmailCommand { get; set; }
 
         public ReactiveCommand LockUsersCommand { get; set; }
 
@@ -280,6 +290,57 @@ namespace Domain0.Desktop.ViewModels
             });
 
             TraceApplied("Apply Permissions to Users:", toAdd, toRemove);
+        }
+
+        // Change Email & Phone
+
+        private async Task ForceChangePhone()
+        {
+            var newPhoneStr = await _shell.ShowInput(
+                "Change Phone",
+                "Enter new Phone",
+                EditViewModel.Phone.HasValue
+                    ? EditViewModel.Phone.Value.ToString("0")
+                    : "");
+
+            if (newPhoneStr != null)
+            {
+                try
+                {
+                    var newPhone = long.Parse(newPhoneStr);
+                    var request = new ChangePhoneRequest(newPhone, EditViewModel.Id.Value);
+                    await _domain0.Client.ForceChangePhoneAsync(request);
+                    EditViewModel.Phone = newPhone;
+                    Models.AddOrUpdate(EditModel);
+                }
+                catch (Exception e)
+                {
+                    await _shell.HandleException(e, "Failed to Change Phone");
+                }
+            }
+        }
+
+        private async Task ForceChangeEmail()
+        {
+            var newEmail = await _shell.ShowInput(
+                "Change Email",
+                "Enter new Email",
+                EditViewModel.Email);
+
+            if (newEmail != null)
+            {
+                try
+                {
+                    var request = new ChangeEmailRequest(newEmail, EditViewModel.Id.Value);
+                    await _domain0.Client.ForceChangeEmailAsync(request);
+                    EditViewModel.Email = newEmail;
+                    Models.AddOrUpdate(EditModel);
+                }
+                catch (Exception e)
+                {
+                    await _shell.HandleException(e, "Failed to Change Email");
+                }
+            }
         }
 
         // Lock

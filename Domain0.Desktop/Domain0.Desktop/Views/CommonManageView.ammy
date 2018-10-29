@@ -274,14 +274,14 @@ alias FlyoutEdit(header = "Edit")
   }
 }
 
-alias EditTextBox(watermark)
+alias EditTextBox(watermark, clearButton=true)
 {
   TextBox
   {
     Margin: "5 5 5 0"
     TextBoxHelper.Watermark: $watermark
     TextBoxHelper.UseFloatingWatermark: true
-    TextBoxHelper.ClearTextButton: true
+    TextBoxHelper.ClearTextButton: $clearButton
   }
 }
 
@@ -445,6 +445,36 @@ alias ManageSidePanelHeader(name, itemsChanged, applyCmd, resetCmd)
         TargetType: StackPanel
         #Fade_OnBinding($itemsChanged, true)
       }
+    }
+  }
+}
+
+alias CircleButton(icon) {
+  Button
+  {
+    Width: 32
+    Height: 32
+    Style: resource dyn "MahApps.Metro.Styles.MetroCircleButtonStyle"
+    PackIconModern
+    {
+      Kind: $icon
+      Height: 16
+      Width: 16
+    }
+  }
+}
+
+alias CircleButtonMini(icon) {
+  Button
+  {
+    Width: 24
+    Height: 24
+    Style: resource dyn "MahApps.Metro.Styles.MetroCircleButtonStyle"
+    PackIconModern
+    {
+      Kind: $icon
+      Height: 12
+      Width: 12
     }
   }
 }
