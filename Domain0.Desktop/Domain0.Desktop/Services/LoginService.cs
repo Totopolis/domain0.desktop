@@ -1,4 +1,5 @@
-﻿using Domain0.Api.Client;
+﻿using Autofac;
+using Domain0.Api.Client;
 using Domain0.Desktop.Extensions;
 using Domain0.Desktop.Properties;
 using Domain0.Desktop.Views.Dialogs;
@@ -83,12 +84,20 @@ namespace Domain0.Desktop.Services
 
                         var loginTask = GetLoginTask(x);
 
-                        return await _shell.ShowProgress("Login", "Trying to login...")
+                        var userProfile = await _shell.ShowProgress("Login", "Trying to login...")
                             .WaitOnly(loginTask);
+
+                        var login = x.LoginMode == LoginMode.Email
+                            ? userProfile.Email
+                            : userProfile.Phone.Value.ToString("0");
+                        _shell.Container.Resolve<IDockWindow>().Title =
+                            $"Domain0.Desktop - {userProfile.Name} - {login}";
+
+                        return true;
                     }
-                    catch (Exception e)
+                    catch (Domain0AuthenticationContextException e)
                     {
-                        await _shell.HandleException(e, "Login failed");
+                        await _shell.HandleException(e.InnerException, "Login failed", false);
                         return false;
                     }
                 },
@@ -97,7 +106,7 @@ namespace Domain0.Desktop.Services
             );
         }
 
-        private Task<bool> GetLoginTask(LoginWithUrlDialogData x)
+        private Task<UserProfile> GetLoginTask(LoginWithUrlDialogData x)
         {
             switch (x.LoginMode)
             {

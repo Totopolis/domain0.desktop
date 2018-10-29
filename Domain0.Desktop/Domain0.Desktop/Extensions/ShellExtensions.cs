@@ -1,4 +1,6 @@
 ﻿using Autofac;
+using Domain0.Api.Client;
+using Domain0.Desktop.Services;
 using Domain0.Desktop.Views;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
@@ -39,13 +41,26 @@ namespace Domain0.Desktop.Extensions
             shell.ShowView<ManageMessagesView>(new ViewRequest("manage-messages"), new UiShowOptions { Title = "Messages" });
         }
 
-        public static Task HandleException(this IShell shell, Exception ex, string title = "Error")
+        public static async Task HandleException(this IShell shell, Exception ex, string title = "Error", bool log = true)
         {
-            var monik = shell.Container.Resolve<IMonik>();
-            monik.ApplicationWarning($"{title}: {ex}");
+            if (log)
+            {
+                shell.Container.Resolve<IMonik>()
+                    .ApplicationWarning($"{title}: {ex}");
+            }
 
+            // show error to user
             var window = shell.GetWindow();
-            return window.Invoke(() => window.ShowMessageAsync(title, ex.Message));
+            await window.Invoke(() => window.ShowMessageAsync(title, ex.Message));
+
+            // reconnect on refresh exception or unauthorized exception
+            if (ex is Domain0AuthenticationContextException ||
+                ex is Domain0ClientException clientException
+                && clientException.StatusCode == 401)
+            {
+                shell.Container.Resolve<IDomain0Service>()
+                    .Reconnect();
+            }
         }
 
         internal static LoadingProgress ShowProgress(this IShell shell, string title, string message,
