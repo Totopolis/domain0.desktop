@@ -89,7 +89,7 @@ namespace Domain0.Desktop.Services
 
                         var login = x.LoginMode == LoginMode.Email
                             ? userProfile.Email
-                            : userProfile.Phone.Value.ToString("0");
+                            : userProfile.Phone;
                         _shell.Container.Resolve<IDockWindow>().Title =
                             $"Domain0.Desktop - {userProfile.Name} - {login}";
 

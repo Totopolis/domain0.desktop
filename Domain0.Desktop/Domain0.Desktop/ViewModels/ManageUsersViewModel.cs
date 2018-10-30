@@ -299,9 +299,7 @@ namespace Domain0.Desktop.ViewModels
             var newPhoneStr = await _shell.ShowInput(
                 "Change Phone",
                 "Enter new Phone",
-                EditViewModel.Phone.HasValue
-                    ? EditViewModel.Phone.Value.ToString("0")
-                    : "");
+                EditViewModel.Phone);
 
             if (newPhoneStr != null)
             {
@@ -310,7 +308,7 @@ namespace Domain0.Desktop.ViewModels
                     var newPhone = long.Parse(newPhoneStr);
                     var request = new ChangePhoneRequest(newPhone, EditViewModel.Id.Value);
                     await _domain0.Client.ForceChangePhoneAsync(request);
-                    EditViewModel.Phone = newPhone;
+                    EditViewModel.Phone = newPhoneStr;
                     Models.AddOrUpdate(EditModel);
                 }
                 catch (Exception e)
