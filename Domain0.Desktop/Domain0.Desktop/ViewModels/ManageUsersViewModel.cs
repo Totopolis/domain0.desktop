@@ -92,7 +92,7 @@ namespace Domain0.Desktop.ViewModels
                 .WhenAnyValue(x => x.RolesFilter)
                 .Select(Filters.CreateRolesPredicate);
 
-            var sourceUserPermissions = _domain0.Model.UserPermissions
+            var sourceUserRoles = _domain0.Model.UserRoles
                 .Connect()
                 .ToCollection();
             var sourceRoles = _domain0.Model.Roles
@@ -103,11 +103,11 @@ namespace Domain0.Desktop.ViewModels
                 .WhenAnyValue(x => x.SelectedItemsIds);
 
             Observable.CombineLatest(
-                    sourceUserPermissions,
+                    sourceUserRoles,
                     sourceRoles,
                     sourceSelected,
-                    (userPermissions, roles, selectedIds) => selectedIds.Count > 0
-                        ? new {userPermissions, roles, selectedIds}
+                    (userRoles, roles, selectedIds) => selectedIds.Count > 0
+                        ? new {userRoles, roles, selectedIds}
                         : null)
                 .Throttle(TimeSpan.FromSeconds(.1))
                 .Synchronize()
@@ -115,8 +115,8 @@ namespace Domain0.Desktop.ViewModels
                     .Select(r =>
                     {
                         var roleId = r.Id.Value;
-                        var userIds = o.userPermissions
-                            .Where(x => x.RoleId.HasValue && x.RoleId.Value == roleId)
+                        var userIds = o.userRoles
+                            .Where(x => x.Id.Value == roleId)
                             .Select(x => x.UserId)
                             .Distinct();
                         var groupSelectedIds = o.selectedIds
@@ -220,6 +220,12 @@ namespace Domain0.Desktop.ViewModels
                         .Where(rp => rp.UserId == x.Key && rp.RoleId.HasValue && x.Value.Contains(rp.RoleId.Value));
                 }).ToList();
 
+                var urToRemove = toRemove.SelectMany(x =>
+                {
+                    return _domain0.Model.UserRoles.Items
+                        .Where(r => r.UserId == x.Key && x.Value.Contains(r.Id.Value));
+                }).ToList();
+
                 foreach (var aKV in toAdd)
                     await _domain0.Client.AddUserRolesAsync(aKV.Key,
                         new IdArrayRequest(aKV.Value.ToList()));
@@ -236,13 +242,28 @@ namespace Domain0.Desktop.ViewModels
                         });
                 }).ToList();
 
+                var urToAdd = toAdd.SelectMany(x =>
+                {
+                    return x.Value.Select(v =>
+                    {
+                        var r = _domain0.Model.Roles.Lookup(v).Value;
+                        return new UserRole(r.Description, r.Id, r.IsDefault, r.Name, x.Key);
+                    });
+                }).ToList();
+
                 _domain0.Model.UserPermissions.Edit(innerList =>
                 {
                     innerList.RemoveMany(upToRemove);
                     innerList.AddRange(upToAdd);
                 });
 
-                TraceApplied("Apply Roles to Users:", toAdd, toRemove);
+                _domain0.Model.UserRoles.Edit(innerList =>
+                {
+                    innerList.RemoveMany(urToRemove);
+                    innerList.AddRange(urToAdd);
+                });
+
+                TraceApplied("Roles to Users", toAdd, toRemove);
             }
             catch (Exception e)
             {
@@ -289,7 +310,7 @@ namespace Domain0.Desktop.ViewModels
                 innerList.AddRange(upToAdd);
             });
 
-            TraceApplied("Apply Permissions to Users:", toAdd, toRemove);
+            TraceApplied("Permissions to Users", toAdd, toRemove);
         }
 
         // Change Email & Phone

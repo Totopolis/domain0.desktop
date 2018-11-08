@@ -12,6 +12,7 @@ namespace Domain0.Desktop.Models
         public SourceCache<MessageTemplate, int> MessageTemplates { get; }
 
         public SourceList<RolePermission> RolePermissions { get; }
+        public SourceList<UserRole> UserRoles { get; }
         public SourceList<UserPermission> UserPermissions { get; }
 
         public Domain0Model()
@@ -23,6 +24,7 @@ namespace Domain0.Desktop.Models
             MessageTemplates = new SourceCache<MessageTemplate, int>(x => x.Id.Value);
 
             RolePermissions = new SourceList<RolePermission>();
+            UserRoles = new SourceList<UserRole>();
             UserPermissions = new SourceList<UserPermission>();
         }
     }

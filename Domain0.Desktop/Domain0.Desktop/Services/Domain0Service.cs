@@ -113,6 +113,19 @@ namespace Domain0.Desktop.Services
                     return task.Result;
                 }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
+            var userRolesTask = _authContext.Client
+                .LoadRolesByUserFilterAsync(new RoleUserFilter(new List<int>()));
+            var initUserRolesTask = userRolesTask
+                .ContinueWith(task =>
+                {
+                    Model.UserRoles.Edit(innerList =>
+                    {
+                        innerList.Clear();
+                        innerList.AddRange(task.Result);
+                    });
+                    return task.Result;
+                }, TaskContinuationOptions.OnlyOnRanToCompletion);
+
             var userPermissionsTask = userProfilesTask
                 .ContinueWith(task =>
                 {
@@ -164,6 +177,9 @@ namespace Domain0.Desktop.Services
 
                 .Wait(messageTemplatesTask, "Message Templates - Loaded")
                 .Wait(initMessageTemplatesTask, "Message Templates - Initialized")
+
+                .Wait(userRolesTask, "User's Roles - Loaded")
+                .Wait(initUserRolesTask, "User's Roles - Initialized")
 
                 .Wait(userPermissionsTask, "User's Permissions - Loaded")
                 .Wait(rolePermissionsTask, "Role's Permissions - Loaded")

@@ -249,7 +249,7 @@ namespace Domain0.Desktop.ViewModels
         {
             var added = string.Join(",", toAdd.Select(x => $"[{x.Key}:{string.Join(",", x.Value)}]"));
             var removed = string.Join(",", toRemove.Select(x => $"[{x.Key}:{string.Join(",", x.Value)}]"));
-            Trace.TraceInformation($"{title}" + 
+            Trace.TraceInformation($"Applied {title}:" + 
                                    (!string.IsNullOrEmpty(added) ? $" ++{added}" : "") +
                                    (!string.IsNullOrEmpty(removed) ? $" --{removed}" : ""));
         }

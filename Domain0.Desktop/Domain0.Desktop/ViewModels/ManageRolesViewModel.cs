@@ -95,7 +95,7 @@ namespace Domain0.Desktop.ViewModels
                 innerList.AddRange(rpToAdd);
             });
 
-            TraceApplied("Apply Permissions to Roles:", toAdd, toRemove);
+            TraceApplied("Permissions to Roles", toAdd, toRemove);
         }
         
         protected override Task UpdateApi(Role m)
