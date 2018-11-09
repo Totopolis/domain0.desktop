@@ -474,6 +474,7 @@ namespace Domain0.Desktop.ViewModels
                         BlockSmsSend,
                         CustomSmsTemplate,
                         EnvironmentToken,
+                        ForceCreateUserLocale,
                         Name,
                         phone,
                         rolesNames);
@@ -485,6 +486,7 @@ namespace Domain0.Desktop.ViewModels
                         CustomEmailTemplate,
                         Email,
                         EnvironmentToken,
+                        ForceCreateUserLocale,
                         Name,
                         rolesNames);
                     return _domain0.Client.ForceCreateUser2Async(requestByEmail);
