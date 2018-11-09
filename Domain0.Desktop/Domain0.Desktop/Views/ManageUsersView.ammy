@@ -138,16 +138,12 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
       
               StackPanel
               {
-                TextBox
+                @EditTextBox("Phone")
                 {
-                  Margin: "5 5 5 0"
-                  TextBoxHelper.Watermark: "Phone"
                   Text: bind Phone
                 }
-                TextBox 
+                @EditTextBox("Name")
                 {
-                  Margin: "5 5 5 0"
-                  TextBoxHelper.Watermark: "Name"
                   Text: bind Name
                 }
                 CheckBox "CheckBox_BlockSmsSend"
@@ -160,12 +156,15 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
                 {
                   Visibility: bind IsChecked from "CheckBox_BlockSmsSend"
                               convert (bool val) => val ? Visibility.Collapsed : Visibility.Visible
-                  TextBox 
+                  @EditComboBox("Locale") 
                   {
-                    Margin: "5 5 5 0"
-                    TextBoxHelper.Watermark: "Custom Sms Template"
+                    ItemsSource: bind ForceCreateUserLocales
+                    SelectedItem: bind ForceCreateUserLocale
+                  }
+                  @EditTextBoxWrap("Custom Sms Template")
+                  {
                     Text: bind CustomSmsTemplate
-                    TextWrapping: Wrap
+                    MaxHeight: 100
                   }
                 }
               }
@@ -177,16 +176,12 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
       
               StackPanel
               {
-                TextBox
+                @EditTextBox("Email")
                 {
-                  Margin: "5 5 5 0"
-                  TextBoxHelper.Watermark: "Email"
                   Text: bind Email
                 }
-                TextBox 
+                @EditTextBox("Name")
                 {
-                  Margin: "5 5 5 0"
-                  TextBoxHelper.Watermark: "Name"
                   Text: bind Name
                 }
                 CheckBox "CheckBox_BlockEmailSend"
@@ -195,23 +190,25 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
                   IsChecked: bind BlockEmailSend
                   "Block Email Send"
                 }
-                StackPanel
+
+                StackPanel 
                 {
                   Visibility: bind IsChecked from "CheckBox_BlockEmailSend"
-                              convert (bool val) => val ? Visibility.Collapsed : Visibility.Visible
-                  TextBox 
+                            convert (bool val) => val ? Visibility.Collapsed : Visibility.Visible
+                  @EditComboBox("Locale") 
                   {
-                    Margin: "5 5 5 0"
-                    TextBoxHelper.Watermark: "Custom Email Subject Template"
-                    Text: bind CustomEmailSubjectTemplate
-                    TextWrapping: Wrap
+                    ItemsSource: bind ForceCreateUserLocales
+                    SelectedItem: bind ForceCreateUserLocale
                   }
-                  TextBox 
+                  @EditTextBoxWrap("Custom Email Subject Template")
                   {
-                    Margin: "5 5 5 0"
-                    TextBoxHelper.Watermark: "Custom Email Template"
+                    Text: bind CustomEmailSubjectTemplates
+                    MaxHeight: 100
+                  }
+                  @EditTextBoxWrap("Custom Email Template")
+                  {
                     Text: bind CustomEmailTemplate
-                    TextWrapping: Wrap
+                    MaxHeight: 100
                   }
                 }
               }
