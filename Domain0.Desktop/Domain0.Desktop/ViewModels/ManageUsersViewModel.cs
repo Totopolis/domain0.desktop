@@ -409,6 +409,7 @@ namespace Domain0.Desktop.ViewModels
         private ReadOnlyObservableCollection<string> _forceCreateUserLocales;
         public ReadOnlyObservableCollection<string> ForceCreateUserLocales => _forceCreateUserLocales;
         [Reactive] public string ForceCreateUserLocale { get; set; }
+        [Reactive] public string EnvironmentToken { get; set; }
 
         [Reactive] public string ForceCreateUserRolesFilter { get; set; }
         public ReactiveCommand ForceCreateUserRolesFilterCommand { get; set; }
@@ -470,8 +471,11 @@ namespace Domain0.Desktop.ViewModels
                 case ForceCreateUserModeEnum.Phone:
                     var phone = long.Parse(Phone);
                     var requestByPhone = new ForceCreateUserRequest(
-                        BlockSmsSend, CustomSmsTemplate,
-                        Name, phone,
+                        BlockSmsSend,
+                        CustomSmsTemplate,
+                        EnvironmentToken,
+                        Name,
+                        phone,
                         rolesNames);
                     return _domain0.Client.ForceCreateUserAsync(requestByPhone);
                 case ForceCreateUserModeEnum.Email:
@@ -479,7 +483,9 @@ namespace Domain0.Desktop.ViewModels
                         BlockEmailSend,
                         CustomEmailSubjectTemplate,
                         CustomEmailTemplate,
-                        Email, Name,
+                        Email,
+                        EnvironmentToken,
+                        Name,
                         rolesNames);
                     return _domain0.Client.ForceCreateUser2Async(requestByEmail);
                 default:

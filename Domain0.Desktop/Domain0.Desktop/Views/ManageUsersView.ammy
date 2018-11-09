@@ -124,7 +124,7 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
       {
         Grid
         {
-          #ThreeRows("Auto", "*", "Auto")
+          #FourRows("Auto", "Auto", "*", "Auto")
           MetroTabControl 
           {
             Grid.Row: 0
@@ -214,10 +214,22 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
               }
             }
           }
+          
+          StackPanel 
+          {
+            Grid.Row: 1
+            Margin: "0,5,0,0"
+            Separator { Margin: 5 }
+            @EditTextBox("Environment Token")
+            {
+              TextBoxHelper.IsWaitingForData: true
+              Text: bind EnvironmentToken
+            }  
+          }
 
           MetroHeader 
           {
-            Grid.Row: 1
+            Grid.Row: 2
             Margin: "10,10,10,0"
             Header: "Roles"
 
@@ -247,7 +259,7 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
 
           @CreateButton()
           {
-            Grid.Row: 2
+            Grid.Row: 3
           }
         }
       }
