@@ -158,7 +158,8 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
                 }
                 StackPanel
                 {
-                  Visibility: bind BlockSmsSend convert (bool val) => val ? Visibility.Collapsed : Visibility.Visible
+                  Visibility: bind IsChecked from "CheckBox_BlockSmsSend"
+                              convert (bool val) => val ? Visibility.Collapsed : Visibility.Visible
                   TextBox 
                   {
                     Margin: "5 5 5 0"
@@ -188,7 +189,7 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
                   TextBoxHelper.Watermark: "Name"
                   Text: bind Name
                 }
-                CheckBox
+                CheckBox "CheckBox_BlockEmailSend"
                 {
                   Margin: "5 15 5 5"
                   IsChecked: bind BlockEmailSend
@@ -196,7 +197,8 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
                 }
                 StackPanel
                 {
-                  Visibility: bind BlockEmailSend convert (bool val) => val ? Visibility.Collapsed : Visibility.Visible
+                  Visibility: bind IsChecked from "CheckBox_BlockEmailSend"
+                              convert (bool val) => val ? Visibility.Collapsed : Visibility.Visible
                   TextBox 
                   {
                     Margin: "5 5 5 0"
