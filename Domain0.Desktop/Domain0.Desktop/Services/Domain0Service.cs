@@ -49,7 +49,7 @@ namespace Domain0.Desktop.Services
         private async Task LoadModelInternal()
         {
             var userProfilesTask = _authContext.Client
-                .GetUserByFilterAsync(new UserProfileFilter(new List<int>()));
+                .GetAllUsersAsync();
             var initUserProfilesTask = userProfilesTask
                 .ContinueWith(task =>
                 {
