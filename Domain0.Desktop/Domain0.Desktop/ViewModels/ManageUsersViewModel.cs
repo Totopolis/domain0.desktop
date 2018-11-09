@@ -141,6 +141,17 @@ namespace Domain0.Desktop.ViewModels
                     IsChangedRoles = false;
                 })
                 .DisposeWith(Disposables);
+
+            // Locales
+
+            _domain0.Model.MessageTemplates.Connect()
+                .Group(x => x.Locale)
+                .Transform(x => x.Key)
+                .Sort(SortExpressionComparer<string>.Ascending(x => x))
+                .ObserveOnDispatcher()
+                .Bind(out _forceCreateUserLocales)
+                .Subscribe()
+                .DisposeWith(Disposables);
         }
 
         private ReadOnlyObservableCollection<ForceCreateUserRoleViewModel> _forceCreateUserRoles;
@@ -394,6 +405,10 @@ namespace Domain0.Desktop.ViewModels
         }
 
         // Creation
+
+        private ReadOnlyObservableCollection<string> _forceCreateUserLocales;
+        public ReadOnlyObservableCollection<string> ForceCreateUserLocales => _forceCreateUserLocales;
+        [Reactive] public string ForceCreateUserLocale { get; set; }
 
         [Reactive] public string ForceCreateUserRolesFilter { get; set; }
         public ReactiveCommand ForceCreateUserRolesFilterCommand { get; set; }
