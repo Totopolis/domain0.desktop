@@ -48,6 +48,12 @@ ViewUserControl "Domain0.Desktop.Views.ManageToolsView"
         ToolTip: "Reload"
         Command: bind ReloadCommand
       }
+      @CircleButton("Clipboard")
+      {
+        Margin: "10,10,0,0"
+        ToolTip: "Copy Auth Token To Clipboard"
+        Command: bind CopyTokenToClipboardCommand
+      }
     }
 
     StackPanel 

@@ -10,26 +10,34 @@ using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using Domain0.Api.Client;
 using Ui.Wpf.Common;
 using Ui.Wpf.Common.ViewModels;
+using Application = System.Windows.Application;
 
 namespace Domain0.Desktop.ViewModels
 {
     public class ManageToolsViewModel : ViewModelBase
     {
         private readonly IDomain0Service _domain0;
+        private readonly IDomain0AuthenticationContext _authContext;
 
         public ManageToolsViewModel(
             IShell shell,
-            IDomain0Service domain0)
+            IDomain0Service domain0,
+            IDomain0AuthenticationContext authContext)
         {
             _domain0 = domain0;
-            
+            _authContext = authContext;
+
             LogoutCommand = ReactiveCommand
                 .Create(Logout)
                 .DisposeWith(Disposables);
             ReloadCommand = ReactiveCommand
                 .CreateFromTask(Reload)
+                .DisposeWith(Disposables);
+            CopyTokenToClipboardCommand = ReactiveCommand
+                .Create(CopyTokenToClipboard)
                 .DisposeWith(Disposables);
 
             OpenUsersCommand = ReactiveCommand
@@ -63,6 +71,7 @@ namespace Domain0.Desktop.ViewModels
 
         public ReactiveCommand LogoutCommand { get; set; }
         public ReactiveCommand ReloadCommand { get; set; }
+        public ReactiveCommand CopyTokenToClipboardCommand { get; set; }
 
         public ReactiveCommand OpenUsersCommand { get; set; }
         public ReactiveCommand OpenRolesCommand { get; set; }
@@ -79,6 +88,11 @@ namespace Domain0.Desktop.ViewModels
         private Task Reload()
         {
             return _domain0.LoadModel();
+        }
+
+        private void CopyTokenToClipboard()
+        {
+            Clipboard.SetText($"Bearer {_authContext.Token}");
         }
     }
 
