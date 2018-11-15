@@ -75,7 +75,7 @@ namespace Domain0.Desktop
                 cfg.CreateMap<MessageTemplateViewModel, MessageTemplateViewModel>();
                 cfg.CreateMap<MessageTemplate, MessageTemplateViewModel>();
                 cfg.CreateMap<MessageTemplateViewModel, MessageTemplate>().ConstructUsing(x =>
-                    new MessageTemplate(x.Description, x.Id, x.Locale, x.Name, x.Template, x.Type));
+                    new MessageTemplate(x.Description, x.EnvironmentId, x.Id, x.Locale, x.Name, x.Template, x.Type));
 
                 cfg.CreateMap<ApplicationViewModel, ApplicationViewModel>();
                 cfg.CreateMap<Application, ApplicationViewModel>();

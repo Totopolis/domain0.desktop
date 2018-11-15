@@ -24,6 +24,12 @@ ViewUserControl "Domain0.Desktop.Views.ManageMessagesView" {
           }
           DataGridTextColumn 
           {
+            Header: "Environment"
+            Binding: bind EnvironmentId
+            Width: Auto
+          }
+          DataGridTextColumn 
+          {
             Header: "Locale"
             Binding: bind Locale
             Width: Auto
@@ -62,6 +68,10 @@ ViewUserControl "Domain0.Desktop.Views.ManageMessagesView" {
             ItemsSource: bind from Domain0.Desktop.ViewModels.ManageMessagesViewModel.SupportedMessageTypes
             SelectedItem: bind CreateViewModel.Type    
           }
+          @EditTextBox("EnvironmentId")
+          {
+            Text: bind CreateViewModel.EnvironmentId
+          }
           @EditComboBox("Locale") 
           {
             ItemsSource: bind from Domain0.Desktop.ViewModels.ManageMessagesViewModel.SupportedMessageLocales
@@ -90,6 +100,10 @@ ViewUserControl "Domain0.Desktop.Views.ManageMessagesView" {
           {
             ItemsSource: bind from Domain0.Desktop.ViewModels.ManageMessagesViewModel.SupportedMessageTypes
             SelectedItem: bind EditViewModel.Type    
+          }
+          @EditTextBox("EnvironmentId")
+          {
+            Text: bind EditViewModel.EnvironmentId
           }
           @EditComboBox("Locale") 
           {
