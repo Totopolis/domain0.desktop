@@ -17,6 +17,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Ui.Wpf.Common;
+using Environment = Domain0.Api.Client.Environment;
 
 namespace Domain0.Desktop.ViewModels
 {
@@ -142,6 +143,15 @@ namespace Domain0.Desktop.ViewModels
                 })
                 .DisposeWith(Disposables);
 
+            // Environments
+
+            _domain0.Model.Environments.Connect()
+                .Sort(SortExpressionComparer<Environment>.Ascending(x => x.Id))
+                .ObserveOnDispatcher()
+                .Bind(out _environments)
+                .Subscribe()
+                .DisposeWith(Disposables);
+
             // Locales
 
             _domain0.Model.MessageTemplates.Connect()
@@ -149,7 +159,7 @@ namespace Domain0.Desktop.ViewModels
                 .Transform(x => x.Key)
                 .Sort(SortExpressionComparer<string>.Ascending(x => x))
                 .ObserveOnDispatcher()
-                .Bind(out _forceCreateUserLocales)
+                .Bind(out _locales)
                 .Subscribe()
                 .DisposeWith(Disposables);
         }
@@ -406,10 +416,12 @@ namespace Domain0.Desktop.ViewModels
 
         // Creation
 
-        private ReadOnlyObservableCollection<string> _forceCreateUserLocales;
-        public ReadOnlyObservableCollection<string> ForceCreateUserLocales => _forceCreateUserLocales;
+        private ReadOnlyObservableCollection<string> _locales;
+        public ReadOnlyObservableCollection<string> Locales => _locales;
         [Reactive] public string ForceCreateUserLocale { get; set; }
-        [Reactive] public string EnvironmentToken { get; set; }
+        private ReadOnlyObservableCollection<Environment> _environments;
+        public ReadOnlyObservableCollection<Environment> Environments => _environments;
+        [Reactive] public Environment Environment { get; set; }
 
         [Reactive] public string ForceCreateUserRolesFilter { get; set; }
         public ReactiveCommand ForceCreateUserRolesFilterCommand { get; set; }
@@ -473,7 +485,7 @@ namespace Domain0.Desktop.ViewModels
                     var requestByPhone = new ForceCreateUserRequest(
                         BlockSmsSend,
                         CustomSmsTemplate,
-                        EnvironmentToken,
+                        Environment?.Token,
                         ForceCreateUserLocale,
                         Name,
                         phone,
@@ -485,7 +497,7 @@ namespace Domain0.Desktop.ViewModels
                         CustomEmailSubjectTemplate,
                         CustomEmailTemplate,
                         Email,
-                        EnvironmentToken,
+                        Environment?.Token,
                         ForceCreateUserLocale,
                         Name,
                         rolesNames);

@@ -196,8 +196,8 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
                             convert (bool val) => val ? Visibility.Collapsed : Visibility.Visible
                   @EditComboBox("Locale") 
                   {
-                    ItemsSource: bind ForceCreateUserLocales
-                    SelectedItem: bind ForceCreateUserLocale
+                    ItemsSource: bind Locales
+                    SelectedItem: bind Locale
                   }
                   @EditTextBoxWrap("Custom Email Subject Template")
                   {
@@ -217,10 +217,12 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
             Grid.Row: 1
             Margin: "0,5,0,0"
             Separator { Margin: 5 }
-            @EditTextBox("Environment Token")
+            @EditComboBox("Environment")
             {
-              TextBoxHelper.IsWaitingForData: true
-              Text: bind EnvironmentToken
+              ItemsSource: bind Environments
+              SelectedValue: bind Environment
+              SelectedIndex: 0
+              DisplayMemberPath: "Name"
             }  
           }
 
