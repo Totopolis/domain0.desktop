@@ -154,7 +154,12 @@ namespace Domain0.Desktop.ViewModels
 
             // Locales
 
+            var dynamicLocaleFilter = this
+                .WhenAnyValue(x => x.Environment)
+                .Select(Filters.CreateEnvironmentPredicate);
+
             _domain0.Model.MessageTemplates.Connect()
+                .Filter(dynamicLocaleFilter)
                 .Group(x => x.Locale)
                 .Transform(x => x.Key)
                 .Sort(SortExpressionComparer<string>.Ascending(x => x))

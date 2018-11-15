@@ -158,8 +158,8 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
                               convert (bool val) => val ? Visibility.Collapsed : Visibility.Visible
                   @EditComboBox("Locale") 
                   {
-                    ItemsSource: bind ForceCreateUserLocales
-                    SelectedItem: bind ForceCreateUserLocale
+                    ItemsSource: bind Locales
+                    SelectedItem: bind Locale
                   }
                   @EditTextBoxWrap("Custom Sms Template")
                   {
