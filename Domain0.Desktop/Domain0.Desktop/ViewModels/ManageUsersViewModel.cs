@@ -418,7 +418,7 @@ namespace Domain0.Desktop.ViewModels
 
         private ReadOnlyObservableCollection<string> _locales;
         public ReadOnlyObservableCollection<string> Locales => _locales;
-        [Reactive] public string ForceCreateUserLocale { get; set; }
+        [Reactive] public string Locale { get; set; }
         private ReadOnlyObservableCollection<Environment> _environments;
         public ReadOnlyObservableCollection<Environment> Environments => _environments;
         [Reactive] public Environment Environment { get; set; }
@@ -486,7 +486,7 @@ namespace Domain0.Desktop.ViewModels
                         BlockSmsSend,
                         CustomSmsTemplate,
                         Environment?.Token,
-                        ForceCreateUserLocale,
+                        Locale,
                         Name,
                         phone,
                         rolesNames);
@@ -498,7 +498,7 @@ namespace Domain0.Desktop.ViewModels
                         CustomEmailTemplate,
                         Email,
                         Environment?.Token,
-                        ForceCreateUserLocale,
+                        Locale,
                         Name,
                         rolesNames);
                     return _domain0.Client.ForceCreateUser2Async(requestByEmail);
