@@ -25,7 +25,7 @@ ViewUserControl "Domain0.Desktop.Views.ManageMessagesView" {
           DataGridTextColumn 
           {
             Header: "Environment"
-            Binding: bind EnvironmentId
+            Binding: bind Environment
             Width: Auto
           }
           DataGridTextColumn 
@@ -68,9 +68,13 @@ ViewUserControl "Domain0.Desktop.Views.ManageMessagesView" {
             ItemsSource: bind from Domain0.Desktop.ViewModels.ManageMessagesViewModel.SupportedMessageTypes
             SelectedItem: bind CreateViewModel.Type    
           }
-          @EditTextBox("EnvironmentId")
+          @EditComboBox("Environment")
           {
-            Text: bind CreateViewModel.EnvironmentId
+            ItemsSource: bind Environments
+            SelectedValue: bind CreateViewModel.EnvironmentId
+            SelectedIndex: 0
+            DisplayMemberPath: "Name"
+            SelectedValuePath: "Id"
           }
           @EditComboBox("Locale") 
           {
@@ -101,9 +105,12 @@ ViewUserControl "Domain0.Desktop.Views.ManageMessagesView" {
             ItemsSource: bind from Domain0.Desktop.ViewModels.ManageMessagesViewModel.SupportedMessageTypes
             SelectedItem: bind EditViewModel.Type    
           }
-          @EditTextBox("EnvironmentId")
+          @EditComboBox("Environment")
           {
-            Text: bind EditViewModel.EnvironmentId
+            ItemsSource: bind Environments
+            SelectedValue: bind EditViewModel.EnvironmentId
+            DisplayMemberPath: "Name"
+            SelectedValuePath: "Id"
           }
           @EditComboBox("Locale") 
           {

@@ -320,7 +320,7 @@ alias EditButton(command = "{Binding EditSelectedCommand}")
   {
     Margin: "5 15 5 0"
     Command: $command
-    Content: "Edit"
+    Content: "Apply"
   }
 }
 

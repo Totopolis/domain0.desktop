@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using System.Reactive.Disposables;
+using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 namespace Domain0.Desktop.ViewModels.Items
@@ -12,5 +13,13 @@ namespace Domain0.Desktop.ViewModels.Items
         [Reactive] public string Name { get; set; } = "";
         [Reactive] public string Template { get; set; } = "";
         [Reactive] public string Type { get; set; }
+
+        [Reactive] public string Environment { get; set; }
+
+        public CompositeDisposable Disposables { get; } = new CompositeDisposable();
+        public void Dispose()
+        {
+            Disposables?.Dispose();
+        }
     }
 }

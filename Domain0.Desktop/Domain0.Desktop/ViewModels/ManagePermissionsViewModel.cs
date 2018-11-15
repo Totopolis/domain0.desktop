@@ -4,6 +4,7 @@ using Domain0.Desktop.Services;
 using Domain0.Desktop.ViewModels.Items;
 using DynamicData;
 using DynamicData.Binding;
+using DynamicData.Kernel;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -46,7 +47,7 @@ namespace Domain0.Desktop.ViewModels
 
             _applicationsCache
                 .Connect()
-                .Select(x => _applicationsCache.Lookup(vm.ApplicationId).Value.Name)
+                .Select(x => _applicationsCache.Lookup(vm.ApplicationId).ValueOrDefault()?.Name)
                 .Subscribe(x => vm.Application = x)
                 .DisposeWith(vm.Disposables);
             
