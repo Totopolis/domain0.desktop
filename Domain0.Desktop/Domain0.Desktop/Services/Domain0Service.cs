@@ -42,8 +42,7 @@ namespace Domain0.Desktop.Services
             }
             catch (Exception ex)
             {
-                await _shell.HandleException(ex, "Failed to Load model");
-                Reconnect();
+                await _shell.HandleException(ex, "Failed to Load model", reconnect: true);
             }
         }
 

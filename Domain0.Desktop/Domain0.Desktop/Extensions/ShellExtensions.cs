@@ -46,7 +46,8 @@ namespace Domain0.Desktop.Extensions
             shell.ShowView<ManageMessagesView>(new ViewRequest("manage-messages"), new UiShowOptions { Title = "Messages" });
         }
 
-        public static async Task HandleException(this IShell shell, Exception ex, string title = "Error", bool log = true)
+        public static async Task HandleException(this IShell shell, Exception ex, string title = "Error",
+            bool log = true, bool reconnect = false)
         {
             if (log)
             {
@@ -58,8 +59,8 @@ namespace Domain0.Desktop.Extensions
             var window = shell.GetWindow();
             await window.Invoke(() => window.ShowMessageAsync(title, ex.Message));
 
-            // reconnect on refresh exception or unauthorized exception
-            if (ex is Domain0AuthenticationContextException ||
+            if (reconnect ||
+                ex is Domain0AuthenticationContextException ||
                 ex is Domain0ClientException clientException
                 && clientException.StatusCode == 401)
             {
