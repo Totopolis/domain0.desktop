@@ -1,6 +1,7 @@
 ﻿using Domain0.Api.Client;
 using Domain0.Desktop.Extensions;
 using Domain0.Desktop.Models;
+using DynamicData;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,81 +51,31 @@ namespace Domain0.Desktop.Services
         {
             var userProfilesTask = _authContext.Client
                 .GetAllUsersAsync();
-            var initUserProfilesTask = userProfilesTask
-                .ContinueWith(task =>
-                {
-                    Model.UserProfiles.Edit(innerCache =>
-                    {
-                        innerCache.Clear();
-                        innerCache.AddOrUpdate(task.Result);
-                    });
-                    return task.Result;
-                }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            var initUserProfilesTask = CreateTaskInitCache(userProfilesTask, Model.UserProfiles);
 
             var rolesTask = _authContext.Client
                 .LoadRolesByFilterAsync(new RoleFilter(new List<int>()));
-            var initRolesTask = rolesTask
-                .ContinueWith(task =>
-                {
-                    Model.Roles.Edit(innerCache =>
-                    {
-                        innerCache.Clear();
-                        innerCache.AddOrUpdate(task.Result);
-                    });
-                    return task.Result;
-                }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            var initRolesTask = CreateTaskInitCache(rolesTask, Model.Roles);
 
             var permissionsTask = _authContext.Client
                 .LoadPermissionsByFilterAsync(new PermissionFilter(new List<int>()));
-            var initPermissionsTask = permissionsTask
-                .ContinueWith(task =>
-                {
-                    Model.Permissions.Edit(innerCache =>
-                    {
-                        innerCache.Clear();
-                        innerCache.AddOrUpdate(task.Result);
-                    });
-                    return task.Result;
-                }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            var initPermissionsTask = CreateTaskInitCache(permissionsTask, Model.Permissions);
 
             var applicationsTask = _authContext.Client
                 .LoadApplicationsByFilterAsync(new ApplicationFilter(new List<int>()));
-            var initApplicationsTask = applicationsTask
-                .ContinueWith(task =>
-                {
-                    Model.Applications.Edit(innerCache =>
-                    {
-                        innerCache.Clear();
-                        innerCache.AddOrUpdate(task.Result);
-                    });
-                    return task.Result;
-                }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            var initApplicationsTask = CreateTaskInitCache(applicationsTask, Model.Applications);
+
+            var environmentsTask = _authContext.Client
+                .LoadEnvironmentsByFilterAsync(new EnvironmentFilter(new List<int>(), true));
+            var initEnvironmentsTask = CreateTaskInitCache(environmentsTask, Model.Environments);
 
             var messageTemplatesTask = _authContext.Client
                 .LoadMessageTemplatesByFilterAsync(new MessageTemplateFilter(new List<int>()));
-            var initMessageTemplatesTask = messageTemplatesTask
-                .ContinueWith(task =>
-                {
-                    Model.MessageTemplates.Edit(innerCache =>
-                    {
-                        innerCache.Clear();
-                        innerCache.AddOrUpdate(task.Result);
-                    });
-                    return task.Result;
-                }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            var initMessageTemplatesTask = CreateTaskInitCache(messageTemplatesTask, Model.MessageTemplates);
 
             var userRolesTask = _authContext.Client
                 .LoadRolesByUserFilterAsync(new RoleUserFilter(new List<int>()));
-            var initUserRolesTask = userRolesTask
-                .ContinueWith(task =>
-                {
-                    Model.UserRoles.Edit(innerList =>
-                    {
-                        innerList.Clear();
-                        innerList.AddRange(task.Result);
-                    });
-                    return task.Result;
-                }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            var initUserRolesTask = CreateTaskInitList(userRolesTask, Model.UserRoles);
 
             var userPermissionsTask = userProfilesTask
                 .ContinueWith(task =>
@@ -132,15 +83,7 @@ namespace Domain0.Desktop.Services
                     var userIds = task.Result.Select(x => x.Id).ToList();
                     var loadTask = _authContext.Client
                         .LoadPermissionsByUserFilterAsync(new UserPermissionFilter(userIds));
-                    var initTask = loadTask
-                        .ContinueWith(innerTask =>
-                        {
-                            Model.UserPermissions.Edit(innerList =>
-                            {
-                                innerList.Clear();
-                                innerList.AddRange(innerTask.Result);
-                            });
-                        }, TaskContinuationOptions.OnlyOnRanToCompletion);
+                    var initTask = CreateTaskInitList(loadTask, Model.UserPermissions);
                     return Task.WhenAll(loadTask, initTask);
                 }, TaskContinuationOptions.OnlyOnRanToCompletion).Unwrap();
 
@@ -150,15 +93,7 @@ namespace Domain0.Desktop.Services
                     var roleIds = task.Result.Select(x => x.Id.Value).ToList();
                     var loadTask = _authContext.Client
                         .LoadPermissionsByRoleFilterAsync(new RolePermissionFilter(roleIds));
-                    var initTask = loadTask
-                        .ContinueWith(innerTask =>
-                        {
-                            Model.RolePermissions.Edit(innerList =>
-                            {
-                                innerList.Clear();
-                                innerList.AddRange(innerTask.Result);
-                            });
-                        }, TaskContinuationOptions.OnlyOnRanToCompletion);
+                    var initTask = CreateTaskInitList(loadTask, Model.RolePermissions);
                     return Task.WhenAll(loadTask, initTask);
                 }, TaskContinuationOptions.OnlyOnRanToCompletion).Unwrap();
 
@@ -175,6 +110,9 @@ namespace Domain0.Desktop.Services
                 .Wait(applicationsTask, "Applications - Loaded")
                 .Wait(initApplicationsTask, "Applications - Initialized")
 
+                .Wait(environmentsTask, "Environments - Loaded")
+                .Wait(initEnvironmentsTask, "Environments - Initialized")
+
                 .Wait(messageTemplatesTask, "Message Templates - Loaded")
                 .Wait(initMessageTemplatesTask, "Message Templates - Initialized")
 
@@ -184,6 +122,35 @@ namespace Domain0.Desktop.Services
                 .Wait(userPermissionsTask, "User's Permissions - Loaded")
                 .Wait(rolePermissionsTask, "Role's Permissions - Loaded")
                 .WaitAll();
+        }
+
+
+        private static Task CreateTaskInitCache<TValue, TKey>(Task<List<TValue>> loadTask, ISourceCache<TValue, TKey> cache)
+        {
+            return loadTask
+                .ContinueWith(task =>
+                {
+                    cache.Edit(innerCache =>
+                    {
+                        innerCache.Clear();
+                        innerCache.AddOrUpdate(task.Result);
+                    });
+                    return task.Result;
+                }, TaskContinuationOptions.OnlyOnRanToCompletion);
+        }
+
+        private static Task CreateTaskInitList<TValue>(Task<List<TValue>> loadTask, ISourceList<TValue> cache)
+        {
+            return loadTask
+                .ContinueWith(task =>
+                {
+                    cache.Edit(innerCache =>
+                    {
+                        innerCache.Clear();
+                        innerCache.AddRange(task.Result);
+                    });
+                    return task.Result;
+                }, TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 
     }

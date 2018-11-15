@@ -9,6 +9,7 @@ namespace Domain0.Desktop.Models
         public SourceCache<Role, int> Roles { get; }
         public SourceCache<Permission, int> Permissions { get; }
         public SourceCache<Application, int> Applications { get; }
+        public SourceCache<Environment, int> Environments { get; }
         public SourceCache<MessageTemplate, int> MessageTemplates { get; }
 
         public SourceList<RolePermission> RolePermissions { get; }
@@ -21,6 +22,7 @@ namespace Domain0.Desktop.Models
             Roles = new SourceCache<Role, int>(x => x.Id.Value);
             Permissions = new SourceCache<Permission, int>(x => x.Id.Value);
             Applications = new SourceCache<Application, int>(x => x.Id.Value);
+            Environments = new SourceCache<Environment, int>(x => x.Id.Value);
             MessageTemplates = new SourceCache<MessageTemplate, int>(x => x.Id.Value);
 
             RolePermissions = new SourceList<RolePermission>();
