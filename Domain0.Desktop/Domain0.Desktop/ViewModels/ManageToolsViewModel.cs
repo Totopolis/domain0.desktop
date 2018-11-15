@@ -52,6 +52,9 @@ namespace Domain0.Desktop.ViewModels
             OpenApplicationsCommand = ReactiveCommand
                 .Create(shell.ShowApplications)
                 .DisposeWith(Disposables);
+            OpenEnvironmentsCommand = ReactiveCommand
+                .Create(shell.ShowEnvironments)
+                .DisposeWith(Disposables);
             OpenMessagesCommand = ReactiveCommand
                 .Create(shell.ShowMessages)
                 .DisposeWith(Disposables);
@@ -77,6 +80,7 @@ namespace Domain0.Desktop.ViewModels
         public ReactiveCommand OpenRolesCommand { get; set; }
         public ReactiveCommand OpenPermissionsCommand { get; set; }
         public ReactiveCommand OpenApplicationsCommand { get; set; }
+        public ReactiveCommand OpenEnvironmentsCommand { get; set; }
         public ReactiveCommand OpenMessagesCommand { get; set; }
 
 

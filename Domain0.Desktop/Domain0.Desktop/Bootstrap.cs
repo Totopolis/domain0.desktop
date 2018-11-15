@@ -35,6 +35,9 @@ namespace Domain0.Desktop
             builder.RegisterType<ManageApplicationsView>();
             builder.RegisterType<ManageApplicationsViewModel>();
 
+            builder.RegisterType<ManageEnvironmentsView>();
+            builder.RegisterType<ManageEnvironmentsViewModel>();
+
             builder.RegisterType<ManageMessagesView>();
             builder.RegisterType<ManageMessagesViewModel>();
 
@@ -81,6 +84,11 @@ namespace Domain0.Desktop
                 cfg.CreateMap<Application, ApplicationViewModel>();
                 cfg.CreateMap<ApplicationViewModel, Application>().ConstructUsing(x =>
                     new Application(x.Description, x.Id, x.Name));
+
+                cfg.CreateMap<EnvironmentViewModel, EnvironmentViewModel>();
+                cfg.CreateMap<Environment, EnvironmentViewModel>();
+                cfg.CreateMap<EnvironmentViewModel, Environment>().ConstructUsing(x =>
+                    new Environment(x.Description, x.Id, x.IsDefault, x.Name, x.Token));
 
                 cfg.CreateMap<UserProfileViewModel, UserProfileViewModel>();
                 cfg.CreateMap<UserProfile, UserProfileViewModel>();

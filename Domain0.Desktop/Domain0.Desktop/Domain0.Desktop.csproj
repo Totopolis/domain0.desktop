@@ -181,6 +181,7 @@
     <Compile Include="Extensions\ShellExtensions.cs" />
     <Compile Include="Models\Domain0Model.cs" />
     <Compile Include="ViewModels\Filters.cs" />
+    <Compile Include="ViewModels\Items\EnvironmentViewModel.cs" />
     <Compile Include="ViewModels\Items\ApplicationViewModel.cs" />
     <Compile Include="ViewModels\BaseManageItemsViewModel.cs" />
     <Compile Include="ViewModels\Items\ForceCreateUserRoleViewModel.cs" />
@@ -189,6 +190,7 @@
     <Compile Include="ViewModels\Items\SelectedItemViewModel.cs" />
     <Compile Include="ViewModels\Items\SelectedItemPermissionViewModel.cs" />
     <Compile Include="ViewModels\Items\SelectedUserRoleViewModel.cs" />
+    <Compile Include="ViewModels\ManageEnvironmentsViewModel.cs" />
     <Compile Include="ViewModels\ManageMultipleItemsViewModel.cs" />
     <Compile Include="ViewModels\ManageMultipleItemsWithPermissionsViewModel.cs" />
     <Compile Include="ViewModels\ManagePermissionsViewModel.cs" />
@@ -226,6 +228,9 @@
     <Compile Include="Views\ManageApplicationsView.ammy.cs">
       <DependentUpon>ManageApplicationsView.ammy</DependentUpon>
     </Compile>
+    <Compile Include="Views\ManageEnvironmentsView.ammy.cs">
+      <DependentUpon>ManageEnvironmentsView.ammy</DependentUpon>
+    </Compile>
     <Compile Include="Views\ManageMessagesView.ammy.cs">
       <DependentUpon>ManageMessagesView.ammy</DependentUpon>
     </Compile>
@@ -259,6 +264,7 @@
     <None Include="Views\CommonManageView.ammy" />
     <None Include="Views\Dialogs\LoginWithUrlDialog.ammy" />
     <None Include="Views\ManageApplicationsView.ammy" />
+    <None Include="Views\ManageEnvironmentsView.ammy" />
     <None Include="Views\ManageMessagesView.ammy" />
     <None Include="Views\ManagePermissionsView.ammy" />
     <None Include="Views\ManageRolesView.ammy" />
@@ -293,6 +299,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <DependentUpon>ManageApplicationsView.ammy</DependentUpon>
+    </Page>
+    <Page Include="Views\ManageEnvironmentsView.g.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <DependentUpon>ManageEnvironmentsView.ammy</DependentUpon>
     </Page>
     <Page Include="Views\ManageMessagesView.g.xaml">
       <SubType>Designer</SubType>

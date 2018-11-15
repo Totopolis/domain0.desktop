@@ -66,7 +66,7 @@ namespace Domain0.Desktop.Services
             var initApplicationsTask = CreateTaskInitCache(applicationsTask, Model.Applications);
 
             var environmentsTask = _authContext.Client
-                .LoadEnvironmentsByFilterAsync(new EnvironmentFilter(new List<int>(), true));
+                .LoadEnvironmentsByFilterAsync(new EnvironmentFilter(null, true));
             var initEnvironmentsTask = CreateTaskInitCache(environmentsTask, Model.Environments);
 
             var messageTemplatesTask = _authContext.Client

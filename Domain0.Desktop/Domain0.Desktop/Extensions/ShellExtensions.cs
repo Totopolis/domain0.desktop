@@ -36,6 +36,11 @@ namespace Domain0.Desktop.Extensions
             shell.ShowView<ManageApplicationsView>(new ViewRequest("manage-applications"), new UiShowOptions { Title = "Applications" });
         }
 
+        public static void ShowEnvironments(this IShell shell)
+        {
+            shell.ShowView<ManageEnvironmentsView>(new ViewRequest("manage-environments"), new UiShowOptions { Title = "Environments" });
+        }
+
         public static void ShowMessages(this IShell shell)
         {
             shell.ShowView<ManageMessagesView>(new ViewRequest("manage-messages"), new UiShowOptions { Title = "Messages" });

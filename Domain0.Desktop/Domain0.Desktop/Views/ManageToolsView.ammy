@@ -86,6 +86,12 @@ ViewUserControl "Domain0.Desktop.Views.ManageToolsView"
         ToolTip: "Applications"
         Command: bind OpenApplicationsCommand
       }
+      @CircleButton("Cloud")
+      {
+        Margin: "10,10,0,0"
+        ToolTip: "Environments"
+        Command: bind OpenEnvironmentsCommand
+      }
       @CircleButton("Email")
       {
         Margin: "10,10,0,0"

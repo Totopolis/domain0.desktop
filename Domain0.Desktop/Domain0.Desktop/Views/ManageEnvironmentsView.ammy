@@ -1,0 +1,109 @@
+﻿using Domain0.Desktop.Views;
+using MahApps.Metro.Controls;
+
+ViewUserControl "Domain0.Desktop.Views.ManageEnvironmentsView" {
+
+Grid
+  {
+    Grid 
+    {
+      #TwoRows("Auto")
+      @ManageButtons()
+      {
+        Grid.Row: 0
+      }
+      @ManageDataGrid()
+      {
+        Grid.Row: 1
+        combine Columns: [
+          DataGridTextColumn
+          {
+            Header: "Name"
+            Binding: bind Name
+            Width: Auto
+          }
+          DataGridTemplateColumn
+          {
+            Header: "Is Default"
+            SortMemberPath: "IsDefault"
+            CellTemplate: DataTemplate
+            {
+              CheckBox
+              {
+                IsEnabled: false
+                HorizontalAlignment: Center
+                VerticalAlignment: Center
+                IsChecked: bind IsDefault set [ Mode:OneWay ]
+              }
+            }
+          }
+          DataGridTextColumn
+          {
+            Header: "Token"
+            Binding: bind Token
+            Width: 100
+          }
+          DataGridTextColumn
+          {
+            Header: "Description"
+            Binding: bind Description
+            Width: Auto
+          }
+        ]
+      }
+    }
+    FlyoutsControl 
+    {
+      @FlyoutCreate()
+      {
+        StackPanel
+        {
+          @EditTextBox("Name")
+          {
+            Text: bind CreateViewModel.Name
+          }
+          @EditCheckBox()
+          {
+            IsChecked: bind CreateViewModel.IsDefault
+            "Is Default"
+          }
+          @EditTextBoxWrap("Token")
+          {
+            Text: bind CreateViewModel.Token
+          }
+          @EditTextBoxWrap("Description")
+          {
+            Text: bind CreateViewModel.Description
+          }
+          @CreateButton() {}
+        }
+      }
+      @FlyoutEdit() 
+      {
+        StackPanel
+        {
+          @EditTextBox("Name")
+          {
+            Text: bind EditViewModel.Name
+          }
+          @EditCheckBox()
+          {
+            IsChecked: bind EditViewModel.IsDefault
+            "Is Default"
+          }
+          @EditTextBoxWrap("Token")
+          {
+            Text: bind EditViewModel.Token
+          }
+          @EditTextBoxWrap("Description")
+          {
+            Text: bind EditViewModel.Description
+          }
+          @EditButton() {}
+        }
+      } 
+    }
+  }
+
+
+}

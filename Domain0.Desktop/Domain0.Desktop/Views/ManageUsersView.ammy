@@ -164,7 +164,6 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
                   @EditTextBoxWrap("Custom Sms Template")
                   {
                     Text: bind CustomSmsTemplate
-                    MaxHeight: 100
                   }
                 }
               }
@@ -203,12 +202,10 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
                   @EditTextBoxWrap("Custom Email Subject Template")
                   {
                     Text: bind CustomEmailSubjectTemplates
-                    MaxHeight: 100
                   }
                   @EditTextBoxWrap("Custom Email Template")
                   {
                     Text: bind CustomEmailTemplate
-                    MaxHeight: 100
                   }
                 }
               }
