@@ -21,12 +21,12 @@ namespace Domain0.Desktop.ViewModels
     public class ManageToolsViewModel : ViewModelBase
     {
         private readonly IDomain0Service _domain0;
-        private readonly IDomain0AuthenticationContext _authContext;
+        private readonly IAuthenticationContext _authContext;
 
         public ManageToolsViewModel(
             IShell shell,
             IDomain0Service domain0,
-            IDomain0AuthenticationContext authContext)
+            IAuthenticationContext authContext)
         {
             _domain0 = domain0;
             _authContext = authContext;

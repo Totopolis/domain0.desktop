@@ -60,7 +60,7 @@ namespace Domain0.Desktop.Extensions
             await window.Invoke(() => window.ShowMessageAsync(title, ex.Message));
 
             if (reconnect ||
-                ex is Domain0AuthenticationContextException ||
+                ex is AuthenticationContextException ||
                 ex is Domain0ClientException clientException
                 && clientException.StatusCode == 401)
             {

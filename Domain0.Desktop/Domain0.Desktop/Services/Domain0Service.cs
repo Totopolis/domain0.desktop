@@ -14,9 +14,9 @@ namespace Domain0.Desktop.Services
     {
         private readonly IShell _shell;
         private readonly ILoginService _login;
-        private readonly IDomain0AuthenticationContext _authContext;
+        private readonly IAuthenticationContext _authContext;
 
-        public Domain0Service(IShell shell, ILoginService login, IDomain0AuthenticationContext domain0AuthenticationContext)
+        public Domain0Service(IShell shell, ILoginService login, IAuthenticationContext domain0AuthenticationContext)
         {
             _shell = shell;
             _login = login;

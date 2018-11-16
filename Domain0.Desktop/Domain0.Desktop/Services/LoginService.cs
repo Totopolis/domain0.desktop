@@ -16,11 +16,11 @@ namespace Domain0.Desktop.Services
     public class LoginService : ILoginService
     {
         private readonly IShell _shell;
-        private readonly IDomain0AuthenticationContext _domain0Context;
+        private readonly IAuthenticationContext _domain0Context;
 
         public LoginService(
             IShell shell,
-            IDomain0AuthenticationContext domain0AuthenticationContext)
+            IAuthenticationContext domain0AuthenticationContext)
         {
             _shell = shell;
             _domain0Context = domain0AuthenticationContext;
@@ -95,7 +95,7 @@ namespace Domain0.Desktop.Services
 
                         return true;
                     }
-                    catch (Domain0AuthenticationContextException e)
+                    catch (AuthenticationContextException e)
                     {
                         await _shell.HandleException(e.InnerException, "Login failed", false);
                         return false;

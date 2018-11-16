@@ -49,7 +49,10 @@
       <HintPath>..\packages\ControlzEx.3.0.2.4\lib\net462\ControlzEx.dll</HintPath>
     </Reference>
     <Reference Include="Domain0.Api.Client">
-      <HintPath>..\..\..\domain0\prj\Domain0.Api.Client\bin\Debug\Domain0.Api.Client.dll</HintPath>
+      <HintPath>..\..\..\domain0\prj\Domain0.Client.AuthContext\bin\Debug\net462\Domain0.Api.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Domain0.Client.AuthContext">
+      <HintPath>..\..\..\domain0\prj\Domain0.Client.AuthContext\bin\Debug\net462\Domain0.Client.AuthContext.dll</HintPath>
     </Reference>
     <Reference Include="DynamicData, Version=6.7.0.2529, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\DynamicData.6.7.0.2529\lib\net46\DynamicData.dll</HintPath>
