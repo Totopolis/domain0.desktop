@@ -8,6 +8,7 @@ using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -95,10 +96,10 @@ namespace Domain0.Desktop.ViewModels
         }
 
         [Reactive] public string PermissionsFilter { get; set; }
-        public ReactiveCommand PermissionsFilterCommand { get; set; }
-        public ReactiveCommand PermissionCheckedCommand { get; set; }
-        public ReactiveCommand ApplyPermissionsCommand { get; set; }
-        public ReactiveCommand ResetPermissionsCommand { get; set; }
+        public ReactiveCommand<string, Unit> PermissionsFilterCommand { get; set; }
+        public ReactiveCommand<SelectedItemPermissionViewModel, Unit> PermissionCheckedCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> ApplyPermissionsCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> ResetPermissionsCommand { get; set; }
         [Reactive] public bool IsChangedPermissions { get; set; }
 
         [Reactive] public IEnumerable<SelectedItemPermissionViewModel> SelectedItemPermissions { get; set; }

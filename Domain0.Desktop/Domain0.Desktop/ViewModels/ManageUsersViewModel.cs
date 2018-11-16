@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -174,16 +175,16 @@ namespace Domain0.Desktop.ViewModels
 
         [Reactive] public IEnumerable<SelectedUserRoleViewModel> SelectedUserRoles {get; set; }
         [Reactive] public string RolesFilter { get; set; }
-        public ReactiveCommand RolesFilterCommand { get; set; }
-        public ReactiveCommand RoleCheckedCommand { get; set; }
-        public ReactiveCommand ApplyRolesCommand { get; set; }
-        public ReactiveCommand ResetRolesCommand { get; set; }
+        public ReactiveCommand<string, Unit> RolesFilterCommand { get; set; }
+        public ReactiveCommand<SelectedUserRoleViewModel, Unit> RoleCheckedCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> ApplyRolesCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> ResetRolesCommand { get; set; }
         [Reactive] public bool IsChangedRoles { get; set; }
 
-        public ReactiveCommand ForceChangePhoneCommand { get; set; }
-        public ReactiveCommand ForceChangeEmailCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> ForceChangePhoneCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> ForceChangeEmailCommand { get; set; }
 
-        public ReactiveCommand LockUsersCommand { get; set; }
+        public ReactiveCommand<IList, Unit> LockUsersCommand { get; set; }
 
         protected override ISourceCache<UserProfile, int> Models => _domain0.Model.UserProfiles;
 
@@ -429,7 +430,7 @@ namespace Domain0.Desktop.ViewModels
         [Reactive] public Environment Environment { get; set; }
 
         [Reactive] public string ForceCreateUserRolesFilter { get; set; }
-        public ReactiveCommand ForceCreateUserRolesFilterCommand { get; set; }
+        public ReactiveCommand<string, Unit> ForceCreateUserRolesFilterCommand { get; set; }
         
         public int ForceCreateUserMode { get; set; }
         public string Phone { get; set; }

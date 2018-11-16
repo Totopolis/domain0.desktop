@@ -66,7 +66,9 @@ ViewUserControl "Domain0.Desktop.Views.ManageMessagesView" {
           @EditComboBox("Type") 
           {
             ItemsSource: bind from Domain0.Desktop.ViewModels.ManageMessagesViewModel.SupportedMessageTypes
-            SelectedItem: bind CreateViewModel.Type    
+                         set [ Mode: OneTime ]
+            SelectedItem: bind CreateViewModel.Type
+            SelectedIndex: 0
           }
           @EditComboBox("Environment")
           {
@@ -79,6 +81,7 @@ ViewUserControl "Domain0.Desktop.Views.ManageMessagesView" {
           @EditComboBox("Locale") 
           {
             ItemsSource: bind from Domain0.Desktop.ViewModels.ManageMessagesViewModel.SupportedMessageLocales
+                         set [ Mode: OneTime ]
             SelectedItem: bind CreateViewModel.Locale
           }
           @EditTextBox("Name")
@@ -103,7 +106,9 @@ ViewUserControl "Domain0.Desktop.Views.ManageMessagesView" {
           @EditComboBox("Type") 
           {
             ItemsSource: bind from Domain0.Desktop.ViewModels.ManageMessagesViewModel.SupportedMessageTypes
-            SelectedItem: bind EditViewModel.Type    
+                         set [ Mode: OneTime ]
+            SelectedItem: bind EditViewModel.Type
+            SelectedIndex: 0
           }
           @EditComboBox("Environment")
           {
@@ -115,6 +120,7 @@ ViewUserControl "Domain0.Desktop.Views.ManageMessagesView" {
           @EditComboBox("Locale") 
           {
             ItemsSource: bind from Domain0.Desktop.ViewModels.ManageMessagesViewModel.SupportedMessageLocales
+                         set [ Mode: OneTime ]
             SelectedItem: bind EditViewModel.Locale
           }
           @EditTextBox("Name")

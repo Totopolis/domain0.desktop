@@ -55,7 +55,7 @@ namespace Domain0.Desktop.ViewModels
                 .CreateFromTask(EditSelected)
                 .DisposeWith(Disposables);
             CreateCommand = ReactiveCommand
-                .Create(Create)
+                .CreateFromTask(Create)
                 .DisposeWith(Disposables);
 
             CreatedItemInList = new Interaction<TViewModel, Unit>();
@@ -132,7 +132,7 @@ namespace Domain0.Desktop.ViewModels
             return _mapper.Map<TViewModel>(model);
         }
 
-        public ReactiveCommand UpdateFilters { get; set; }
+        public ReactiveCommand<PropertyFilter, Unit> UpdateFilters { get; set; }
         private SourceCache<ModelFilter, PropertyInfo> ModelFilters { get; }
 
         private readonly ReadOnlyObservableCollection<TViewModel> _items;
@@ -148,12 +148,12 @@ namespace Domain0.Desktop.ViewModels
         [Reactive] public bool IsCreateFlyoutOpen { get; set; }
         [Reactive] public bool IsEditFlyoutOpen { get; set; }
 
-        public ReactiveCommand OpenCreateFlyoutCommand { get; set; }
-        public ReactiveCommand OpenEditFlyoutCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> OpenCreateFlyoutCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> OpenEditFlyoutCommand { get; set; }
 
-        public ReactiveCommand EditSelectedCommand { get; set; }
-        public ReactiveCommand DeleteSelectedCommand { get; set; }
-        public ReactiveCommand CreateCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> EditSelectedCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> DeleteSelectedCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> CreateCommand { get; set; }
 
         public Interaction<TViewModel, Unit> CreatedItemInList { get; set; }
 

@@ -1,4 +1,5 @@
-﻿using Domain0.Desktop.Extensions;
+﻿using Domain0.Api.Client;
+using Domain0.Desktop.Extensions;
 using Domain0.Desktop.Properties;
 using Domain0.Desktop.Services;
 using MahApps.Metro;
@@ -6,11 +7,11 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using Domain0.Api.Client;
 using Ui.Wpf.Common;
 using Ui.Wpf.Common.ViewModels;
 using Application = System.Windows.Application;
@@ -72,16 +73,16 @@ namespace Domain0.Desktop.ViewModels
         public List<AccentColorData> AccentColors { get; set; }
         public List<AppThemeData> AppThemes { get; set; }
 
-        public ReactiveCommand LogoutCommand { get; set; }
-        public ReactiveCommand ReloadCommand { get; set; }
-        public ReactiveCommand CopyTokenToClipboardCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> LogoutCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> ReloadCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> CopyTokenToClipboardCommand { get; set; }
 
-        public ReactiveCommand OpenUsersCommand { get; set; }
-        public ReactiveCommand OpenRolesCommand { get; set; }
-        public ReactiveCommand OpenPermissionsCommand { get; set; }
-        public ReactiveCommand OpenApplicationsCommand { get; set; }
-        public ReactiveCommand OpenEnvironmentsCommand { get; set; }
-        public ReactiveCommand OpenMessagesCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> OpenUsersCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> OpenRolesCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> OpenPermissionsCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> OpenApplicationsCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> OpenEnvironmentsCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> OpenMessagesCommand { get; set; }
 
 
         private void Logout()
@@ -107,12 +108,12 @@ namespace Domain0.Desktop.ViewModels
         public Brush BorderColorBrush { get; set; }
         public Brush ColorBrush { get; set; }
 
-        private readonly Lazy<ReactiveCommand> _changeAccentCommand;
-        public ReactiveCommand ChangeAccentCommand => _changeAccentCommand.Value;
+        private readonly Lazy<ReactiveCommand<Unit, Unit>> _changeAccentCommand;
+        public ReactiveCommand<Unit, Unit> ChangeAccentCommand => _changeAccentCommand.Value;
 
         public AccentColorData()
         {
-            _changeAccentCommand = new Lazy<ReactiveCommand>(() => ReactiveCommand.Create(DoChangeTheme));
+            _changeAccentCommand = new Lazy<ReactiveCommand<Unit, Unit>>(() => ReactiveCommand.Create(DoChangeTheme));
         }
 
         protected virtual void DoChangeTheme()
