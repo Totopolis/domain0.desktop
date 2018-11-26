@@ -101,12 +101,10 @@ namespace Domain0.Desktop.ViewModels
         protected virtual IObservable<bool> OpenCreateFlyoutCommandObservable => null;
 
         protected virtual IObservable<bool> OpenEditFlyoutCommandObservable =>
-            this.WhenAny(x => x.SelectedItem, x => x.Value != null);
+            this.WhenHaveSelectedItem();
 
         protected virtual IObservable<bool> DeleteSelectedCommandObservable =>
-            this.WhenAny(
-                x => x.SelectedItem,
-                item => item.Value != null);
+            this.WhenHaveSelectedItem();
 
         private void UpdateFilter(PropertyFilter filter)
         {

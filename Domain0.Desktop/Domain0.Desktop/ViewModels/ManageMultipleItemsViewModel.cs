@@ -5,6 +5,7 @@ using Domain0.Desktop.ViewModels.Items;
 using ReactiveUI.Fody.Helpers;
 using System.Collections.Generic;
 using System.Linq;
+using Domain0.Desktop.Extensions;
 using ReactiveUI;
 using Ui.Wpf.Common;
 
@@ -26,16 +27,10 @@ namespace Domain0.Desktop.ViewModels
         [Reactive] public ICollection<int> SelectedItemsIds { get; set; }
 
         protected override IObservable<bool> OpenEditFlyoutCommandObservable =>
-            this.WhenAny(
-                x => x.SelectedItem,
-                x => x.SelectedItemsIds,
-                (item, items) => item.Value != null && (items.Value == null || items.Value.Count == 1));
+            this.WhenHaveOnlyOneSelectedItem();
 
         protected override IObservable<bool> DeleteSelectedCommandObservable =>
-            this.WhenAny(
-                x => x.SelectedItem,
-                x => x.SelectedItemsIds,
-                (item, items) => item.Value != null && (items.Value == null || items.Value.Count == 1));
+            this.WhenHaveOnlyOneSelectedItem();
 
         protected static void ItemToParents(Dictionary<int, HashSet<int>> dst, int itemId, IEnumerable<int> parents)
         {

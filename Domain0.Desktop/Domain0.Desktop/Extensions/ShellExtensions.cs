@@ -8,6 +8,7 @@ using Monik.Common;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Domain0.Desktop.Views.Dialogs;
 using Ui.Wpf.Common;
 using Ui.Wpf.Common.ShowOptions;
 
@@ -93,6 +94,60 @@ namespace Domain0.Desktop.Extensions
                     }));
 
             return new LoadingProgress(controllerTask);
+        }
+
+        internal static Task<ForceResetPasswordDialogData> ShowForceResetPasswordDialog(this IShell shell,
+            string locale, List<string> locales)
+        {
+            var window = shell.GetWindow();
+            return window.Invoke(async () =>
+            {
+                var forceResetPasswordDialog = new ForceResetPasswordDialog(window, new ForceResetPasswordDialogSettings
+                    {
+                        LocaleInitial = locale,
+                        Locales = locales
+                    })
+                    {Title = "Force Reset Password"};
+                await window.ShowMetroDialogAsync(forceResetPasswordDialog);
+                var result = await forceResetPasswordDialog.WaitForButtonPressAsync();
+                await window.HideMetroDialogAsync(forceResetPasswordDialog);
+                return result;
+            });
+        }
+
+        internal static Task<ForceChangeDialogData> ShowForceChangeDialog(this IShell shell,
+            string input, string inputLabel, string locale, List<string> locales)
+        {
+            var window = shell.GetWindow();
+            return window.Invoke(async () =>
+            {
+                var forceChangeDialog = new ForceChangeDialog(window, new ForceChangeDialogSettings
+                    {
+                        InputInitial = input,
+                        InputLabel = inputLabel,
+                        LocaleInitial = locale,
+                        Locales = locales
+                    })
+                    {Title = $"Force Change {inputLabel}"};
+                await window.ShowMetroDialogAsync(forceChangeDialog);
+                var result = await forceChangeDialog.WaitForButtonPressAsync();
+                await window.HideMetroDialogAsync(forceChangeDialog);
+                return result;
+            });
+        }
+
+        internal static Task<ChangePasswordDialogData> ShowChangePasswordDialog(this IShell shell)
+        {
+            var window = shell.GetWindow();
+            return window.Invoke(async () =>
+            {
+                var changePasswordDialog = new ChangePasswordDialog(window, new ChangePasswordDialogSettings())
+                    {Title = "Change My Password"};
+                await window.ShowMetroDialogAsync(changePasswordDialog);
+                var result = await changePasswordDialog.WaitForButtonPressAsync();
+                await window.HideMetroDialogAsync(changePasswordDialog);
+                return result;
+            });
         }
 
         private static MetroWindow GetWindow(this IShell shell)

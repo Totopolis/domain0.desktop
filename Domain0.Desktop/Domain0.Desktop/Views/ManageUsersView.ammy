@@ -21,12 +21,16 @@ ViewUserControl "Domain0.Desktop.Views.ManageUsersView" {
         @ManageButtons() {}
         @ManageRoundButton("Lock", "Toggle Lock")
         {
-          Margin: "30,0,0,0"
+          Margin: "30,5,5,5"
           Command: bind LockUsersCommand
           CommandParameter: Binding {
             ElementName: "ManageDataGrid"
             Path: "SelectedItems"
           }
+        }
+        @ManageRoundButton("InterfacePassword", "Reset Password")
+        {
+          Command: bind ForceChangePasswordCommand
         }
       }
       @ManageDataGrid("Extended")

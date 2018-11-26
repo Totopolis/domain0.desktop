@@ -48,6 +48,12 @@ ViewUserControl "Domain0.Desktop.Views.ManageToolsView"
         ToolTip: "Reload"
         Command: bind ReloadCommand
       }
+      @CircleButton("Key")
+      {
+        Margin: "10,10,0,0"
+        ToolTip: "Change My Password"
+        Command: bind ChangePasswordCommand
+      }
       @CircleButton("Clipboard")
       {
         Margin: "10,10,0,0"

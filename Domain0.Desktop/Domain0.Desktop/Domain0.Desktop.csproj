@@ -210,6 +210,7 @@
       <DependentUpon>App.ammy</DependentUpon>
     </Compile>
     <Compile Include="Bootstrap.cs" />
+    <Compile Include="Extensions\ManageItemsViewModelExtensions.cs" />
     <Compile Include="Extensions\MonikTraceListener.cs" />
     <Compile Include="Extensions\ShellExtensions.cs" />
     <Compile Include="Models\Domain0Model.cs" />
@@ -255,6 +256,15 @@
     <Compile Include="ViewModels\Items\UserProfileViewModel.cs" />
     <Compile Include="Views\BindingProxy.cs" />
     <Compile Include="Views\Converters\DataGridFilterByPropertyConverter.cs" />
+    <Compile Include="Views\Dialogs\ChangePasswordDialog.ammy.cs">
+      <DependentUpon>ChangePasswordDialog.ammy</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Dialogs\ForceChangeDialog.ammy.cs">
+      <DependentUpon>ForceChangeDialog.ammy</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Dialogs\ForceResetPasswordDialog.ammy.cs">
+      <DependentUpon>ForceResetPasswordDialog.ammy</DependentUpon>
+    </Compile>
     <Compile Include="Views\Dialogs\LoginWithUrlDialog.ammy.cs">
       <DependentUpon>LoginWithUrlDialog.ammy</DependentUpon>
     </Compile>
@@ -295,6 +305,9 @@
     <None Include="Themes\AvalonDockStyle.ammy" />
     <None Include="Themes\Styles.ammy" />
     <None Include="Views\CommonManageView.ammy" />
+    <None Include="Views\Dialogs\ChangePasswordDialog.ammy" />
+    <None Include="Views\Dialogs\ForceChangeDialog.ammy" />
+    <None Include="Views\Dialogs\ForceResetPasswordDialog.ammy" />
     <None Include="Views\Dialogs\LoginWithUrlDialog.ammy" />
     <None Include="Views\ManageApplicationsView.ammy" />
     <None Include="Views\ManageEnvironmentsView.ammy" />
@@ -322,6 +335,21 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <DependentUpon>Styles.ammy</DependentUpon>
+    </Page>
+    <Page Include="Views\Dialogs\ChangePasswordDialog.g.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <DependentUpon>ChangePasswordDialog.ammy</DependentUpon>
+    </Page>
+    <Page Include="Views\Dialogs\ForceChangeDialog.g.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <DependentUpon>ForceChangeDialog.ammy</DependentUpon>
+    </Page>
+    <Page Include="Views\Dialogs\ForceResetPasswordDialog.g.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+      <DependentUpon>ForceResetPasswordDialog.ammy</DependentUpon>
     </Page>
     <Page Include="Views\Dialogs\LoginWithUrlDialog.g.xaml">
       <SubType>Designer</SubType>

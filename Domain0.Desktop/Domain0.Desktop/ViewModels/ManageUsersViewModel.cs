@@ -59,6 +59,9 @@ namespace Domain0.Desktop.ViewModels
                 .CreateFromTask(ResetRoles, rolesChangedObservable)
                 .DisposeWith(Disposables);
 
+            ForceChangePasswordCommand = ReactiveCommand
+                .CreateFromTask(ForceResetPassword, this.WhenHaveOnlyOneSelectedItem())
+                .DisposeWith(Disposables);
             ForceChangePhoneCommand = ReactiveCommand
                 .CreateFromTask(ForceChangePhone)
                 .DisposeWith(Disposables);
@@ -181,6 +184,7 @@ namespace Domain0.Desktop.ViewModels
         public ReactiveCommand<Unit, Unit> ResetRolesCommand { get; set; }
         [Reactive] public bool IsChangedRoles { get; set; }
 
+        public ReactiveCommand<Unit, Unit> ForceChangePasswordCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ForceChangePhoneCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ForceChangeEmailCommand { get; set; }
 
@@ -340,23 +344,48 @@ namespace Domain0.Desktop.ViewModels
             TraceApplied("Permissions to Users", toAdd, toRemove);
         }
 
+        // Reset Password
+
+        private async Task ForceResetPassword()
+        {
+            try
+            {
+                var dialogResult = await _shell.ShowForceResetPasswordDialog(Locales.FirstOrDefault(), Locales.ToList());
+                if (dialogResult == null)
+                    return;
+
+                //var request = new ForceResetPasswordRequest(
+                //    EditViewModel.Phone,
+                //    EditViewModel.Email,
+                //    EditViewModel.Id,
+                //    dialogResult.Locale
+                //);
+                //await _domain0.Client.ForceResetUserPasswordAsync(request);
+            }
+            catch (Exception e)
+            {
+                await _shell.HandleException(e, "Failed to Force Reset Password");
+            }
+        }
+
         // Change Email & Phone
 
         private async Task ForceChangePhone()
         {
-            var newPhoneStr = await _shell.ShowInput(
-                "Change Phone",
-                "Enter new Phone",
-                EditViewModel.Phone);
+            var changeData = await _shell.ShowForceChangeDialog(
+                EditViewModel.Phone,
+                "Phone",
+                Locales.FirstOrDefault(),
+                Locales.ToList());
 
-            if (newPhoneStr != null)
+            if (changeData != null)
             {
                 try
                 {
-                    var newPhone = long.Parse(newPhoneStr);
-                    var request = new ChangePhoneRequest(newPhone, EditViewModel.Id.Value);
+                    var newPhone = long.Parse(changeData.Input);
+                    var request = new ChangePhoneRequest(changeData.Locale, newPhone, EditViewModel.Id.Value);
                     await _domain0.Client.ForceChangePhoneAsync(request);
-                    EditViewModel.Phone = newPhoneStr;
+                    EditViewModel.Phone = changeData.Input;
                     Models.AddOrUpdate(EditModel);
                 }
                 catch (Exception e)
@@ -368,18 +397,19 @@ namespace Domain0.Desktop.ViewModels
 
         private async Task ForceChangeEmail()
         {
-            var newEmail = await _shell.ShowInput(
-                "Change Email",
-                "Enter new Email",
-                EditViewModel.Email);
+            var changeData = await _shell.ShowForceChangeDialog(
+                EditViewModel.Email,
+                "Email",
+                Locales.FirstOrDefault(),
+                Locales.ToList());
 
-            if (newEmail != null)
+            if (changeData != null)
             {
                 try
                 {
-                    var request = new ChangeEmailRequest(newEmail, EditViewModel.Id.Value);
+                    var request = new ChangeEmailRequest(changeData.Locale, changeData.Input, EditViewModel.Id.Value);
                     await _domain0.Client.ForceChangeEmailAsync(request);
-                    EditViewModel.Email = newEmail;
+                    EditViewModel.Email = changeData.Input;
                     Models.AddOrUpdate(EditModel);
                 }
                 catch (Exception e)

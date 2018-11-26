@@ -20,6 +20,7 @@ namespace Domain0.Desktop.ViewModels
 {
     public class ManageToolsViewModel : ViewModelBase
     {
+        private readonly IShell _shell;
         private readonly IDomain0Service _domain0;
         private readonly IAuthenticationContext _authContext;
 
@@ -28,6 +29,7 @@ namespace Domain0.Desktop.ViewModels
             IDomain0Service domain0,
             IAuthenticationContext authContext)
         {
+            _shell = shell;
             _domain0 = domain0;
             _authContext = authContext;
 
@@ -39,6 +41,9 @@ namespace Domain0.Desktop.ViewModels
                 .DisposeWith(Disposables);
             CopyTokenToClipboardCommand = ReactiveCommand
                 .Create(CopyTokenToClipboard)
+                .DisposeWith(Disposables);
+            ChangePasswordCommand = ReactiveCommand
+                .CreateFromTask(ChangePassword)
                 .DisposeWith(Disposables);
 
             OpenUsersCommand = ReactiveCommand
@@ -76,6 +81,7 @@ namespace Domain0.Desktop.ViewModels
         public ReactiveCommand<Unit, Unit> LogoutCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ReloadCommand { get; set; }
         public ReactiveCommand<Unit, Unit> CopyTokenToClipboardCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> ChangePasswordCommand { get; set; }
 
         public ReactiveCommand<Unit, Unit> OpenUsersCommand { get; set; }
         public ReactiveCommand<Unit, Unit> OpenRolesCommand { get; set; }
@@ -98,6 +104,25 @@ namespace Domain0.Desktop.ViewModels
         private void CopyTokenToClipboard()
         {
             Clipboard.SetText($"Bearer {_authContext.Token}");
+        }
+
+        private async Task ChangePassword()
+        {
+            try
+            {
+                var changePasswordDialogData = await _shell.ShowChangePasswordDialog();
+                if (changePasswordDialogData == null)
+                    return;
+
+                var changePasswordRequest = new ChangePasswordRequest(
+                    changePasswordDialogData.PasswordNew,
+                    changePasswordDialogData.PasswordOld);
+                await _domain0.Client.ChangeMyPasswordAsync(changePasswordRequest);
+            }
+            catch (Exception e)
+            {
+                await _shell.HandleException(e, "Failed to Change Password");
+            }
         }
     }
 
