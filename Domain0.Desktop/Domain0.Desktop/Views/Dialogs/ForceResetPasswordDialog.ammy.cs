@@ -2,15 +2,34 @@
 using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
 namespace Domain0.Desktop.Views.Dialogs
 {
+    public enum ResetWayType
+    {
+        [Description("By User Id")]
+        UserId,
+        [Description("By Phone Number")]
+        Phone,
+        [Description("By Email")]
+        Email
+    }
+
+    public class ResetWayItem
+    {
+        public ResetWayType Type { get; set; }
+        public string Name { get; set; }
+    }
+
     public class ForceResetPasswordDialogData
     {
         public string Locale { get; internal set; }
+        public ResetWayType ResetWay { get; internal set; }
     }
 
     public class ForceResetPasswordDialogSettings : MetroDialogSettings
@@ -42,6 +61,24 @@ namespace Domain0.Desktop.Views.Dialogs
 
             this.Locale = settings.LocaleInitial;
             this.Locales = settings.Locales;
+
+            var resetWayType = typeof(ResetWayType);
+            this.ResetWays = Enum.GetValues(resetWayType)
+                .OfType<ResetWayType>()
+                .Select(x =>
+                {
+                    var name = resetWayType.GetEnumName(x);
+                    var memInfo = resetWayType.GetMember(name);
+                    var attribute = memInfo[0]
+                        .GetCustomAttributes(typeof(DescriptionAttribute), false)
+                        .FirstOrDefault();
+                    if (attribute is DescriptionAttribute descriptionAttribute)
+                        name = descriptionAttribute.Description;
+
+                    return new ResetWayItem {Name = name, Type = x};
+                })
+                .ToList();
+            this.ResetWay = ResetWays.FirstOrDefault();
         }
 
 
@@ -110,7 +147,8 @@ namespace Domain0.Desktop.Views.Dialogs
                     cleanUpHandlers();
                     tcs.TrySetResult(new ForceResetPasswordDialogData
                     {
-                        Locale = this.Locale
+                        Locale = this.Locale,
+                        ResetWay = this.ResetWay.Type
                     });
                 }
             };
@@ -130,7 +168,8 @@ namespace Domain0.Desktop.Views.Dialogs
 
                 tcs.TrySetResult(new ForceResetPasswordDialogData
                 {
-                    Locale = this.Locale
+                    Locale = this.Locale,
+                    ResetWay = this.ResetWay.Type
                 });
 
                 e.Handled = true;
@@ -159,6 +198,8 @@ namespace Domain0.Desktop.Views.Dialogs
 
         public static readonly DependencyProperty LocaleProperty = DependencyProperty.Register("Locale", typeof(string), typeof(ForceResetPasswordDialog), new PropertyMetadata(default(string)));
         public static readonly DependencyProperty LocalesProperty = DependencyProperty.Register("Locales", typeof(List<string>), typeof(ForceResetPasswordDialog), new PropertyMetadata(default(List<string>)));
+        public static readonly DependencyProperty ResetWayProperty = DependencyProperty.Register("ResetWay", typeof(ResetWayItem), typeof(ForceResetPasswordDialog), new PropertyMetadata(default(ResetWayItem)));
+        public static readonly DependencyProperty ResetWaysProperty = DependencyProperty.Register("ResetWays", typeof(List<ResetWayItem>), typeof(ForceResetPasswordDialog), new PropertyMetadata(default(List<ResetWayItem>)));
         public static readonly DependencyProperty AffirmativeButtonTextProperty = DependencyProperty.Register("AffirmativeButtonText", typeof(string), typeof(ForceResetPasswordDialog), new PropertyMetadata("OK"));
         public static readonly DependencyProperty NegativeButtonTextProperty = DependencyProperty.Register("NegativeButtonText", typeof(string), typeof(ForceResetPasswordDialog), new PropertyMetadata("Cancel"));
 
@@ -173,7 +214,19 @@ namespace Domain0.Desktop.Views.Dialogs
             get { return (List<string>)this.GetValue(LocalesProperty); }
             set { this.SetValue(LocalesProperty, value); }
         }
-        
+
+        public ResetWayItem ResetWay
+        {
+            get { return (ResetWayItem)this.GetValue(ResetWayProperty); }
+            set { this.SetValue(ResetWayProperty, value); }
+        }
+
+        public List<ResetWayItem> ResetWays
+        {
+            get { return (List<ResetWayItem>)this.GetValue(ResetWaysProperty); }
+            set { this.SetValue(ResetWaysProperty, value); }
+        }
+
         public string AffirmativeButtonText
         {
             get { return (string)this.GetValue(AffirmativeButtonTextProperty); }

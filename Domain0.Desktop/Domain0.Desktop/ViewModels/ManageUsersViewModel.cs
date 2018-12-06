@@ -3,6 +3,7 @@ using Domain0.Api.Client;
 using Domain0.Desktop.Extensions;
 using Domain0.Desktop.Services;
 using Domain0.Desktop.ViewModels.Items;
+using Domain0.Desktop.Views.Dialogs;
 using DynamicData;
 using DynamicData.Binding;
 using ReactiveUI;
@@ -354,13 +355,21 @@ namespace Domain0.Desktop.ViewModels
                 if (dialogResult == null)
                     return;
 
-                //var request = new ForceResetPasswordRequest(
-                //    EditViewModel.Phone,
-                //    EditViewModel.Email,
-                //    EditViewModel.Id,
-                //    dialogResult.Locale
-                //);
-                //await _domain0.Client.ForceResetUserPasswordAsync(request);
+                var userId = dialogResult.ResetWay == ResetWayType.UserId ? EditViewModel.Id : null;
+                var email = dialogResult.ResetWay == ResetWayType.Email ? EditViewModel.Email : null;
+                var phone = dialogResult.ResetWay == ResetWayType.Phone
+                    ? (long.TryParse(EditViewModel.Phone, out var phoneParsed)
+                        ? phoneParsed
+                        : (long?)null)
+                    : null;
+
+                var request = new ForceResetPasswordRequest(
+                    email,
+                    dialogResult.Locale,
+                    phone,
+                    userId
+                );
+                await _domain0.Client.ForceResetUserPasswordAsync(request);
             }
             catch (Exception e)
             {
