@@ -1,12 +1,11 @@
 ﻿using Autofac;
 using AutoMapper;
 using Domain0.Api.Client;
-using Domain0.Desktop.Properties;
+using Domain0.Desktop.Config;
 using Domain0.Desktop.Services;
 using Domain0.Desktop.ViewModels;
 using Domain0.Desktop.ViewModels.Items;
 using Domain0.Desktop.Views;
-using Monik.Client;
 using Monik.Common;
 using Ui.Wpf.Common;
 
@@ -20,6 +19,8 @@ namespace Domain0.Desktop
 
             builder.RegisterType<Shell>().As<IShell>().SingleInstance();
             builder.RegisterType<MainWindow>().As<IDockWindow>().SingleInstance();
+
+            builder.RegisterType<AppConfigStorage>().As<IAppConfigStorage>().SingleInstance();
 
             builder.RegisterType<AuthenticationContext>().As<IAuthenticationContext>().SingleInstance();
 
@@ -50,17 +51,8 @@ namespace Domain0.Desktop
             builder.RegisterInstance(CreateMapper()).As<IMapper>();
 
 
-            builder.RegisterInstance(new AzureSender(
-                    Settings.Default.MonikConnectionString,
-                    Settings.Default.MonikQueueName))
-                .As<IMonikSender>();
-            builder.RegisterInstance(new ClientSettings()
-            {
-                SourceName = Settings.Default.MonikSourceName,
-                InstanceName = Settings.Default.MonikInstanceName,
-                AutoKeepAliveEnable = true
-            }).As<IMonikSettings>();
-            builder.RegisterType<MonikClient>().As<IMonik>().SingleInstance();
+            builder.RegisterInstance(new MonikFile("logs.log"))
+                .As<IMonik>().SingleInstance();
 
             var container = builder.Build();
 

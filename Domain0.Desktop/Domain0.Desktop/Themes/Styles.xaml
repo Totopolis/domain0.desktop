@@ -1,0 +1,106 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Color x:Key="RoleAccentColor1">#CCFA6800</Color>
+  <Color x:Key="RoleAccentColor2">#99FA6800</Color>
+  <Color x:Key="RoleAccentColor3">#66FA6800</Color>
+  <SolidColorBrush x:Key="RoleAccentBrush1" Color="{StaticResource RoleAccentColor1}"/>
+  <SolidColorBrush x:Key="RoleAccentBrush2" Color="{StaticResource RoleAccentColor2}"/>
+  <SolidColorBrush x:Key="RoleAccentBrush3" Color="{StaticResource RoleAccentColor3}"/>
+  <Color x:Key="PermissionAccentColor1">#CCD80073</Color>
+  <Color x:Key="PermissionAccentColor2">#99D80073</Color>
+  <Color x:Key="PermissionAccentColor3">#66D80073</Color>
+  <SolidColorBrush x:Key="PermissionAccentBrush1" Color="{StaticResource PermissionAccentColor1}"/>
+  <SolidColorBrush x:Key="PermissionAccentBrush2" Color="{StaticResource PermissionAccentColor2}"/>
+  <SolidColorBrush x:Key="PermissionAccentBrush3" Color="{StaticResource PermissionAccentColor3}"/>
+  <Style x:Key="MetroToggleButtonRole" TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource MahApps.Styles.ToggleButton.Flat}">
+    <Style.Triggers>
+      <Trigger Property="IsChecked" Value="True">
+        <Setter Property="Background" Value="{StaticResource RoleAccentBrush1}"/>
+        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.FlatButton.PressedForeground}"/>
+      </Trigger>
+      <MultiTrigger>
+        <MultiTrigger.Conditions>
+          <Condition Property="IsMouseOver" Value="True"/>
+          <Condition Property="IsChecked" Value="False"/>
+        </MultiTrigger.Conditions>
+        <Setter Property="Background" Value="DarkGray"/>
+      </MultiTrigger>
+      <MultiTrigger>
+        <MultiTrigger.Conditions>
+          <Condition Property="IsMouseOver" Value="True"/>
+          <Condition Property="IsChecked" Value="True"/>
+        </MultiTrigger.Conditions>
+        <Setter Property="Background" Value="{StaticResource RoleAccentBrush2}"/>
+        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.FlatButton.PressedForeground}"/>
+      </MultiTrigger>
+      <MultiTrigger>
+        <MultiTrigger.Conditions>
+          <Condition Property="IsPressed" Value="True"/>
+          <Condition Property="IsChecked" Value="False"/>
+        </MultiTrigger.Conditions>
+        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.FlatButton.PressedBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.FlatButton.PressedForeground}"/>
+      </MultiTrigger>
+      <MultiTrigger>
+        <MultiTrigger.Conditions>
+          <Condition Property="IsPressed" Value="True"/>
+          <Condition Property="IsChecked" Value="True"/>
+        </MultiTrigger.Conditions>
+        <Setter Property="Background" Value="{StaticResource RoleAccentBrush3}"/>
+        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.FlatButton.PressedForeground}"/>
+      </MultiTrigger>
+      <Trigger Property="IsEnabled" Value="False">
+        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Gray2}"/>
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+  <Style x:Key="MetroToggleButtonPermission" TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource MahApps.Styles.ToggleButton.Flat}">
+    <Style.Triggers>
+      <Trigger Property="IsChecked" Value="True">
+        <Setter Property="Background" Value="{StaticResource PermissionAccentBrush1}"/>
+        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.FlatButton.PressedForeground}"/>
+      </Trigger>
+      <MultiTrigger>
+        <MultiTrigger.Conditions>
+          <Condition Property="IsMouseOver" Value="True"/>
+          <Condition Property="IsChecked" Value="False"/>
+        </MultiTrigger.Conditions>
+        <Setter Property="Background" Value="DarkGray"/>
+      </MultiTrigger>
+      <MultiTrigger>
+        <MultiTrigger.Conditions>
+          <Condition Property="IsMouseOver" Value="True"/>
+          <Condition Property="IsChecked" Value="True"/>
+        </MultiTrigger.Conditions>
+        <Setter Property="Background" Value="{StaticResource PermissionAccentBrush2}"/>
+        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.FlatButton.PressedForeground}"/>
+      </MultiTrigger>
+      <MultiTrigger>
+        <MultiTrigger.Conditions>
+          <Condition Property="IsPressed" Value="True"/>
+          <Condition Property="IsChecked" Value="False"/>
+        </MultiTrigger.Conditions>
+        <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.FlatButton.PressedBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.FlatButton.PressedForeground}"/>
+      </MultiTrigger>
+      <MultiTrigger>
+        <MultiTrigger.Conditions>
+          <Condition Property="IsPressed" Value="True"/>
+          <Condition Property="IsChecked" Value="True"/>
+        </MultiTrigger.Conditions>
+        <Setter Property="Background" Value="{StaticResource PermissionAccentBrush3}"/>
+        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.FlatButton.PressedForeground}"/>
+      </MultiTrigger>
+      <Trigger Property="IsEnabled" Value="False">
+        <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Gray2}"/>
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+  <Style x:Key="SearchTextBox" xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls" BasedOn="{StaticResource MahApps.Styles.TextBox.Search}" TargetType="{x:Type TextBox}">
+    <Style.Triggers>
+      <Trigger Property="Controls:TextBoxHelper.HasText" Value="True">
+        <Setter Property="Controls:TextBoxHelper.ButtonContent" Value="r"/>
+        <Setter Property="Controls:TextBoxHelper.ButtonContentTemplate" Value="{x:Null}"/>
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+</ResourceDictionary>

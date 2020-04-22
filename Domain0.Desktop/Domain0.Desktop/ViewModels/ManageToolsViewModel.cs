@@ -1,6 +1,5 @@
 ﻿using Domain0.Api.Client;
 using Domain0.Desktop.Extensions;
-using Domain0.Desktop.Properties;
 using Domain0.Desktop.Services;
 using MahApps.Metro;
 using ReactiveUI;
@@ -12,6 +11,7 @@ using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using Domain0.Desktop.Config;
 using Ui.Wpf.Common;
 using Ui.Wpf.Common.ViewModels;
 using Application = System.Windows.Application;
@@ -23,15 +23,18 @@ namespace Domain0.Desktop.ViewModels
         private readonly IShell _shell;
         private readonly IDomain0Service _domain0;
         private readonly IAuthenticationContext _authContext;
+        private readonly IAppConfigStorage _appConfigStorage;
 
         public ManageToolsViewModel(
             IShell shell,
             IDomain0Service domain0,
-            IAuthenticationContext authContext)
+            IAuthenticationContext authContext,
+            IAppConfigStorage appConfigStorage)
         {
             _shell = shell;
             _domain0 = domain0;
             _authContext = authContext;
+            _appConfigStorage = appConfigStorage;
 
             LogoutCommand = ReactiveCommand
                 .Create(Logout)
@@ -65,18 +68,29 @@ namespace Domain0.Desktop.ViewModels
                 .Create(shell.ShowMessages)
                 .DisposeWith(Disposables);
 
-            AccentColors = ThemeManager.Accents
-                .Select(a => new AccentColorData { Name = a.Name, ColorBrush = a.Resources["AccentBaseColorBrush"] as Brush })
+            AccentColors = ThemeManager.ColorSchemes
+                .Select(a => new ColorData(_appConfigStorage,
+                    (x, v) => x.AccentColor = v)
+                {
+                    Name = a.Name,
+                    ColorBrush = a.ShowcaseBrush,
+                })
                 .ToList();
-            AppThemes = ThemeManager.AppThemes
-                .GroupBy(x => x.Resources)
+            AppThemes = ThemeManager.Themes
+                .GroupBy(x => x.Type)
                 .Select(x => x.First())
-                .Select(a => new AppThemeData { Name = a.Name, BorderColorBrush = a.Resources["BlackColorBrush"] as Brush, ColorBrush = a.Resources["WhiteColorBrush"] as Brush })
+                .Select(a => new ColorData(_appConfigStorage,
+                    (x, v) => x.AppTheme = v)
+                {
+                    Name = a.BaseColorScheme,
+                    BorderColorBrush = a.Resources["MahApps.Brushes.Black"] as Brush, 
+                    ColorBrush = a.Resources["MahApps.Brushes.White"] as Brush,
+                })
                 .ToList();
         }
 
-        public List<AccentColorData> AccentColors { get; set; }
-        public List<AppThemeData> AppThemes { get; set; }
+        public List<ColorData> AccentColors { get; set; }
+        public List<ColorData> AppThemes { get; set; }
 
         public ReactiveCommand<Unit, Unit> LogoutCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ReloadCommand { get; set; }
@@ -127,7 +141,7 @@ namespace Domain0.Desktop.ViewModels
     }
 
 
-    public class AccentColorData
+    public class ColorData
     {
         public string Name { get; set; }
         public Brush BorderColorBrush { get; set; }
@@ -136,33 +150,17 @@ namespace Domain0.Desktop.ViewModels
         private readonly Lazy<ReactiveCommand<Unit, Unit>> _changeAccentCommand;
         public ReactiveCommand<Unit, Unit> ChangeAccentCommand => _changeAccentCommand.Value;
 
-        public AccentColorData()
+        public ColorData(IAppConfigStorage storage, Action<AppConfig, string> action)
         {
-            _changeAccentCommand = new Lazy<ReactiveCommand<Unit, Unit>>(() => ReactiveCommand.Create(DoChangeTheme));
-        }
+            _changeAccentCommand = new Lazy<ReactiveCommand<Unit, Unit>>(() =>
+                ReactiveCommand.Create(() =>
+                {
+                    var config = storage.Load();
+                    action(config, Name);
+                    storage.Save(config);
 
-        protected virtual void DoChangeTheme()
-        {
-            Settings.Default.AccentColor = Name;
-            Settings.Default.Save();
-
-            ThemeManager.ChangeAppStyle(Application.Current,
-                ThemeManager.GetAccent(Settings.Default.AccentColor),
-                ThemeManager.GetAppTheme(Settings.Default.AppTheme));
+                    ThemeManager.ChangeTheme(Application.Current, config.AppTheme, config.AccentColor);
+                }));
         }
     }
-
-    public class AppThemeData : AccentColorData
-    {
-        protected override void DoChangeTheme()
-        {
-            Settings.Default.AppTheme = Name;
-            Settings.Default.Save();
-
-            ThemeManager.ChangeAppStyle(Application.Current,
-                ThemeManager.GetAccent(Settings.Default.AccentColor),
-                ThemeManager.GetAppTheme(Settings.Default.AppTheme));
-        }
-    }
-
 }

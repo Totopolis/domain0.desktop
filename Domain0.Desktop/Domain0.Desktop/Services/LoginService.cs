@@ -1,13 +1,13 @@
 ﻿using Autofac;
 using Domain0.Api.Client;
 using Domain0.Desktop.Extensions;
-using Domain0.Desktop.Properties;
 using Domain0.Desktop.Views.Dialogs;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
+using Domain0.Desktop.Config;
 using Ui.Wpf.Common;
 using Application = System.Windows.Application;
 
@@ -17,14 +17,22 @@ namespace Domain0.Desktop.Services
     {
         private readonly IShell _shell;
         private readonly IAuthenticationContext _domain0Context;
+        private readonly IAppConfigStorage _appConfigStorage;
 
         public LoginService(
             IShell shell,
-            IAuthenticationContext domain0AuthenticationContext)
+            IAuthenticationContext domain0AuthenticationContext,
+            IAppConfigStorage appConfigStorage)
         {
             _shell = shell;
             _domain0Context = domain0AuthenticationContext;
-            _domain0Context.HostUrl = Settings.Default.HostUrl;
+            _appConfigStorage = appConfigStorage;
+
+            var config = _appConfigStorage.Load();
+            if (config.HostUrl != null)
+            {
+                _domain0Context.HostUrl = config.HostUrl;
+            }
         }
 
         public void ShowLogin(Action onSuccess = null)
@@ -42,6 +50,7 @@ namespace Domain0.Desktop.Services
 
         private void ShowLoginInternal(bool canChangeUrl, Action onSuccess = null)
         {
+            var config = _appConfigStorage.Load();
             AuthProcess.Start(
                 getAuthenticationData: async () =>
                 {
@@ -56,12 +65,13 @@ namespace Domain0.Desktop.Services
                         NegativeButtonVisibility = Visibility.Visible,
                         UrlWatermark = "Url",
                         ShouldHideUrl = !canChangeUrl,
-                        InitialUrl = _domain0Context.HostUrl,
+                        InitialUrl = config.HostUrl,
                         EmailWatermark = "email@gmail.com",
                         PhoneWatermark = "79998887766",
                         PasswordWatermark = "Password",
                         EnablePasswordPreview = true,
-                        RememberCheckBoxVisibility = Visibility.Visible
+                        RememberCheckBoxVisibility = Visibility.Visible,
+                        RememberCheckBoxChecked = config.ShouldRemember,
                     };
 
                     var loginDialog = new LoginWithUrlDialog(view, settings) { Title = "Login" };
@@ -77,8 +87,10 @@ namespace Domain0.Desktop.Services
 
                     try
                     {
-                        Settings.Default.HostUrl = x.Url;
-                        Settings.Default.Save();
+                        config.HostUrl = x.Url;
+                        config.ShouldRemember = x.ShouldRemember;
+                        _appConfigStorage.Save(config);
+                        
                         _domain0Context.HostUrl = x.Url;
                         _domain0Context.ShouldRemember = x.ShouldRemember;
 

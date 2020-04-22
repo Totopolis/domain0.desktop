@@ -63,6 +63,7 @@ namespace Domain0.Desktop.Views.Dialogs
             PasswordWatermark = DefaultPasswordWatermark;
 
             RememberCheckBoxText = DefaultRememberCheckBoxText;
+            RememberCheckBoxChecked = false;
         }
 
         public string InitialUrl { get; set; }
@@ -78,6 +79,7 @@ namespace Domain0.Desktop.Views.Dialogs
         public string PasswordWatermark { get; set; }
 
         public string RememberCheckBoxText { get; set; }
+        public bool RememberCheckBoxChecked { get; set; }
 
         public Visibility NegativeButtonVisibility { get; set; }
         public Visibility RememberCheckBoxVisibility { get; set; }
@@ -106,6 +108,7 @@ namespace Domain0.Desktop.Views.Dialogs
             this.NegativeButtonButtonVisibility = settings.NegativeButtonVisibility;
             this.RememberCheckBoxVisibility = settings.RememberCheckBoxVisibility;
             this.RememberCheckBoxText = settings.RememberCheckBoxText;
+            this.RememberCheckBoxChecked = settings.RememberCheckBoxChecked;
 
             this.Url = settings.InitialUrl;
             this.UrlWatermark = settings.UrlWatermark;
@@ -240,7 +243,7 @@ namespace Domain0.Desktop.Views.Dialogs
         {
             if (this.DialogSettings is LoginWithUrlDialogSettings settings && settings.EnablePasswordPreview)
             {
-                if (this.FindResource("Win8MetroPasswordBox") is Style win8MetroPasswordStyle)
+                if (this.FindResource("MahApps.Styles.PasswordBox.Win8") is Style win8MetroPasswordStyle)
                 {
                     this.PART_TextBox_Password.Style = win8MetroPasswordStyle;
                     // apply template again to fire the loaded event which is necessary for revealed password
@@ -254,10 +257,10 @@ namespace Domain0.Desktop.Views.Dialogs
             switch (this.DialogSettings.ColorScheme)
             {
                 case MetroDialogColorScheme.Accented:
-                    this.PART_NegativeButton.SetResourceReference(StyleProperty, "AccentedDialogHighlightedSquareButton");
-                    this.PART_TextBox_Email.SetResourceReference(ForegroundProperty, "BlackColorBrush");
-                    this.PART_TextBox_Phone.SetResourceReference(ForegroundProperty, "BlackColorBrush");
-                    this.PART_TextBox_Password.SetResourceReference(ForegroundProperty, "BlackColorBrush");
+                    this.PART_NegativeButton.SetResourceReference(StyleProperty, "MahApps.Styles.Button.Dialogs.AccentHighlight");
+                    this.PART_TextBox_Email.SetResourceReference(ForegroundProperty, "MahApps.Brushes.Black");
+                    this.PART_TextBox_Phone.SetResourceReference(ForegroundProperty, "MahApps.Brushes.Black");
+                    this.PART_TextBox_Password.SetResourceReference(ForegroundProperty, "MahApps.Brushes.Black");
                     break;
             }
         }

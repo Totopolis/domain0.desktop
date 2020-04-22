@@ -1,0 +1,663 @@
+<ns1:ViewUserControl x:Class="Domain0.Desktop.Views.ManageUsersView" 
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+  xmlns:ns0="clr-namespace:MahApps.Metro.IconPacks;assembly=MahApps.Metro.IconPacks.Modern" 
+  xmlns:ns1="clr-namespace:Domain0.Desktop.Views" 
+  xmlns:ns2="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" 
+  xmlns:ns4="clr-namespace:Domain0.Desktop.Views.Converters" 
+  xmlns:ammySidekick="clr-namespace:AmmySidekick">
+  <ns1:ViewUserControl.Resources>
+    <ns1:BindingProxy x:Key="Proxy">
+      <ns1:BindingProxy.Data>
+        <Binding/>
+      </ns1:BindingProxy.Data>
+    </ns1:BindingProxy>
+  </ns1:ViewUserControl.Resources>
+  <Grid>
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="300"/>
+      </Grid.ColumnDefinitions>
+      <StackPanel Orientation="Horizontal" Grid.Row="0">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <ns1:ToggleButtonEx Margin="5" Width="32" Height="32" ToolTip="Add new" Style="{DynamicResource MahApps.Styles.ToggleButton.Circle}" Grid.Column="0">
+            <ns0:PackIconModern Kind="Add" Height="16" Width="16"/>
+            <ns1:ToggleButtonEx.Command>
+              <Binding Path="OpenCreateFlyoutCommand"/>
+            </ns1:ToggleButtonEx.Command>
+            <ns1:ToggleButtonEx.IsChecked>
+              <Binding Path="IsCreateFlyoutOpen"/>
+            </ns1:ToggleButtonEx.IsChecked>
+          </ns1:ToggleButtonEx>
+          <ns1:ToggleButtonEx Margin="5" Width="32" Height="32" ToolTip="Edit selected" Style="{DynamicResource MahApps.Styles.ToggleButton.Circle}" Grid.Column="1">
+            <ns0:PackIconModern Kind="Edit" Height="16" Width="16"/>
+            <ns1:ToggleButtonEx.Command>
+              <Binding Path="OpenEditFlyoutCommand"/>
+            </ns1:ToggleButtonEx.Command>
+            <ns1:ToggleButtonEx.IsChecked>
+              <Binding Path="IsEditFlyoutOpen"/>
+            </ns1:ToggleButtonEx.IsChecked>
+          </ns1:ToggleButtonEx>
+          <Button Margin="5" Width="32" Height="32" ToolTip="Remove selected" Style="{DynamicResource MahApps.Styles.Button.Circle}" Grid.Column="2">
+            <ns0:PackIconModern Kind="Delete" Height="16" Width="16"/>
+            <Button.Command>
+              <Binding Path="DeleteSelectedCommand"/>
+            </Button.Command>
+          </Button>
+        </Grid>
+        <Button Margin="30,5,5,5" Width="32" Height="32" ToolTip="Toggle Lock" Style="{DynamicResource MahApps.Styles.Button.Circle}">
+          <ns0:PackIconModern Kind="Lock" Height="16" Width="16"/>
+          <Button.Command>
+            <Binding Path="LockUsersCommand"/>
+          </Button.Command>
+          <Button.CommandParameter>
+            <Binding ElementName="ManageDataGrid" Path="SelectedItems"/>
+          </Button.CommandParameter>
+        </Button>
+        <Button Margin="5" Width="32" Height="32" ToolTip="Reset Password" Style="{DynamicResource MahApps.Styles.Button.Circle}">
+          <ns0:PackIconModern Kind="InterfacePassword" Height="16" Width="16"/>
+          <Button.Command>
+            <Binding Path="ForceChangePasswordCommand"/>
+          </Button.Command>
+        </Button>
+      </StackPanel>
+      <DataGrid Name="ManageDataGrid" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" SelectionMode="Extended" IsReadOnly="True" AutoGenerateColumns="False" Grid.Row="1" SelectionChanged="OnUsersSelectionChanged">
+        <DataGrid.Resources>
+          <ns1:BindingProxy x:Key="Proxy">
+            <ns1:BindingProxy.Data>
+              <Binding/>
+            </ns1:BindingProxy.Data>
+          </ns1:BindingProxy>
+          <Style TargetType="{x:Type DataGridColumnHeader}">
+            <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.White}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource MahApps.Brushes.Gray5}"/>
+            <Setter Property="BorderThickness" Value="0 0 0 3"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Black}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="MinHeight" Value="25"/>
+            <Setter Property="MinWidth" Value="0"/>
+            <Setter Property="Padding" Value="10 4 4 7"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+              <Setter.Value>
+                <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
+                  <Grid>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="*"/>
+                      <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Border x:Name="BackgroundBorder" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="2" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"/>
+                    <ns2:ContentControlEx x:Name="HeaderContent" Grid.Row="0" Grid.Column="0" Padding="{TemplateBinding Padding}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" ContentTemplate="{TemplateBinding ContentTemplate}" ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                    <Path x:Name="SortArrow" Grid.Row="0" Grid.Column="1" Width="8" Height="10" Margin="0 0 8 2" VerticalAlignment="Center" Fill="{DynamicResource MahApps.Brushes.Gray2}" RenderTransformOrigin="0.5,0.5" Stretch="Fill" Visibility="Collapsed"/>
+                    <Border Grid.Row="1" Grid.Column="0" Grid.RowSpan="1" Grid.ColumnSpan="2" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0 1 0 0">
+                      <TextBox x:Name="HeaderSearchBox">
+                        <TextBox.InputBindings>
+                          <KeyBinding Key="Return">
+                            <KeyBinding.Command>
+                              <Binding Path="Data.UpdateFilters" Source="{StaticResource Proxy}"/>
+                            </KeyBinding.Command>
+                            <KeyBinding.CommandParameter>
+                              <MultiBinding>
+                                <MultiBinding.Converter>
+                                  <ns4:DataGridFilterByPropertyConverter/>
+                                </MultiBinding.Converter>
+                                <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType=DataGrid}"/>
+                                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="TabIndex"/>
+                                <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType=TextBox}" Path="Text"/>
+                              </MultiBinding>
+                            </KeyBinding.CommandParameter>
+                          </KeyBinding>
+                        </TextBox.InputBindings>
+                      </TextBox>
+                    </Border>
+                    <Thumb x:Name="PART_LeftHeaderGripper" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="1" HorizontalAlignment="Left" Background="Transparent" Style="{StaticResource MahApps.Styles.Thumb.ColumnHeaderGripper}"/>
+                    <Thumb x:Name="PART_RightHeaderGripper" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="1" HorizontalAlignment="Right" Style="{StaticResource MahApps.Styles.Thumb.ColumnHeaderGripper}"/>
+                  </Grid>
+                  <ControlTemplate.Triggers>
+                    <Trigger Property="SortDirection" Value="Ascending">
+                      <Setter TargetName="SortArrow" Property="Data" Value="F1 M 34,57L 42,57L 42,32.25L 52,42.25L 52,31.75L 38,17.75L 24,31.75L 24,42.25L 34,32.25L 34,57 Z "/>
+                      <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
+                    </Trigger>
+                    <Trigger Property="SortDirection" Value="Descending">
+                      <Setter TargetName="SortArrow" Property="Data" Value="F1 M 42,19.0002L 34,19.0002L 34,43.7502L 24,33.7502L 24,44.2502L 38,58.2502L 52,44.2502L 52,33.7502L 42,43.7502L 42,19.0002 Z "/>
+                      <Setter TargetName="SortArrow" Property="Margin" Value="0 0 8 0"/>
+                      <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
+                    </Trigger>
+                    <Trigger Property="DisplayIndex" Value="0">
+                      <Setter TargetName="PART_LeftHeaderGripper" Property="Visibility" Value="Collapsed"/>
+                    </Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Style.Triggers>
+              <MultiTrigger>
+                <MultiTrigger.Conditions>
+                  <Condition Property="IsMouseOver" Value="True"/>
+                  <Condition Property="SortDirection" Value="{x:Null}"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Gray8}"/>
+              </MultiTrigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+              </Trigger>
+            </Style.Triggers>
+          </Style>
+        </DataGrid.Resources>
+        <DataGrid.ItemsSource>
+          <Binding Path="Items"/>
+        </DataGrid.ItemsSource>
+        <DataGrid.SelectedItem>
+          <Binding Path="SelectedItem"/>
+        </DataGrid.SelectedItem>
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="Id" Width="Auto" SortDirection="Ascending">
+            <DataGridTextColumn.Binding>
+              <Binding Path="Id"/>
+            </DataGridTextColumn.Binding>
+          </DataGridTextColumn>
+          <DataGridTextColumn Header="🔒" SortMemberPath="IsLocked" Width="Auto">
+            <DataGridTextColumn.Binding>
+              <Binding Path="IsLocked" Converter="{x:Static ammySidekick:ExpressionConverter.Instance}" ConverterParameter="&lt;expr id=&quot;2&quot;&gt;&lt;lambda isaction=&quot;False&quot;&gt;&lt;ternary&gt;&lt;parameter name=&quot;val&quot; type=&quot;System.Boolean&quot; /&gt;&lt;prim val=&quot;🔒&quot; isnull=&quot;False&quot;&gt;&lt;typeinfo typename=&quot;System.String&quot; isarray=&quot;False&quot;&gt;&lt;/typeinfo&gt;&lt;/prim&gt;&lt;prim val=&quot;&quot; isnull=&quot;False&quot;&gt;&lt;typeinfo typename=&quot;System.String&quot; isarray=&quot;False&quot;&gt;&lt;/typeinfo&gt;&lt;/prim&gt;&lt;/ternary&gt;&lt;parameter name=&quot;val&quot; type=&quot;System.Boolean&quot; /&gt;&lt;/lambda&gt;&lt;/expr&gt;"/>
+            </DataGridTextColumn.Binding>
+          </DataGridTextColumn>
+          <DataGridTextColumn Header="Name" Width="Auto">
+            <DataGridTextColumn.Binding>
+              <Binding Path="Name"/>
+            </DataGridTextColumn.Binding>
+          </DataGridTextColumn>
+          <DataGridTextColumn Header="Phone" Width="Auto">
+            <DataGridTextColumn.Binding>
+              <Binding Path="Phone"/>
+            </DataGridTextColumn.Binding>
+          </DataGridTextColumn>
+          <DataGridTextColumn Header="Email" Width="Auto">
+            <DataGridTextColumn.Binding>
+              <Binding Path="Email"/>
+            </DataGridTextColumn.Binding>
+          </DataGridTextColumn>
+          <DataGridTextColumn Header="Description" Width="Auto">
+            <DataGridTextColumn.Binding>
+              <Binding Path="Description"/>
+            </DataGridTextColumn.Binding>
+          </DataGridTextColumn>
+        </DataGrid.Columns>
+      </DataGrid>
+      <Grid Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="1">
+        <Grid.RowDefinitions>
+          <RowDefinition/>
+          <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid Row="0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid Row="0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Margin="5,0,0,0" VerticalAlignment="Center" Text="Roles" FontSize="20"/>
+            <StackPanel Orientation="Horizontal" Grid.Column="1">
+              <Button Width="32" Height="32" Style="{DynamicResource MahApps.Styles.Button.Circle}" Margin="0,0,5,0">
+                <ns0:PackIconModern Kind="Check" Height="16" Width="16"/>
+                <Button.Command>
+                  <Binding Path="ApplyRolesCommand"/>
+                </Button.Command>
+              </Button>
+              <Button Width="32" Height="32" Style="{DynamicResource MahApps.Styles.Button.Circle}" Margin="0,0,5,0">
+                <ns0:PackIconModern Kind="RefreshClockwiseUp" Height="16" Width="16"/>
+                <Button.Command>
+                  <Binding Path="ResetRolesCommand"/>
+                </Button.Command>
+              </Button>
+              <StackPanel.Style>
+                <Style TargetType="{x:Type StackPanel}">
+                  <Setter Property="Visibility" Value="Visible"/>
+                  <Setter Property="Opacity" Value="0"/>
+                  <Style.Triggers>
+                    <DataTrigger Value="True">
+                      <DataTrigger.EnterActions>
+                        <BeginStoryboard>
+                          <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.5"/>
+                          </Storyboard>
+                        </BeginStoryboard>
+                      </DataTrigger.EnterActions>
+                      <DataTrigger.ExitActions>
+                        <BeginStoryboard>
+                          <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.5"/>
+                          </Storyboard>
+                        </BeginStoryboard>
+                      </DataTrigger.ExitActions>
+                      <Setter Property="Opacity" Value="1"/>
+                      <DataTrigger.Binding>
+                        <Binding Path="IsChangedRoles"/>
+                      </DataTrigger.Binding>
+                    </DataTrigger>
+                    <Trigger Property="Opacity" Value="0">
+                      <Setter Property="Visibility" Value="Hidden"/>
+                    </Trigger>
+                  </Style.Triggers>
+                </Style>
+              </StackPanel.Style>
+            </StackPanel>
+          </Grid>
+          <TextBox Name="RolesFilter" Style="{StaticResource SearchTextBox}" ns2:TextBoxHelper.ClearTextButton="True" ns2:TextBoxHelper.Watermark="Search..." Grid.Row="1" Margin="5">
+            <ns2:TextBoxHelper.ButtonCommandParameter>
+              <Binding Path="Text" ElementName="RolesFilter"/>
+            </ns2:TextBoxHelper.ButtonCommandParameter>
+            <TextBox.InputBindings>
+              <KeyBinding Key="Return">
+                <KeyBinding.CommandParameter>
+                  <Binding Path="Text" ElementName="RolesFilter"/>
+                </KeyBinding.CommandParameter>
+                <KeyBinding.Command>
+                  <Binding Path="RolesFilterCommand" Mode="OneWay"/>
+                </KeyBinding.Command>
+              </KeyBinding>
+            </TextBox.InputBindings>
+            <ns2:TextBoxHelper.ButtonCommand>
+              <Binding Path="RolesFilterCommand" Mode="OneWay"/>
+            </ns2:TextBoxHelper.ButtonCommand>
+          </TextBox>
+          <ListBox Grid.Row="2">
+            <ListBox.Resources>
+              <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                <Setter Property="Focusable" Value="False"/>
+              </Style>
+            </ListBox.Resources>
+            <ListBox.ItemsSource>
+              <Binding Path="SelectedUserRoles"/>
+            </ListBox.ItemsSource>
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <Grid>
+                  <ns1:ToggleButtonEx HorizontalContentAlignment="Left" Style="{StaticResource MetroToggleButtonRole}">
+                    <ns1:ToggleButtonEx.Content>
+                      <Binding Path="Item.Name"/>
+                    </ns1:ToggleButtonEx.Content>
+                    <ns1:ToggleButtonEx.IsChecked>
+                      <Binding Path="IsSelected" Mode="OneWay"/>
+                    </ns1:ToggleButtonEx.IsChecked>
+                    <ns1:ToggleButtonEx.CommandParameter>
+                      <Binding/>
+                    </ns1:ToggleButtonEx.CommandParameter>
+                    <ns1:ToggleButtonEx.Opacity>
+                      <Binding Path="Percent" Mode="OneWay"/>
+                    </ns1:ToggleButtonEx.Opacity>
+                    <ns1:ToggleButtonEx.Command>
+                      <Binding Path="Data.RoleCheckedCommand" Source="{StaticResource Proxy}"/>
+                    </ns1:ToggleButtonEx.Command>
+                  </ns1:ToggleButtonEx>
+                  <Border Padding="5, 1, 5, 2" Background="Gray" CornerRadius="5" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="8" Foreground="White">
+                      <TextBlock.Text>
+                        <Binding Path="AmountString"/>
+                      </TextBlock.Text>
+                    </TextBlock>
+                    <Border.Visibility>
+                      <Binding Path="AmountString" Converter="{x:Static ammySidekick:ExpressionConverter.Instance}" ConverterParameter="&lt;expr id=&quot;0&quot;&gt;&lt;lambda isaction=&quot;False&quot;&gt;&lt;ternary&gt;&lt;staticcall method=&quot;IsNullOrEmpty&quot;&gt;&lt;typeinfo typename=&quot;System.String&quot; isarray=&quot;False&quot;&gt;&lt;/typeinfo&gt;&lt;parameter name=&quot;val&quot; type=&quot;System.String&quot; /&gt;&lt;/staticcall&gt;&lt;prim val=&quot;System.Windows.Visibility.Collapsed&quot; isnull=&quot;False&quot;&gt;&lt;typeinfo typename=&quot;System.Windows.Visibility&quot; isarray=&quot;False&quot;&gt;&lt;/typeinfo&gt;&lt;/prim&gt;&lt;prim val=&quot;System.Windows.Visibility.Visible&quot; isnull=&quot;False&quot;&gt;&lt;typeinfo typename=&quot;System.Windows.Visibility&quot; isarray=&quot;False&quot;&gt;&lt;/typeinfo&gt;&lt;/prim&gt;&lt;/ternary&gt;&lt;parameter name=&quot;val&quot; type=&quot;System.String&quot; /&gt;&lt;/lambda&gt;&lt;/expr&gt;"/>
+                    </Border.Visibility>
+                  </Border>
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </Grid>
+        <Grid Row="1" Margin="0,5,0,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid Row="0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Margin="5,0,0,0" VerticalAlignment="Center" Text="Permissions" FontSize="20"/>
+            <StackPanel Orientation="Horizontal" Grid.Column="1">
+              <Button Width="32" Height="32" Style="{DynamicResource MahApps.Styles.Button.Circle}" Margin="0,0,5,0">
+                <ns0:PackIconModern Kind="Check" Height="16" Width="16"/>
+                <Button.Command>
+                  <Binding Path="ApplyPermissionsCommand"/>
+                </Button.Command>
+              </Button>
+              <Button Width="32" Height="32" Style="{DynamicResource MahApps.Styles.Button.Circle}" Margin="0,0,5,0">
+                <ns0:PackIconModern Kind="RefreshClockwiseUp" Height="16" Width="16"/>
+                <Button.Command>
+                  <Binding Path="ResetPermissionsCommand"/>
+                </Button.Command>
+              </Button>
+              <StackPanel.Style>
+                <Style TargetType="{x:Type StackPanel}">
+                  <Setter Property="Visibility" Value="Visible"/>
+                  <Setter Property="Opacity" Value="0"/>
+                  <Style.Triggers>
+                    <DataTrigger Value="True">
+                      <DataTrigger.EnterActions>
+                        <BeginStoryboard>
+                          <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.5"/>
+                          </Storyboard>
+                        </BeginStoryboard>
+                      </DataTrigger.EnterActions>
+                      <DataTrigger.ExitActions>
+                        <BeginStoryboard>
+                          <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.5"/>
+                          </Storyboard>
+                        </BeginStoryboard>
+                      </DataTrigger.ExitActions>
+                      <Setter Property="Opacity" Value="1"/>
+                      <DataTrigger.Binding>
+                        <Binding Path="IsChangedPermissions"/>
+                      </DataTrigger.Binding>
+                    </DataTrigger>
+                    <Trigger Property="Opacity" Value="0">
+                      <Setter Property="Visibility" Value="Hidden"/>
+                    </Trigger>
+                  </Style.Triggers>
+                </Style>
+              </StackPanel.Style>
+            </StackPanel>
+          </Grid>
+          <TextBox Name="PermissionsFilter" Style="{StaticResource SearchTextBox}" ns2:TextBoxHelper.ClearTextButton="True" ns2:TextBoxHelper.Watermark="Search..." Grid.Row="1" Margin="5">
+            <ns2:TextBoxHelper.ButtonCommandParameter>
+              <Binding Path="Text" ElementName="PermissionsFilter"/>
+            </ns2:TextBoxHelper.ButtonCommandParameter>
+            <TextBox.InputBindings>
+              <KeyBinding Key="Return">
+                <KeyBinding.CommandParameter>
+                  <Binding Path="Text" ElementName="PermissionsFilter"/>
+                </KeyBinding.CommandParameter>
+                <KeyBinding.Command>
+                  <Binding Path="PermissionsFilterCommand" Mode="OneWay"/>
+                </KeyBinding.Command>
+              </KeyBinding>
+            </TextBox.InputBindings>
+            <ns2:TextBoxHelper.ButtonCommand>
+              <Binding Path="PermissionsFilterCommand" Mode="OneWay"/>
+            </ns2:TextBoxHelper.ButtonCommand>
+          </TextBox>
+          <ListBox Grid.Row="2">
+            <ListBox.Resources>
+              <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                <Setter Property="Focusable" Value="False"/>
+              </Style>
+            </ListBox.Resources>
+            <ListBox.ItemsSource>
+              <Binding Path="SelectedItemPermissions"/>
+            </ListBox.ItemsSource>
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <Grid>
+                  <ns1:ToggleButtonEx HorizontalContentAlignment="Left" Style="{StaticResource MetroToggleButtonPermission}">
+                    <ns1:ToggleButtonEx.Content>
+                      <Binding Path="Item.Name"/>
+                    </ns1:ToggleButtonEx.Content>
+                    <ns1:ToggleButtonEx.IsChecked>
+                      <Binding Path="IsSelected" Mode="OneWay"/>
+                    </ns1:ToggleButtonEx.IsChecked>
+                    <ns1:ToggleButtonEx.CommandParameter>
+                      <Binding/>
+                    </ns1:ToggleButtonEx.CommandParameter>
+                    <ns1:ToggleButtonEx.Opacity>
+                      <Binding Path="Percent" Mode="OneWay"/>
+                    </ns1:ToggleButtonEx.Opacity>
+                    <ns1:ToggleButtonEx.Command>
+                      <Binding Path="Data.PermissionCheckedCommand" Source="{StaticResource Proxy}"/>
+                    </ns1:ToggleButtonEx.Command>
+                  </ns1:ToggleButtonEx>
+                  <Border Padding="5, 1, 5, 2" Background="Gray" CornerRadius="5" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="8" Foreground="White">
+                      <TextBlock.Text>
+                        <Binding Path="AmountString"/>
+                      </TextBlock.Text>
+                    </TextBlock>
+                    <Border.Visibility>
+                      <Binding Path="AmountString" Converter="{x:Static ammySidekick:ExpressionConverter.Instance}" ConverterParameter="&lt;expr id=&quot;0&quot;&gt;&lt;lambda isaction=&quot;False&quot;&gt;&lt;ternary&gt;&lt;staticcall method=&quot;IsNullOrEmpty&quot;&gt;&lt;typeinfo typename=&quot;System.String&quot; isarray=&quot;False&quot;&gt;&lt;/typeinfo&gt;&lt;parameter name=&quot;val&quot; type=&quot;System.String&quot; /&gt;&lt;/staticcall&gt;&lt;prim val=&quot;System.Windows.Visibility.Collapsed&quot; isnull=&quot;False&quot;&gt;&lt;typeinfo typename=&quot;System.Windows.Visibility&quot; isarray=&quot;False&quot;&gt;&lt;/typeinfo&gt;&lt;/prim&gt;&lt;prim val=&quot;System.Windows.Visibility.Visible&quot; isnull=&quot;False&quot;&gt;&lt;typeinfo typename=&quot;System.Windows.Visibility&quot; isarray=&quot;False&quot;&gt;&lt;/typeinfo&gt;&lt;/prim&gt;&lt;/ternary&gt;&lt;parameter name=&quot;val&quot; type=&quot;System.String&quot; /&gt;&lt;/lambda&gt;&lt;/expr&gt;"/>
+                    </Border.Visibility>
+                  </Border>
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </Grid>
+      </Grid>
+    </Grid>
+    <ns2:FlyoutsControl>
+      <ns2:Flyout x:Name="FlyoutCreate" Position="Right" Width="300" Theme="Adapt" Header="Add User">
+        <ns2:Flyout.IsOpen>
+          <Binding Path="IsCreateFlyoutOpen"/>
+        </ns2:Flyout.IsOpen>
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <ns2:MetroTabControl Grid.Row="0" ns2:TabControlHelper.Underlined="TabPanel" TabStripPlacement="Top">
+            <ns2:MetroTabControl.SelectedIndex>
+              <Binding Path="ForceCreateUserMode"/>
+            </ns2:MetroTabControl.SelectedIndex>
+            <ns2:MetroTabItem ns2:HeaderedControlHelper.HeaderFontSize="18" Header="Phone">
+              <StackPanel>
+                <TextBox Margin="5 5 5 0" ns2:TextBoxHelper.Watermark="Phone" ns2:TextBoxHelper.UseFloatingWatermark="True" ns2:TextBoxHelper.ClearTextButton="True">
+                  <TextBox.Text>
+                    <Binding Path="Phone"/>
+                  </TextBox.Text>
+                </TextBox>
+                <TextBox Margin="5 5 5 0" ns2:TextBoxHelper.Watermark="Name" ns2:TextBoxHelper.UseFloatingWatermark="True" ns2:TextBoxHelper.ClearTextButton="True">
+                  <TextBox.Text>
+                    <Binding Path="Name"/>
+                  </TextBox.Text>
+                </TextBox>
+                <CheckBox x:Name="CheckBox_BlockSmsSend" Margin="5 15 5 5">
+                  <CheckBox.IsChecked>
+                    <Binding Path="BlockSmsSend"/>
+                  </CheckBox.IsChecked>Block Sms Send
+                </CheckBox>
+                <StackPanel>
+                  <StackPanel.Visibility>
+                    <Binding Path="IsChecked" ElementName="CheckBox_BlockSmsSend" Converter="{x:Static ammySidekick:ExpressionConverter.Instance}" ConverterParameter="&lt;expr id=&quot;3&quot;&gt;&lt;lambda isaction=&quot;False&quot;&gt;&lt;ternary&gt;&lt;parameter name=&quot;val&quot; type=&quot;System.Boolean&quot; /&gt;&lt;prim val=&quot;System.Windows.Visibility.Collapsed&quot; isnull=&quot;False&quot;&gt;&lt;typeinfo typename=&quot;System.Windows.Visibility&quot; isarray=&quot;False&quot;&gt;&lt;/typeinfo&gt;&lt;/prim&gt;&lt;prim val=&quot;System.Windows.Visibility.Visible&quot; isnull=&quot;False&quot;&gt;&lt;typeinfo typename=&quot;System.Windows.Visibility&quot; isarray=&quot;False&quot;&gt;&lt;/typeinfo&gt;&lt;/prim&gt;&lt;/ternary&gt;&lt;parameter name=&quot;val&quot; type=&quot;System.Boolean&quot; /&gt;&lt;/lambda&gt;&lt;/expr&gt;"/>
+                  </StackPanel.Visibility>
+                  <ComboBox Margin="5 5 5 0" ns2:TextBoxHelper.Watermark="Locale" ns2:TextBoxHelper.UseFloatingWatermark="True">
+                    <ComboBox.ItemsSource>
+                      <Binding Path="Locales"/>
+                    </ComboBox.ItemsSource>
+                    <ComboBox.SelectedItem>
+                      <Binding Path="Locale"/>
+                    </ComboBox.SelectedItem>
+                  </ComboBox>
+                  <TextBox Margin="5 5 5 0" ns2:TextBoxHelper.Watermark="Custom Sms Template" ns2:TextBoxHelper.UseFloatingWatermark="True" TextWrapping="Wrap" AcceptsReturn="True" MaxHeight="100">
+                    <TextBox.Text>
+                      <Binding Path="CustomSmsTemplate"/>
+                    </TextBox.Text>
+                  </TextBox>
+                </StackPanel>
+              </StackPanel>
+            </ns2:MetroTabItem>
+            <ns2:MetroTabItem Header="Email" ns2:HeaderedControlHelper.HeaderFontSize="18">
+              <StackPanel>
+                <TextBox Margin="5 5 5 0" ns2:TextBoxHelper.Watermark="Email" ns2:TextBoxHelper.UseFloatingWatermark="True" ns2:TextBoxHelper.ClearTextButton="True">
+                  <TextBox.Text>
+                    <Binding Path="Email"/>
+                  </TextBox.Text>
+                </TextBox>
+                <TextBox Margin="5 5 5 0" ns2:TextBoxHelper.Watermark="Name" ns2:TextBoxHelper.UseFloatingWatermark="True" ns2:TextBoxHelper.ClearTextButton="True">
+                  <TextBox.Text>
+                    <Binding Path="Name"/>
+                  </TextBox.Text>
+                </TextBox>
+                <CheckBox x:Name="CheckBox_BlockEmailSend" Margin="5 15 5 5">
+                  <CheckBox.IsChecked>
+                    <Binding Path="BlockEmailSend"/>
+                  </CheckBox.IsChecked>Block Email Send
+                </CheckBox>
+                <StackPanel>
+                  <StackPanel.Visibility>
+                    <Binding Path="IsChecked" ElementName="CheckBox_BlockEmailSend" Converter="{x:Static ammySidekick:ExpressionConverter.Instance}" ConverterParameter="&lt;expr id=&quot;3&quot;&gt;&lt;lambda isaction=&quot;False&quot;&gt;&lt;ternary&gt;&lt;parameter name=&quot;val&quot; type=&quot;System.Boolean&quot; /&gt;&lt;prim val=&quot;System.Windows.Visibility.Collapsed&quot; isnull=&quot;False&quot;&gt;&lt;typeinfo typename=&quot;System.Windows.Visibility&quot; isarray=&quot;False&quot;&gt;&lt;/typeinfo&gt;&lt;/prim&gt;&lt;prim val=&quot;System.Windows.Visibility.Visible&quot; isnull=&quot;False&quot;&gt;&lt;typeinfo typename=&quot;System.Windows.Visibility&quot; isarray=&quot;False&quot;&gt;&lt;/typeinfo&gt;&lt;/prim&gt;&lt;/ternary&gt;&lt;parameter name=&quot;val&quot; type=&quot;System.Boolean&quot; /&gt;&lt;/lambda&gt;&lt;/expr&gt;"/>
+                  </StackPanel.Visibility>
+                  <ComboBox Margin="5 5 5 0" ns2:TextBoxHelper.Watermark="Locale" ns2:TextBoxHelper.UseFloatingWatermark="True">
+                    <ComboBox.ItemsSource>
+                      <Binding Path="Locales"/>
+                    </ComboBox.ItemsSource>
+                    <ComboBox.SelectedItem>
+                      <Binding Path="Locale"/>
+                    </ComboBox.SelectedItem>
+                  </ComboBox>
+                  <TextBox Margin="5 5 5 0" ns2:TextBoxHelper.Watermark="Custom Email Subject Template" ns2:TextBoxHelper.UseFloatingWatermark="True" TextWrapping="Wrap" AcceptsReturn="True" MaxHeight="100">
+                    <TextBox.Text>
+                      <Binding Path="CustomEmailSubjectTemplates"/>
+                    </TextBox.Text>
+                  </TextBox>
+                  <TextBox Margin="5 5 5 0" ns2:TextBoxHelper.Watermark="Custom Email Template" ns2:TextBoxHelper.UseFloatingWatermark="True" TextWrapping="Wrap" AcceptsReturn="True" MaxHeight="100">
+                    <TextBox.Text>
+                      <Binding Path="CustomEmailTemplate"/>
+                    </TextBox.Text>
+                  </TextBox>
+                </StackPanel>
+              </StackPanel>
+            </ns2:MetroTabItem>
+          </ns2:MetroTabControl>
+          <StackPanel Grid.Row="1" Margin="0,5,0,0">
+            <Separator Margin="5"/>
+            <ComboBox Margin="5 5 5 0" ns2:TextBoxHelper.Watermark="Environment" ns2:TextBoxHelper.UseFloatingWatermark="True" SelectedIndex="0" DisplayMemberPath="Name">
+              <ComboBox.ItemsSource>
+                <Binding Path="Environments"/>
+              </ComboBox.ItemsSource>
+              <ComboBox.SelectedValue>
+                <Binding Path="Environment"/>
+              </ComboBox.SelectedValue>
+            </ComboBox>
+          </StackPanel>
+          <ns2:MetroHeader Grid.Row="2" Margin="10,10,10,0" Header="Roles">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <TextBox Name="ForceCreateUserRolesFilter" Style="{StaticResource SearchTextBox}" ns2:TextBoxHelper.ClearTextButton="True" ns2:TextBoxHelper.Watermark="Search..." Grid.Row="0" Margin="5">
+                <ns2:TextBoxHelper.ButtonCommandParameter>
+                  <Binding Path="Text" ElementName="ForceCreateUserRolesFilter"/>
+                </ns2:TextBoxHelper.ButtonCommandParameter>
+                <TextBox.InputBindings>
+                  <KeyBinding Key="Return">
+                    <KeyBinding.CommandParameter>
+                      <Binding Path="Text" ElementName="ForceCreateUserRolesFilter"/>
+                    </KeyBinding.CommandParameter>
+                    <KeyBinding.Command>
+                      <Binding Path="ForceCreateUserRolesFilterCommand" Mode="OneWay"/>
+                    </KeyBinding.Command>
+                  </KeyBinding>
+                </TextBox.InputBindings>
+                <ns2:TextBoxHelper.ButtonCommand>
+                  <Binding Path="ForceCreateUserRolesFilterCommand" Mode="OneWay"/>
+                </ns2:TextBoxHelper.ButtonCommand>
+              </TextBox>
+              <ListBox Grid.Row="1">
+                <ListBox.Resources>
+                  <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                    <Setter Property="Focusable" Value="False"/>
+                  </Style>
+                </ListBox.Resources>
+                <ListBox.ItemsSource>
+                  <Binding Path="ForceCreateUserRoles"/>
+                </ListBox.ItemsSource>
+                <ListBox.ItemTemplate>
+                  <DataTemplate>
+                    <ToggleButton Style="{StaticResource MetroToggleButtonRole}">
+                      <ToggleButton.Content>
+                        <Binding Path="Role.Name"/>
+                      </ToggleButton.Content>
+                      <ToggleButton.IsChecked>
+                        <Binding Path="IsSelected"/>
+                      </ToggleButton.IsChecked>
+                    </ToggleButton>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+            </Grid>
+          </ns2:MetroHeader>
+          <Button Margin="5 15 5 0" Command="{Binding CreateCommand}" Content="Create" Grid.Row="3"/>
+        </Grid>
+      </ns2:Flyout>
+      <ns2:Flyout x:Name="FlyoutEdit" Position="Right" Width="300" Theme="Adapt" Header="Edit">
+        <ns2:Flyout.IsOpen>
+          <Binding Path="IsEditFlyoutOpen"/>
+        </ns2:Flyout.IsOpen>
+        <StackPanel>
+          <TextBox Margin="5 5 5 0" ns2:TextBoxHelper.Watermark="Name" ns2:TextBoxHelper.UseFloatingWatermark="True" ns2:TextBoxHelper.ClearTextButton="True">
+            <TextBox.Text>
+              <Binding Path="EditViewModel.Name"/>
+            </TextBox.Text>
+          </TextBox>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Margin="5 5 5 0" ns2:TextBoxHelper.Watermark="Phone" ns2:TextBoxHelper.UseFloatingWatermark="True" ns2:TextBoxHelper.ClearTextButton="False" Grid.Column="0" IsReadOnly="True">
+              <TextBox.Text>
+                <Binding Path="EditViewModel.Phone"/>
+              </TextBox.Text>
+            </TextBox>
+            <Button Width="24" Height="24" Style="{DynamicResource MahApps.Styles.Button.Circle}" Grid.Column="1" Margin="0,5,5,0">
+              <ns0:PackIconModern Kind="Edit" Height="12" Width="12"/>
+              <Button.Command>
+                <Binding Path="ForceChangePhoneCommand"/>
+              </Button.Command>
+            </Button>
+          </Grid>
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Margin="5 5 5 0" ns2:TextBoxHelper.Watermark="Email" ns2:TextBoxHelper.UseFloatingWatermark="True" ns2:TextBoxHelper.ClearTextButton="False" Grid.Column="0" IsReadOnly="True">
+              <TextBox.Text>
+                <Binding Path="EditViewModel.Email"/>
+              </TextBox.Text>
+            </TextBox>
+            <Button Width="24" Height="24" Style="{DynamicResource MahApps.Styles.Button.Circle}" Grid.Column="1" Margin="0,5,5,0">
+              <ns0:PackIconModern Kind="Edit" Height="12" Width="12"/>
+              <Button.Command>
+                <Binding Path="ForceChangeEmailCommand"/>
+              </Button.Command>
+            </Button>
+          </Grid>
+          <TextBox Margin="5 5 5 0" ns2:TextBoxHelper.Watermark="Description" ns2:TextBoxHelper.UseFloatingWatermark="True" TextWrapping="Wrap" AcceptsReturn="True" MaxHeight="100">
+            <TextBox.Text>
+              <Binding Path="EditViewModel.Description"/>
+            </TextBox.Text>
+          </TextBox>
+          <Button Margin="5 15 5 0" Command="{Binding EditSelectedCommand}" Content="Apply"/>
+        </StackPanel>
+      </ns2:Flyout>
+    </ns2:FlyoutsControl>
+  </Grid>
+</ns1:ViewUserControl>
