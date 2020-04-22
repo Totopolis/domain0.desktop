@@ -13,7 +13,7 @@ namespace Domain0.Desktop.Config
         {
             _fileInfo = new FileInfo(Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                @"Domain0Desktop\app.config"));
+                @"Domain0.Desktop\app.config"));
             _fileInfo.Directory?.Create();
         }
 
