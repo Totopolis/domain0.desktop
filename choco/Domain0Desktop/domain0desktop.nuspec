@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>domain0desktop</id>
+    <version>$version$</version>
+    <title>Domain0 Desktop Client</title>
+    <authors>Totopolis</authors>
+    <owners>Totopolis</owners>
+    <licenseUrl>https://github.com/Totopolis/domain0.desktop/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/Totopolis/domain0.desktop</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>
+      Domain0 Desktop Client is an application for interaction with Domain0 service
+      Helps to manage users, roles, permission and other stuff
+    </description>
+    <summary>Desktop application to manage Doman0 entities</summary>
+    <releaseNotes>https://github.com/Totopolis/domain0.desktop/releases</releaseNotes>
+  </metadata>
+  <files>
+    <file src="..\..\Domain0.Desktop\Domain0.Desktop\bin\Release\netcoreapp3.1\win-x64\publish\**\*.*" target="" />
+    <file src="Domain0.Desktop.exe.gui" />
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
