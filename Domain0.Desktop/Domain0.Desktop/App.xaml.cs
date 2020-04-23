@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using Autofac;
+using Domain0.Api.Client;
 using Domain0.Desktop.Config;
 using Domain0.Desktop.Extensions;
 using Domain0.Desktop.Services;
@@ -12,6 +13,7 @@ using Monik.Common;
 using Ui.Wpf.Common;
 using Ui.Wpf.Common.DockingManagers;
 using Ui.Wpf.Common.ShowOptions;
+using Application = System.Windows.Application;
 
 namespace Domain0.Desktop
 {
@@ -60,8 +62,11 @@ namespace Domain0.Desktop
             var domain0 = shell.Container.Resolve<IDomain0Service>();
             var loginService = shell.Container.Resolve<ILoginService>();
 
-            if (loginService.IsLoggedIn)
+            if (config.HostUrl != null && loginService.IsLoggedIn)
+            {
+                shell.Container.Resolve<IAuthenticationContext>().HostUrl = config.HostUrl;
                 domain0.LoadModel();
+            }
             else
                 loginService.ShowLogin(() => domain0.LoadModel());
         }

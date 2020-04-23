@@ -48,6 +48,9 @@ namespace Domain0.Desktop.Services
 
         private async Task LoadModelInternal()
         {
+            // refresh token
+            await _authContext.Client.GetMyProfileAsync();
+
             var userProfilesTask = _authContext.Client
                 .GetAllUsersAsync();
             var initUserProfilesTask = CreateTaskInitCache(userProfilesTask, Model.UserProfiles);

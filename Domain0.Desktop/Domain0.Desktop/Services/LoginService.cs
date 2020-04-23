@@ -27,12 +27,6 @@ namespace Domain0.Desktop.Services
             _shell = shell;
             _domain0Context = domain0AuthenticationContext;
             _appConfigStorage = appConfigStorage;
-
-            var config = _appConfigStorage.Load();
-            if (config.HostUrl != null)
-            {
-                _domain0Context.HostUrl = config.HostUrl;
-            }
         }
 
         public void ShowLogin(Action onSuccess = null)
