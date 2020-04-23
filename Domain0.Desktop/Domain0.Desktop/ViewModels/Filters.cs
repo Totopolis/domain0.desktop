@@ -19,7 +19,7 @@ namespace Domain0.Desktop.ViewModels
                         continue;
 
                     var value = filter.Property.GetValue(model)?.ToString();
-                    if (string.IsNullOrEmpty(value) || !value.Contains(filter.Filter))
+                    if (string.IsNullOrEmpty(value) || !value.Contains(filter.Filter, StringComparison.InvariantCultureIgnoreCase))
                         return false;
                 }
 
@@ -33,7 +33,7 @@ namespace Domain0.Desktop.ViewModels
                 return role => true;
 
             return role => !string.IsNullOrEmpty(role.Name) &&
-                           role.Name.Contains(filter);
+                           role.Name.Contains(filter, StringComparison.InvariantCultureIgnoreCase);
         }
 
         public static Func<Permission, bool> CreatePermissionsPredicate(string filter)
@@ -42,7 +42,7 @@ namespace Domain0.Desktop.ViewModels
                 return permission => true;
 
             return permission => !string.IsNullOrEmpty(permission.Name) &&
-                                 permission.Name.Contains(filter);
+                                 permission.Name.Contains(filter, StringComparison.InvariantCultureIgnoreCase);
         }
 
         public static Func<MessageTemplate, bool> CreateEnvironmentPredicate(Environment filter)
