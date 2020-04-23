@@ -82,6 +82,10 @@
                           FocusVisualStyle="{DynamicResource MahApps.Styles.Button.FocusVisualStyle.Circle}"
                           DisplayMemberPath="Name"
                           Margin="10,0,0,10">
+        <ns1:DropDownButton.Resources>
+            <Ellipse x:Key="MenuIcon" x:Shared="False" Height="16" Width="16"
+                     Fill="{Binding ColorBrush}" />
+        </ns1:DropDownButton.Resources>
         <ns1:DropDownButton.ItemContainerStyle>
           <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
             <Setter Property="Command">
@@ -89,6 +93,7 @@
                 <Binding Path="ChangeAccentCommand"/>
               </Setter.Value>
             </Setter>
+            <Setter Property="Icon" Value="{StaticResource MenuIcon}"/>
           </Style>
         </ns1:DropDownButton.ItemContainerStyle>
         <ns1:DropDownButton.Icon>
@@ -99,13 +104,18 @@
           <Binding Path="AccentColors"/>
         </ns1:DropDownButton.ItemsSource>
       </ns1:DropDownButton>
-            <ns1:DropDownButton Width="32" Height="32" 
+      <ns1:DropDownButton Width="32" Height="32" 
                           ArrowVisibility="Collapsed"
                           BorderThickness="0"
                           ButtonStyle="{DynamicResource MahApps.Styles.Button.Circle}"
                           FocusVisualStyle="{DynamicResource MahApps.Styles.Button.FocusVisualStyle.Circle}"
                           DisplayMemberPath="Name"
                           Margin="10,0,0,10">
+          <ns1:DropDownButton.Resources>
+              <Ellipse x:Key="MenuIcon" x:Shared="False" Height="16" Width="16"
+                       Fill="{Binding ColorBrush}"
+                       Stroke="{Binding BorderColorBrush}"/>
+          </ns1:DropDownButton.Resources>
         <ns1:DropDownButton.ItemContainerStyle>
           <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
             <Setter Property="Command">
@@ -113,6 +123,7 @@
                 <Binding Path="ChangeAccentCommand"/>
               </Setter.Value>
             </Setter>
+            <Setter Property="Icon" Value="{StaticResource MenuIcon}"/>
           </Style>
         </ns1:DropDownButton.ItemContainerStyle>
         <ns1:DropDownButton.Icon>
